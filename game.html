@@ -19,8 +19,14 @@
     </header>
     <main>
         <h1>Play the Game!</h1>
+        <h2>Cards:</h2>
     </main>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
+    <script>
+        for(let i = 0; i < yourCards.length; i++) {
+            $("h2").after("<span>" + yourCards[i] + "</span>")
+        }
+    </script>
 </body>
 </html>
