@@ -25,7 +25,7 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
     <script>
-        for(let i = 0; i < yourCards.length; i++) {
+        for(i in yourCards) {
             $("#cardsHeader").after("<span>" + yourCards[i] + "</span>")
         }
         var counter = 1;
