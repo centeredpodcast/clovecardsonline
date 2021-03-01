@@ -30,7 +30,7 @@
         }
         var counter = 1;
         for(j in decks) {
-            $("#decksHeader").after("<h3>Deck "+counter+"</h3><span>" + Array(j).join(" ") + "</span>")
+            $("#decksHeader").after("<h3>Deck "+counter+"</h3><span>" + Array(decks[j]).join(" ") + "</span>")
             counter++
         }
     </script>
