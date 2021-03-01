@@ -8,4 +8,4 @@ const cards = {
 }; //This will eventually get all of the cards possible and their data!!
 let yourCards = ["name"]; //This will eventually be a list of all the cards you have.
 let activeDeck = 0; //Ths will eventually be the ID (if you will) of the deck that you are currently using.
-let decks = [["name"]]; //This will eventually be decks that you have.
+let decks = [["name"], ["name"]]; //This will eventually be decks that you have.
