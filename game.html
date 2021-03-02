@@ -21,18 +21,33 @@
         <h1>Play the Game!</h1>
         <h2 id="cardsHeader">Cards:</h2>
         <h2 id="decksHeader">Decks:</h2>
+        <span id="afterDecks" style="display: none;"></span>
     </main>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
     <script>
+        var precount = 1;
         for(i in yourCards) {
-            $("#cardsHeader").after("<span>" + yourCards[i] + "</span>")
+            $("#cardsHeader").after("<span class='card'>" + yourCards[i] + "</span><span id='" + precount + "' style='display: none;'></span>")
+            precount++
         }
         var counter = 1;
         for(j in decks) {
-            $("#decksHeader").after("<h3>Deck "+counter+"</h3><span>" + Array(decks[j]).join(" ") + "</span>")
+            $("#afterDecks").before("<h3>Deck "+counter+"</h3><span>" + Array(decks[j]).join(" ") + "</span>")
             counter++
         }
+        var strings;
+        for(k in (counter-1)) {
+            strings = strings + "<span class = 'deckings'>Deck " + (Number(k) + 1) + " "
+        }
+        $(".card").click(
+            $(this).next()
+                .css("display", "inline")
+                .html("Decks: " + strings)
+        )
+        $(".deckings").click(
+            decks[$(this).html().replace("Deck ", "")-1] = $(this).prev().html()
+        )
     </script>
 </body>
 </html>
