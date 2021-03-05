@@ -40,14 +40,14 @@
         for(k in (counter-1)) {
             strings = strings + "<span class = 'deckings'>Deck " + (Number(k) + 1) + " "
         }
-        $(".card").click(
+        $(".card").click(function(){
             $(this).next()
                 .css("display", "inline")
                 .html("Decks: " + strings)
-        )
-        $(".deckings").click(
+        })
+        $(".deckings").click(function(){
             decks[$(this).html().replace("Deck ", "")-1] = $(this).prev().html()
-        )
+        })
     </script>
 </body>
 </html>
