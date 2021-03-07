@@ -28,7 +28,7 @@
     <script>
         var precount = 1;
         for(i in yourCards) {
-            $("#cardsHeader").after("<span class='card'>" + yourCards[i] + "</span><span id='" + precount + "' style='display: none;'></span>")
+            $("#cardsHeader").after("<span class='card'>" + yourCards[i] + "</span><span id='" + precount + "' style='display: none;'></span> ")
             precount++
         }
         var counter = 1;
@@ -36,18 +36,20 @@
             $("#afterDecks").before("<h3>Deck "+counter+"</h3><span>" + Array(decks[j]).join(" ") + "</span>")
             counter++
         }
-        var strings;
-        for(k in (counter-1)) {
-            strings = strings + "<span class = 'deckings'>Deck " + (Number(k) + 1) + " "
+        var strings = [];
+        console.log(counter)
+        for(k = 0; k < (counter-1); k++) {
+            strings.push("<span class = 'deckings'>Deck " + (Number(k) + 1) + "</span>")
         }
         $(".card").click(function(){
             $(this).next()
                 .css("display", "inline")
-                .html("Decks: " + strings)
+                .html("Decks: " + strings.join(" | "))
         })
         $(".deckings").click(function(){
             decks[$(this).html().replace("Deck ", "")-1] = $(this).prev().html()
-        })
+        }) //This isn't working for some reason.
+        console.log(decks)
     </script>
 </body>
 </html>
