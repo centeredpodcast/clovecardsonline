@@ -18,6 +18,7 @@
         </nav>-->
     </header>
     <main>
+        <span class="deckings" style="display: none;"></span>
         <h1>Play the Game!</h1>
         <h2 id="cardsHeader">Cards:</h2>
         <h2 id="decksHeader">Decks:</h2>
@@ -39,16 +40,20 @@
         var strings = [];
         console.log(counter)
         for(k = 0; k < (counter-1); k++) {
-            strings.push("<span class = 'deckings'>Deck " + (Number(k) + 1) + "</span>")
+            strings.push('<span class = "deckings">Deck ' + (Number(k) + 1) + "</span>")
         }
         $(".card").click(function(){
             $(this).next()
-                .css("display", "inline")
+                .css("display", "block")
                 .html("Decks: " + strings.join(" | "))
+            $(".deckings").css("background", "red")
+            $(".deckings").click(function(){
+                console.log("hi")
+                decks.push($(this).parent().prev().html())
+                console.log("hi!")
+            }) //This is sort of working now.
         })
-        $(".deckings").click(function(){
-            decks[$(this).html().replace("Deck ", "")-1] = $(this).prev().html()
-        }) //This isn't working for some reason.
+        
         console.log(decks)
     </script>
 </body>
