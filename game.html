@@ -20,39 +20,59 @@
     <main>
         <span class="deckings" style="display: none;"></span>
         <h1>Play the Game!</h1>
-        <h2 id="cardsHeader">Cards:</h2>
-        <h2 id="decksHeader">Decks:</h2>
-        <span id="afterDecks" style="display: none;"></span>
+        <div id="clear">
+            <h2 id="cardsHeader">Cards:</h2>
+            <h2 id="decksHeader">Decks:</h2>
+            <span id="afterDecks" style="display: none;"></span>
+        </div>
     </main>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
     <script>
-        var precount = 1;
-        for(i in yourCards) {
-            $("#cardsHeader").after("<span class='card'>" + yourCards[i] + "</span><span id='" + precount + "' style='display: none;'></span> ")
-            precount++
-        }
-        var counter = 1;
-        for(j in decks) {
-            $("#afterDecks").before("<h3>Deck "+counter+"</h3><span>" + Array(decks[j]).join(" ") + "</span>")
-            counter++
-        }
-        var strings = [];
-        console.log(counter)
-        for(k = 0; k < (counter-1); k++) {
-            strings.push('<span class = "deckings">Deck ' + (Number(k) + 1) + "</span>")
-        }
-        $(".card").click(function(){
+        var strings;
+        function showDecks() {
+            $("#clear").html('<h2 id="cardsHeader">Cards:</h2><h2 id="decksHeader">Decks:</h2><span id="afterDecks" style="display: none;"></span>')
+            var precount = 1;
+            for(i in yourCards) {
+                $("#cardsHeader").after("<span class='card'>" + yourCards[i] + "</span><span id='" + precount + "' style='display: none;'></span> ")
+                precount++
+            }
+            var counter = 1;
+            for(j in decks) {
+                $("#afterDecks").before("<h3>Deck "+counter+"</h3><span>" + Array(decks[j]).join(" ") + "</span>")
+                counter++
+            }
+            strings = [];
+            console.log(counter)
+            for(k = 0; k < (counter-1); k++) {
+                strings.push('<span class = "deckings">Deck ' + (Number(k) + 1) + "</span>")
+            }
+            $(".card").click(function(){
+                $(this).next()
+                    .css("display", "block")
+                    .html("Decks: " + strings.join(" | "))
+                //$(".deckings").css("background", "red")
+                $(".deckings").click(function(){
+                    console.log("hi")
+                    decks[$(this).html().replace("Deck ", "")-1].push($(this).parent().prev().html())
+                    console.log("hi!")
+                    showDecks()
+                }) //This is sort of working now.
+            })
+            }
+        showDecks()
+        /*$(".card").click(function(){
             $(this).next()
                 .css("display", "block")
                 .html("Decks: " + strings.join(" | "))
-            $(".deckings").css("background", "red")
+            //$(".deckings").css("background", "red")
             $(".deckings").click(function(){
                 console.log("hi")
-                decks.push($(this).parent().prev().html())
+                decks[$(this).html().replace("Deck ", "")].push($(this).parent().prev().html())
                 console.log("hi!")
+                showDecks()
             }) //This is sort of working now.
-        })
+        })*/
         
         console.log(decks)
     </script>
