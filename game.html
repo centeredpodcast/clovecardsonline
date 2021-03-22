@@ -29,21 +29,32 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
     <script>
-        var strings;
+        var strings; //define strings as a global variable.
         function showDecks() {
-            $("#clear").html('<h2 id="cardsHeader">Cards:</h2><h2 id="decksHeader">Decks:</h2><span id="afterDecks" style="display: none;"></span>')
-            var precount = 1;
+            $("#clear").html('<h2 id="cardsHeader">Cards:</h2><h2 id="decksHeader">Decks:</h2><span id="afterDecks" style="display: none;"></span>') //clears the screen and readds the framework that should appear every time.
+            var precount = 1; //this is a precount. It goes up every time you run the for loop.
             for(i in yourCards) {
                 $("#cardsHeader").after("<span class='card'>" + yourCards[i] + "</span><span id='" + precount + "' style='display: none;'></span> ")
-                precount++
+                //This shows you all of your cards and then prepares a panel that asks which deck you want it to be in.
+                precount++ //increment precount.
             }
-            var counter = 1;
+            var counter = 1; //this is like another precount just different.
+            var otherCount = 1; //lol ^
             for(j in decks) {
-                $("#afterDecks").before("<h3>Deck "+counter+"</h3><span>" + Array(decks[j]).join(" ") + "</span>")
-                counter++
+                //console.log(Array(decks[j]))
+                //console.log(Array(decks[j]).join("</span><span id='deck"+counter+"''>"))
+                //$("#afterDecks").before("<h3>Deck "+counter+"</h3><span id='deck1'>" + Array(decks[j]).join("</span><span id='deck"+counter+"''>") + "</span>")
+                $("#afterDecks").before("<h3 id='deck" + j + "'>Deck "+counter+"</h3>") //this sets the titles for each deck.
+                for(k in decks[j]) { //this goes through the cards of each deck.
+                    $("#deck"+j).after("<span class='cardRemove'>" + decks[j][k] + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span> ")
+                    //This shows all the cards in that deck and prepares a panel that asks if you wish to remove it from that deck.
+                    otherCount++ //increment otherCount.
+                }
+                counter++ //increment counter.
             }
-            strings = [];
-            console.log(counter)
+            strings = []; //define strings as an array.
+            //console.log(counter)
+            //this is for the popup panel that shows when you click on a card to add it to a deck.
             for(k = 0; k < (counter-1); k++) {
                 strings.push('<span class = "deckings">Deck ' + (Number(k) + 1) + "</span>")
             }
