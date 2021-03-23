@@ -23,6 +23,7 @@
         <div id="clear">
             <h2 id="cardsHeader">Cards:</h2>
             <h2 id="decksHeader">Decks:</h2>
+            <button id="newDeckButton" style="display: block;">New Deck!</button>
             <span id="afterDecks" style="display: none;"></span>
         </div>
     </main>
@@ -35,7 +36,7 @@
                 decks[l]=decks[l].filter(function(el) { return el; })
             }
             
-            $("#clear").html('<h2 id="cardsHeader">Cards:</h2><h2 id="decksHeader">Decks:</h2><span id="afterDecks" style="display: none;"></span>') //clears the screen and readds the framework that should appear every time.
+            $("#clear").html('<h2 id="cardsHeader">Cards:</h2><h2 id="decksHeader">Decks:</h2><button id="newDeckButton" style="display: block;">New Deck!</button><span id="afterDecks" style="display: none;"></span>') //clears the screen and readds the framework that should appear every time.
             var precount = 1; //this is a precount. It goes up every time you run the for loop.
             for(i in yourCards) {
                 $("#cardsHeader").after("<span class='card'>" + yourCards[i] + "</span><span id='" + precount + "' style='display: none;'></span> ")
@@ -48,7 +49,7 @@
                 //console.log(Array(decks[j]))
                 //console.log(Array(decks[j]).join("</span><span id='deck"+counter+"''>"))
                 //$("#afterDecks").before("<h3>Deck "+counter+"</h3><span id='deck1'>" + Array(decks[j]).join("</span><span id='deck"+counter+"''>") + "</span>")
-                $("#afterDecks").before("<h3 id='deck" + j + "'>Deck "+counter+"</h3><div id='deck" + j + "div'></div>") //this sets the titles for each deck.
+                $("#afterDecks").before("<h3 id='deck" + j + "' style='display: inline;'>Deck "+counter+"</h3><button class='removeDeckButton' style='display: inline;'>Delete Deck</button><span class='youSure' style='display: none;'>Are you sure? <span class='theyChoseYes'>Yes</span> | <span class='theyChoseNo'>No</span></span><div id='deck" + j + "div'></div>") //this sets the titles for each deck.
                 for(k in decks[j]) { //this goes through the cards of each deck.
                     $("#deck"+j+"div").append("<span class='cardRemove "+k+"'>" + decks[j][k] + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span> ")
                     //This shows all the cards in that deck and prepares a panel that asks if you wish to remove it from that deck.
@@ -84,11 +85,26 @@
                     showDecks()
                 }) //This is sort of working now.
                 $(".yesChoice").click(function(){
-                    decks[$(this).parent().parent().attr('id').replace("deck", "").replace("div", "")].splice($(this).parent().prev().attr("class").replace("cardRemove", "").replace(" ", ""), 1)
+                    decks[$(this).parent().parent().attr('id').replace("deck", "").replace("div", "")].splice($(this).parent().prev().attr("class").replace("cardRemove", "").replace(" ", ""), 1) //preved in the wrong spot- removing wrong element from array.
                     showDecks()
                 })
             })
-            }
+            $("#newDeckButton").click(function(){
+                decks.push([])
+                showDecks()
+                console.log("hello")
+            })
+            $(".removeDeckButton").click(function(){
+                $(this).next().css("display", "block")
+                $(".theyChoseYes").click(function(){
+                    decks.splice($(this).parent().prev().prev().attr("id").replace("deck", ""), 1)
+                    showDecks()
+                })
+                $(".theyChoseNo").click(function(){
+                    showDecks()
+                })
+            })
+        }
         showDecks()
         /*$(".card").click(function(){
             $(this).next()
