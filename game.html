@@ -66,13 +66,34 @@
             $(".card").click(function(){
                 $(this).next()
                     .css("display", "block")
-                    .html("Decks: " + strings.join(" | "))
+                    .html("Decks: " + strings.join(" | ") + " | <span class='close'>Close</span>")
                 //$(".deckings").css("background", "red")
+                $(".close").click(function(){
+                    showDecks();
+                })
                 $(".deckings").click(function(){
                     //console.log("hi")
-                    decks[$(this).html().replace("Deck ", "")-1].push($(this).parent().prev().html())
-                    //console.log("hi!")
-                    showDecks()
+                    //const letters = ["a", "b", "c", "a", "b", "c", "a", "b"];
+                    let count1 = {};
+                    let count2 = {};
+                    console.log($(this).html().startsWith("Deck"))
+                    if($(this).html().startsWith("Deck")) {
+                        console.log($(this).html().replace("Deck ", "")-1)
+                        decks[$(this).html().replace("Deck ", "")-1].forEach(e => count1[e] ? count1[e]++ : count1[e] = 1 );
+                        yourCards.forEach(e => count2[e] ? count2[e]++ : count2[e] = 1 );
+                        console.log(count1)
+                        console.log(count2)
+                        console.log($(this).parent().prev().html())
+                        if(count1[$(this).parent().prev().html()]>=count2[$(this).parent().prev().html()]) {
+                            $(this).html("You don't have enough of this card to add it to that deck!")
+                        } else{
+                            //console.log(count)
+                            decks[$(this).html().replace("Deck ", "")-1].push($(this).parent().prev().html())
+                            //console.log("hi!")
+                            showDecks()
+                        }
+                    }
+                    
                 }) //This is sort of working now.
             })
             $(".cardRemove").click(function(){
