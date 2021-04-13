@@ -31,7 +31,66 @@
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
     <script>
         var strings; //define strings as a global variable.
-        function showDecks() {
+        var yourCards = yourCardsData;
+        var activeDeck = activeDeckData;
+        var decks = decksData;
+        function updateStorage() {
+            if(!localStorage.yourCards) {
+                localStorage.setItem("yourCards", JSON.stringify(yourCards))
+            } else {
+                localStorage.yourCards = JSON.stringify(yourCards)
+            }
+            if(!localStorage.activeDeck) {
+                localStorage.setItem("activeDeck", JSON.stringify(activeDeck))
+            } else {
+                localStorage.activeDeck = JSON.stringify(activeDeck)
+            }
+            if(!localStorage.decks) {
+                localStorage.setItem("decks", JSON.stringify(decks))
+            } else {
+                console.log(JSON.stringify(decks))
+                localStorage.decks = JSON.stringify(decks)
+                console.log("what?")
+            }
+        }
+        function showDecks(first) {
+            /*localStorage.removeItem("yourCards")
+            localStorage.removeItem("activeDeck")
+            localStorage.removeItem("decks")*/
+            if(!localStorage.yourCards) {
+                localStorage.setItem("yourCards", JSON.stringify(yourCards))
+            } else {
+                //yourCards = localStorage.yourCards
+                if(!first) localStorage.yourCards = JSON.stringify(yourCards)
+            }
+            if(!localStorage.activeDeck) {
+                
+                localStorage.setItem("activeDeck", JSON.stringify(activeDeck))
+            } else {
+                //activeDecks = localStorage.activeDecks
+                if(!first) localStorage.activeDeck = JSON.stringify(activeDeck)
+            }
+            if(!localStorage.decks) {
+                localStorage.setItem("decks", JSON.stringify(decks))
+            } else {
+                console.log(JSON.stringify(decks))
+                //decks = localStorage.decks
+                if(!first) localStorage.decks = JSON.stringify(decks)
+                console.log("what?")
+            }
+            if(localStorage.yourCards) {
+                console.log("hello")
+                yourCards = JSON.parse(localStorage.yourCards)
+            }
+            if(localStorage.activeDeck) {
+                console.log("what")
+                activeDeck = JSON.parse(localStorage.activeDeck)
+            }
+            if(localStorage.decks) {
+                console.log("de c k s")
+                decks = JSON.parse(localStorage.decks)
+            }
+            
             for(l in decks) {
                 decks[l]=decks[l].filter(function(el) { return el; })
             }
@@ -72,18 +131,16 @@
                     showDecks();
                 })
                 $(".deckings").click(function(){
-                    //console.log("hi")
-                    //const letters = ["a", "b", "c", "a", "b", "c", "a", "b"];
                     let count1 = {};
                     let count2 = {};
-                    console.log($(this).html().startsWith("Deck"))
+                    //console.log($(this).html().startsWith("Deck"))
                     if($(this).html().startsWith("Deck")) {
-                        console.log($(this).html().replace("Deck ", "")-1)
+                        //console.log($(this).html().replace("Deck ", "")-1)
                         decks[$(this).html().replace("Deck ", "")-1].forEach(e => count1[e] ? count1[e]++ : count1[e] = 1 );
                         yourCards.forEach(e => count2[e] ? count2[e]++ : count2[e] = 1 );
-                        console.log(count1)
-                        console.log(count2)
-                        console.log($(this).parent().prev().html())
+                        //console.log(count1)
+                        //console.log(count2)
+                        //console.log($(this).parent().prev().html())
                         if(count1[$(this).parent().prev().html()]>=count2[$(this).parent().prev().html()]) {
                             $(this).html("You don't have enough of this card to add it to that deck!")
                         } else{
@@ -96,13 +153,21 @@
                     
                 }) //This is sort of working now.
             })
+            $("#deck"+activeDeck).after($("<span class='activeDeck'> - <i>Active Deck</i></span>"))
+            for(let m in decks) {
+                if(m != activeDeck) {
+                    $("#deck"+m).after($("<button class='activeDeckButton' style='display: inline;'>Set as Active Deck</button>"))
+                }
+            }
+            $(".activeDeckButton").click(function(){
+                activeDeck = $(this).prev().attr("id").replace("deck", "")
+                showDecks();
+            })
             $(".cardRemove").click(function(){
                 $(this).next()
                     .css("display", "block")
                 //$(".deckings").css("background", "red")
                 $(".noChoice").click(function(){
-                    //console.log("hi")
-                    //console.log("hi!")
                     showDecks()
                 }) //This is sort of working now.
                 $(".yesChoice").click(function(){
@@ -118,15 +183,20 @@
             $(".removeDeckButton").click(function(){
                 $(this).next().css("display", "block")
                 $(".theyChoseYes").click(function(){
-                    decks.splice($(this).parent().prev().prev().attr("id").replace("deck", ""), 1)
+                    decks.splice($(this).parent().prev().prev().prev().attr("id").replace("deck", ""), 1)
+                    activeDeck = 0;
                     showDecks()
                 })
                 $(".theyChoseNo").click(function(){
                     showDecks()
                 })
             })
+            /* console.log(yourCards)
+            console.log(activeDeck)
+            console.log(decks) */
+            console.log("it is finished.")
         }
-        showDecks()
+        showDecks(true);
         /*$(".card").click(function(){
             $(this).next()
                 .css("display", "block")
