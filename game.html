@@ -30,8 +30,6 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
     <script>
-        //Make it say Card Name x<however many of that card you have> (besides x1) for each card (e.g. lol x5) and split each card with a | which is unclickable.
-        var strings; //define strings as a global variable.
         function showDecks(first) {
             //This function loads when the page first loads in and when you click on something that needs to reload the decks/cards!
             if(!localStorage.yourCards) {
@@ -62,18 +60,47 @@
                 //If decks is in the storage, update it to what the storage has.
                 decks = JSON.parse(localStorage.decks)
             }
+
+            /**
+             * Do before anything dynamic section!
+             **/
             for(l in decks) {
                 //Get rid of all null values in decks!
                 decks[l]=decks[l].filter(function(el) { return el; })
             }
             //clears the screen and readds the framework that should appear every time.
             $("#clear").html('<h2 id="cardsHeader">Cards:</h2><h2 id="decksHeader">Decks:</h2><button id="newDeckButton" style="display: block;">New Deck!</button><span id="afterDecks" style="display: none;"></span>') 
+
+            /**
+             * Show the cards you have!
+             **/
             var precount = 1; //this is a precount. It goes up every time you run the for loop.
-            for(i in yourCards) {
-                $("#cardsHeader").after("<span class='card'>" + yourCards[i] + "</span><span id='" + precount + "' style='display: none;'></span> ")
-                //This shows you all of your cards and then prepares a panel that asks which deck you want it to be in.
+            let count2 = {};
+            //define count2, which counts how many of one card you have.
+            yourCards.forEach(e => count2[e] ? count2[e]++ : count2[e] = 1 );
+            //count how many of each card you have
+            let arrayOfCards = [];
+            //define the array that will contain the html displayed in the your cards section.
+            for(let i in count2) { //for every unique card,
+                if(count2[i]===1) { //If there's one of the card
+                    //Just push the name of the card and an empty element after.
+                    arrayOfCards.push("<span class='card'>" + i + "</span><span id='" + precount + "' style='display: none;'></span>")
+                }
+                if(count2[i]>1) { //If there's more than one of the card
+                    arrayOfCards.push("<span class='card'>" + i + "</span> x"+count2[i]+"<span id='" + precount + "' style='display: none;'></span>")
+                    //Push the name of the card, x<however many of the card there are>, and an empty element after.
+                }
                 precount++ //increment precount.
             }
+            //Then, show the cards and split them with a |.
+            $("#cardsHeader").after(arrayOfCards.join(" | "))
+
+            /**
+             * Show each deck you have!
+             * Active Deck Functionality!
+             * Make a new Deck!
+             * Remove a deck!
+             **/
             var counter = 1; //this is like another precount just different.
             var otherCount = 1; //lol ^
             for(j in decks) { //for every deck
@@ -85,42 +112,6 @@
                 }
                 counter++ //increment counter.
             }
-            strings = []; //define strings as an array.
-            //this is for the popup panel that shows when you click on a card to add it to a deck.
-            for(k = 0; k < (counter-1); k++) {
-                strings.push('<span class = "deckings">Deck ' + (Number(k) + 1) + "</span>")
-                //Push a string "Deck x" for each deck.
-            }
-
-            $(".card").click(function(){ //When you click on a card...
-                $(this).next()
-                    .css("display", "block")
-                    .html("Decks: " + strings.join(" | ") + " | <span class='close'>Close</span>")
-                //Get the next element and display it. Then have it display all the decks.
-                $(".close").click(function(){
-                    showDecks(); //Close it and do nothing. Just reshow everything.
-                })
-                $(".deckings").click(function(){ //when you click on a deck to add the card to
-                    let count1 = {};
-                    let count2 = {};
-                    //define count1 and count2, which count how many of one card do you have and in the deck you wish to add it to.
-                    if($(this).html().startsWith("Deck")) {
-                        //Count how many of each card are in the deck you asked for
-                        decks[$(this).html().replace("Deck ", "")-1].forEach(e => count1[e] ? count1[e]++ : count1[e] = 1 );
-                        yourCards.forEach(e => count2[e] ? count2[e]++ : count2[e] = 1 );
-                        //count how many of each card you have
-                        if(count1[$(this).parent().prev().html()]>=count2[$(this).parent().prev().html()]) {
-                            //You don't have enough to add that card to that deck!
-                            $(this).html("You don't have enough of this card to add it to that deck!")
-                        } else{
-                            //You can add that card to the deck, so add that card to the deck!
-                            decks[$(this).html().replace("Deck ", "")-1].push($(this).parent().prev().html())
-                            //Reshow everything!
-                            showDecks()
-                        }
-                    } 
-                }) 
-            })
             //Show the deck that is active as active!
             $("#deck"+activeDeck).after($("<span class='activeDeck'> - <i>Active Deck</i></span>"))
             for(let m in decks) {
@@ -146,7 +137,6 @@
                     showDecks() //Reshow everything so it's removed.
                 })
             })
-
             $("#newDeckButton").click(function(){ //When you clicked the button to make a new mdeck
                 decks.push([]) //Add a blank array to decks to signify a blank deck!
                 showDecks() //reshow the decks to display this new deck.
@@ -170,6 +160,45 @@
                 $(".theyChoseNo").click(function(){ //No, don't delete it
                     showDecks() //reshow it to cancel.
                 })
+            })
+
+            /**
+             * Prepare a string for each deck you have, then display it when you click on a card!
+             * Add the card to the deck if they say yes and if you can!
+             **/
+            var strings = []; //define strings as an array that will contain html.
+            //this is for the popup panel that shows when you click on a card to add it to a deck.
+            for(k = 0; k < (counter-1); k++) {
+                strings.push('<span class = "deckings">Deck ' + (Number(k) + 1) + "</span>")
+                //Push a string "Deck x" for each deck.
+            }
+            $(".card").click(function(){ //When you click on a card...
+                $(this).next()
+                    .css("display", "block")
+                    .html("Decks: " + strings.join(" | ") + " | <span class='close'>Close</span>")
+                //Get the next element and display it. Then have it display all the decks.
+                $(".close").click(function(){
+                    showDecks(); //Close it and do nothing. Just reshow everything.
+                })
+                $(".deckings").click(function(){ //when you click on a deck to add the card to
+                    let count1 = {};
+                    //define count1, which counts how many of one card are in the deck you wish to add it to.
+                    if($(this).html().startsWith("Deck")) {
+                        //Count how many of each card are in the deck you asked for
+                        decks[$(this).html().replace("Deck ", "")-1].forEach(e => count1[e] ? count1[e]++ : count1[e] = 1 );
+                        //yourCards.forEach(e => count2[e] ? count2[e]++ : count2[e] = 1 );
+                        
+                        if(count1[$(this).parent().prev().html()]>=count2[$(this).parent().prev().html()]) {
+                            //You don't have enough to add that card to that deck!
+                            $(this).html("You don't have enough of this card to add it to that deck!")
+                        } else{
+                            //You can add that card to the deck, so add that card to the deck!
+                            decks[$(this).html().replace("Deck ", "")-1].push($(this).parent().prev().html())
+                            //Reshow everything!
+                            showDecks()
+                        }
+                    } 
+                }) 
             })
         }
         showDecks(true);
