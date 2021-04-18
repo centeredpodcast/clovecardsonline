@@ -26,10 +26,34 @@
             <button id="newDeckButton" style="display: block;">New Deck!</button>
             <span id="afterDecks" style="display: none;"></span>
         </div>
+        <button class="testbutton">click me to add cards to your deck!</button>
     </main>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
     <script>
+        var cardNames = Object.keys(cards)
+        function getRandom(arr, n) {
+            var result = new Array(n),
+                len = arr.length,
+                taken = new Array(len);
+            if (n > len)
+                throw new RangeError("getRandom: more elements taken than available");
+            while (n--) {
+                var x = Math.floor(Math.random() * len);
+                result[n] = arr[x in taken ? taken[x] : x];
+                taken[x] = --len in taken ? taken[len] : len;
+            }
+            return result;
+        }
+        function addCards(cardsToAdd) {
+            if(localStorage.yourCards) {
+                localStorage.yourCards = JSON.stringify(JSON.parse(localStorage.yourCards).concat(cardsToAdd));
+                yourCards = JSON.parse(localStorage.yourCards);
+                console.log(yourCards)
+            } else {
+                localStorage.setItem("yourCards", JSON.stringify(yourCards.concat(JSON.parse(cardsToAdd))))
+            }
+        }
         function showDecks(first) {
             //This function loads when the page first loads in and when you click on something that needs to reload the decks/cards!
             if(!localStorage.yourCards) {
@@ -41,6 +65,28 @@
                 //That only applies when you made a change to a deck/card, so update the local storage accordingly! ^^
                 //If yourCards is in your storage, update yourCards to what the storage has!
                 yourCards = JSON.parse(localStorage.yourCards)
+                console.log(yourCards)
+                let n = 0;
+                while(n<yourCards.length) {
+                    if(!cardNames.includes(yourCards[n])) {
+                        console.log(n)
+                        console.log(yourCards[n])
+                        yourCards.splice(n, 1)
+                    } else {
+                        n++
+                    }
+                }
+                localStorage.yourCards = JSON.stringify(yourCards)
+            }
+            console.log([yourCards])
+            if(!yourCards[0]) {
+                //console.log("what")
+                yourCards = getRandom(cardNames, 10)
+                localStorage.yourCards = JSON.stringify(yourCards)
+                decks = [yourCards]
+                activeDeck = 0;
+                localStorage.decks = JSON.stringify(decks)
+                localStorage.activeDeck = JSON.stringify(activeDeck)
             }
             if(!localStorage.activeDeck) {
                 //If your active deck isn't in your local storage.
@@ -59,6 +105,18 @@
                 if(!first) localStorage.decks = JSON.stringify(decks)
                 //If decks is in the storage, update it to what the storage has.
                 decks = JSON.parse(localStorage.decks)
+                for(let o in decks) {
+                    //console.log("hello")
+                    let p = 0;
+                    while(p<decks[o].length) {
+                        if(!cardNames.includes(decks[o][p])) {
+                            decks[o].splice(p, 1)
+                        } else {
+                            p++
+                        }
+                    }
+                }
+                localStorage.decks = JSON.stringify(decks)
             }
 
             /**
@@ -203,6 +261,11 @@
         }
         showDecks(true);
         //This triggers when the page first loads. This is true so you don't update the localstorage with the preset variables.
+        
+        $(".testbutton").click(function(){
+            addCards(["secondone", "lol", "lol", "what", "name"])
+            showDecks(true);
+        })
     </script>
 </body>
 </html>
