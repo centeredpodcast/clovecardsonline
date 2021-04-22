@@ -26,7 +26,7 @@
             <button id="newDeckButton" style="display: block;">New Deck!</button>
             <span id="afterDecks" style="display: none;"></span>
         </div>
-        <button class="testbutton">click me to add cards to your deck!</button>
+        <button class="testbutton">click me to add cards to your collection!</button>
     </main>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
@@ -66,18 +66,18 @@
                 //If yourCards is in your storage, update yourCards to what the storage has!
                 yourCards = JSON.parse(localStorage.yourCards)
                 console.log(yourCards)
-                let n = 0;
-                while(n<yourCards.length) {
-                    if(!cardNames.includes(yourCards[n])) {
-                        console.log(n)
-                        console.log(yourCards[n])
-                        yourCards.splice(n, 1)
-                    } else {
-                        n++
-                    }
-                }
-                localStorage.yourCards = JSON.stringify(yourCards)
             }
+            let n = 0;
+            while(n<yourCards.length) {
+                if(!cardNames.includes(yourCards[n])) {
+                    console.log(n)
+                    console.log(yourCards[n])
+                    yourCards.splice(n, 1)
+                } else {
+                    n++
+                }
+            }
+            localStorage.yourCards = JSON.stringify(yourCards)
             console.log([yourCards])
             if(!yourCards[0]) {
                 //console.log("what")
@@ -87,7 +87,7 @@
                 activeDeck = 0;
                 localStorage.decks = JSON.stringify(decks)
                 localStorage.activeDeck = JSON.stringify(activeDeck)
-            }
+            }   
             if(!localStorage.activeDeck) {
                 //If your active deck isn't in your local storage.
                 localStorage.setItem("activeDeck", JSON.stringify(activeDeck))
@@ -104,21 +104,20 @@
                 //only applies when you made a change to a deck/card, so update the local storage accordingly!  
                 if(!first) localStorage.decks = JSON.stringify(decks)
                 //If decks is in the storage, update it to what the storage has.
-                decks = JSON.parse(localStorage.decks)
-                for(let o in decks) {
-                    //console.log("hello")
-                    let p = 0;
-                    while(p<decks[o].length) {
-                        if(!cardNames.includes(decks[o][p])) {
-                            decks[o].splice(p, 1)
-                        } else {
-                            p++
-                        }
+                decks = JSON.parse(localStorage.decks) 
+            }
+            for(let o in decks) {
+                //console.log("hello")
+                let p = 0;
+                while(p<decks[o].length) {
+                    if(!cardNames.includes(decks[o][p])) {
+                        decks[o].splice(p, 1)
+                    } else {
+                        p++
                     }
                 }
-                localStorage.decks = JSON.stringify(decks)
             }
-
+            localStorage.decks = JSON.stringify(decks)
             /**
              * Do before anything dynamic section!
              **/
@@ -161,13 +160,34 @@
              **/
             var counter = 1; //this is like another precount just different.
             var otherCount = 1; //lol ^
+            
             for(j in decks) { //for every deck
+                let countDeck = {};
+                //define count2, which counts how many of one card you have.
+                decks[j].forEach(e => countDeck[e] ? countDeck[e]++ : countDeck[e] = 1 );
+            
+                let allDeckCards = [];
                 $("#afterDecks").before("<h3 id='deck" + j + "' style='display: inline;'>Deck "+counter+"</h3><button class='removeDeckButton' style='display: inline;'>Delete Deck</button><span class='youSure' style='display: none;'>Are you sure? <span class='theyChoseYes'>Yes</span> | <span class='theyChoseNo'>No</span></span><div id='deck" + j + "div'></div>") //this sets the titles for each deck.
-                for(k in decks[j]) { //this goes through the cards of each deck.
-                    $("#deck"+j+"div").append("<span class='cardRemove "+k+"'>" + decks[j][k] + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span> ")
+                for(let q in countDeck) {
+                    if(countDeck[q]===1) {
+                        allDeckCards.push("<span class='cardRemove "+decks[j].lastIndexOf(q)+"'>" + q + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span>")
+                    } else if(countDeck[q]>1) {
+                        allDeckCards.push("<span class='cardRemove "+decks[j].lastIndexOf(q)+"'>" + q + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span> x"+countDeck[q])
+                    }
+                    otherCount++
+                }
+                /*for(k in decks[j]) { //this goes through the cards of each deck.
+                    if(countDeck[decks[j][k]]===1) {
+                        allDeckCards.push("<span class='cardRemove "+k+"'>" + decks[j][k] + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span>")
+                    } else if(countDeck[decks[j][k]]>1) {
+                        allDeckCards.push("<span class='cardRemove "+k+"'>" + decks[j][k] + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span> x"+countDeck[decks[j][k]])
+                    }
+                    
+                    //$("#deck"+j+"div").append("<span class='cardRemove "+k+"'>" + decks[j][k] + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span> ")
                     //This shows all the cards in that deck and prepares a panel that asks if you wish to remove it from that deck.
                     otherCount++ //increment otherCount.
-                }
+                }*/
+                $("#deck"+j+"div").append(allDeckCards.join(" | "))
                 counter++ //increment counter.
             }
             //Show the deck that is active as active!
@@ -263,7 +283,7 @@
         //This triggers when the page first loads. This is true so you don't update the localstorage with the preset variables.
         
         $(".testbutton").click(function(){
-            addCards(["secondone", "lol", "lol", "what", "name"])
+            addCards(["secondone", "lol", "lol", "what", "name", "Tundra Fox", "lol"])
             showDecks(true);
         })
     </script>
