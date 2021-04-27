@@ -25,9 +25,14 @@
                 <li>At the top is a list of your cards!</li>
                 <li>Click on a card to add it to a deck!</li>
                 <li>Next are your decks!</li>
-                <li>You can create a new deck by clicking on the New Deck button.</li>
-                <li>Your active deck will be tagged as your active deck. Click on the Set as Active Deck button to set another deck as your active deck.</li>
+                <li>You can create an empty new deck by clicking on the New Deck button.</li>
+                <li>Switch your active deck for player one and player two by clicking on the Switch Active Decks button.</li>
+                <li>Create a new deck with 10 random cards in it, ready to be active!</li>
+                <li>Your active decks will be tagged as your active decks.</li>
+                <li>Only decks with 10+ cards can be active. Buttons will appear to make the deck active.</li>
+                <li>If your deck has more than 10 cards and is active, you cannot play with it. You will have to reduce the amount of cards to 10 again to play with it.</li>
                 <li>Click on Delete Deck to delete the deck. Be careful, this action is irreversable!</li>
+                <li>You cannot delete active decks!</li>
                 <li>For each card in each of your decks, you can remove it from that deck by clicking on it!</li>
                 <li>If you have multiple of a card, the card name will have a counter next to it (e.g. x5 if you have 5 of one card).</li>
                 <li>Each card is split by |s!</li>
@@ -38,7 +43,10 @@
         <div id="clear">
             <h2 id="cardsHeader">Cards:</h2>
             <h2 id="decksHeader">Decks:</h2>
-            <button id="newDeckButton" style="display: block;">New Deck!</button>
+            <button id="newDeckButton" style="display: inline;">New Deck!</button>
+            <button id="switchActiveDecksButton" style="display: inline;">Switch your active decks!</button>
+            <button id="createTenCardDeck">Create a 10 card deck!</button>
+            <br />
             <span id="afterDecks" style="display: none;"></span>
         </div>
         <!--<button class="testbutton">click me to add cards to your collection!</button>-->
@@ -47,7 +55,7 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
     <script>
-        var cardNames = Object.keys(cards)
+        var cardNames = Object.keys(cards) //Get a list of the names of cards.
         function getRandom(arr, n) {
             var result = new Array(n),
                 len = arr.length,
@@ -71,6 +79,8 @@
             }
         }
         function showDecks(first) {
+            var eligibleDeckOne = false; //The active deck for player one is automatically not eligible.
+            var eligibleDeckTwo = false; //Same thing for the player two deck.
             //This function loads when the page first loads in and when you click on something that needs to reload the decks/cards!
             if(!localStorage.yourCards) {
                 //If yourCards isn't in your local storage, set it!
@@ -81,29 +91,18 @@
                 //That only applies when you made a change to a deck/card, so update the local storage accordingly! ^^
                 //If yourCards is in your storage, update yourCards to what the storage has!
                 yourCards = JSON.parse(localStorage.yourCards)
-                console.log(yourCards)
             }
             let n = 0;
-            while(n<yourCards.length) {
+            while(n<yourCards.length) { //for every card you have
                 if(!cardNames.includes(yourCards[n])) {
-                    console.log(n)
-                    console.log(yourCards[n])
+                    //If that card is not defined, delete it
                     yourCards.splice(n, 1)
                 } else {
-                    n++
+                    n++ //otherwise continue
                 }
             }
-            localStorage.yourCards = JSON.stringify(yourCards)
-            console.log([yourCards])
-            if(!yourCards[0]) {
-                //console.log("what")
-                yourCards = getRandom(cardNames, 10)
-                localStorage.yourCards = JSON.stringify(yourCards)
-                decks = [yourCards]
-                activeDeck = 0;
-                localStorage.decks = JSON.stringify(decks)
-                localStorage.activeDeck = JSON.stringify(activeDeck)
-            }   
+            localStorage.yourCards = JSON.stringify(yourCards) //Update localStorage.
+             
             if(!localStorage.activeDeck) {
                 //If your active deck isn't in your local storage.
                 localStorage.setItem("activeDeck", JSON.stringify(activeDeck))
@@ -123,17 +122,54 @@
                 decks = JSON.parse(localStorage.decks) 
             }
             for(let o in decks) {
-                //console.log("hello")
+                //For every deck
                 let p = 0;
-                while(p<decks[o].length) {
+                while(p<decks[o].length) { //for every card in a deck
                     if(!cardNames.includes(decks[o][p])) {
-                        decks[o].splice(p, 1)
+                        decks[o].splice(p, 1) //If the card isn't defined, delete it from the deck.
                     } else {
-                        p++
+                        p++ //otherwise just continue.
                     }
                 }
             }
-            localStorage.decks = JSON.stringify(decks)
+            localStorage.decks = JSON.stringify(decks) //update the localStorage.
+            if(!localStorage.activeDeckPlayerTwo) { //Check localstorage for activeDeckPlayerTwo
+                //If not in localstorage
+                if(activeDeck = 1) { //If the active deck is one, then put the active deck for player two as zero.
+                    activeDeckPlayerTwo = 0
+                }
+                //If the active deck isn't one, then the player two will be zero.
+                //set the activeDeckPlayerTwo in the localstorage.
+                localStorage.setItem("activeDeckPlayerTwo", JSON.stringify(activeDeckPlayerTwo))
+            } else {
+                //if you had changed something previously, update the local storage
+                if(!first) localStorage.activeDeckPlayerTwo = JSON.stringify(activeDeckPlayerTwo)
+                activeDeckPlayerTwo = JSON.parse(localStorage.activeDeckPlayerTwo)
+                //update the variable
+            }
+            if(!yourCards[19]) { //If there are less than 20 cards
+                yourCards = getRandom(cardNames, 10).concat(getRandom(cardNames, 10))
+                //Get 20 random cards for your cards.
+                localStorage.yourCards = JSON.stringify(yourCards) //update the local storage.
+                decks = [yourCards.slice(0, 10), yourCards.slice(10, 20)] //Update the decks with two decks.
+                activeDeck = 0; //The first is active for player one
+                activeDeckPlayerTwo = 1; //and the second active for player two.
+                localStorage.decks = JSON.stringify(decks) //update local storage
+                localStorage.activeDeck = JSON.stringify(activeDeck) //update local storage
+                localStorage.activeDeckPlayerTwo = JSON.stringify(activeDeckPlayerTwo) //update local storage
+            } 
+            if(decks.length<2) { //if there are less than 2 decks.
+                decks = [yourCards.slice(0, 10), yourCards.slice(10, 20)] //set up the decks with 10 cards each
+                activeDeck = 0 //the first is active for player one
+                activeDeckPlayerTwo = 1 //and the second for player two
+            }
+            if(!decks[activeDeck]||!decks[activeDeck][9]||!decks[activeDeckPlayerTwo]||!decks[activeDeckPlayerTwo][9]) {
+                //if there is no active deck or if the active deck doesnt have 10 cards:
+                decks = [yourCards.slice(0, 10), yourCards.slice(10, 20)] //set up the decks with 10 cards each
+                activeDeck = 0 //the first is active for player one
+                activeDeckPlayerTwo = 1 //and the second for player two
+            }
+
             /**
              * Do before anything dynamic section!
              **/
@@ -141,8 +177,16 @@
                 //Get rid of all null values in decks!
                 decks[l]=decks[l].filter(function(el) { return el; })
             }
-            //clears the screen and readds the framework that should appear every time.
-            $("#clear").html('<h2 id="cardsHeader">Cards:</h2><h2 id="decksHeader">Decks:</h2><button id="newDeckButton" style="display: block;">New Deck!</button><span id="afterDecks" style="display: none;"></span>') 
+            if(decks[activeDeck].length = 10) {
+                eligibleDeckOne = true
+                //if the active deck for player one has exactly 10 cards, then its eligible to play.
+            } 
+            if(decks[activeDeckPlayerTwo].length > 10) {
+                eligibleDeckTwo = true
+                //if the active deck for player two has exactly 10 cards, then its eligible to play.
+            } 
+            $("#clear").html('<h2 id="cardsHeader">Cards:</h2><h2 id="decksHeader">Decks:</h2><button id="newDeckButton" style="display: inline;">New Deck!</button><button id="switchActiveDecksButton" style="display: inline;">Switch your active decks!</button><button id="createTenCardDeck">Create a 10 card deck!</button><br /><span id="afterDecks" style="display: none;"></span>') 
+            //clear the board and reset it.
 
             /**
              * Show the cards you have!
@@ -182,42 +226,63 @@
                 //define count2, which counts how many of one card you have.
                 decks[j].forEach(e => countDeck[e] ? countDeck[e]++ : countDeck[e] = 1 );
             
-                let allDeckCards = [];
+                let allDeckCards = []; //an array of every card in the deck
                 $("#afterDecks").before("<h3 id='deck" + j + "' style='display: inline;'>Deck "+counter+"</h3><button class='removeDeckButton' style='display: inline;'>Delete Deck</button><span class='youSure' style='display: none;'>Are you sure? <span class='theyChoseYes'>Yes</span> | <span class='theyChoseNo'>No</span></span><div id='deck" + j + "div'></div>") //this sets the titles for each deck.
-                for(let q in countDeck) {
-                    if(countDeck[q]===1) {
+                for(let q in countDeck) { //for every unique card
+                    if(countDeck[q]===1) { //if there's one of the card
+                        //push just an element with the card name
                         allDeckCards.push("<span class='cardRemove "+decks[j].lastIndexOf(q)+"'>" + q + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span>")
                     } else if(countDeck[q]>1) {
+                        //push an element and an x<number of cards>
                         allDeckCards.push("<span class='cardRemove "+decks[j].lastIndexOf(q)+"'>" + q + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span> x"+countDeck[q])
                     }
                     otherCount++
                 }
-                /*for(k in decks[j]) { //this goes through the cards of each deck.
-                    if(countDeck[decks[j][k]]===1) {
-                        allDeckCards.push("<span class='cardRemove "+k+"'>" + decks[j][k] + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span>")
-                    } else if(countDeck[decks[j][k]]>1) {
-                        allDeckCards.push("<span class='cardRemove "+k+"'>" + decks[j][k] + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span> x"+countDeck[decks[j][k]])
-                    }
-                    
-                    //$("#deck"+j+"div").append("<span class='cardRemove "+k+"'>" + decks[j][k] + "</span><span class='deckCard' style='display: none;'>Remove from deck? <span class='yesChoice'>Yes</span> | <span class='noChoice'>No</span></span> ")
-                    //This shows all the cards in that deck and prepares a panel that asks if you wish to remove it from that deck.
-                    otherCount++ //increment otherCount.
-                }*/
-                $("#deck"+j+"div").append(allDeckCards.join(" | "))
+                $("#deck"+j+"div").append(allDeckCards.join(" | ")) //add the list of cards with |s in between
                 counter++ //increment counter.
             }
-            //Show the deck that is active as active!
-            $("#deck"+activeDeck).after($("<span class='activeDeck'> - <i>Active Deck</i></span>"))
-            for(let m in decks) {
-                if(m != activeDeck) { //for every deck that isn't active, add a button to make it active.
-                    $("#deck"+m).after($("<button class='activeDeckButton' style='display: inline;'>Set as Active Deck</button>"))
+            //Show the decks that are active as active!
+            $("#deck"+activeDeck).after($("<span class='activeDeck'> - <i>Active Deck: Player 1</i></span><span class='afterActiveDeck1' style='display: none;'></span>"))
+            $("#deck"+activeDeckPlayerTwo).after($("<span class='activeDeckPlayerTwo'> - <i>Active Deck: Player 2</i></span><span class='afterActiveDeck2' style='display: none;'></span>"))
+            if(decks[activeDeck].length > 10) { //if the active deck for player one has more than 10 cards
+                $(".afterActiveDeck1")
+                    .html("<b>This deck has more than 10 cards! You won't be able to play with this deck.</b>")
+                    .css("display", "inline")
+                //Show a message saying it won't be eligible
+            } 
+            if(decks[activeDeckPlayerTwo].length > 10) { //if the active deck for player two has more than 10 cards
+                $(".afterActiveDeck2")
+                    .html("<b>This deck has more than 10 cards! You won't be able to play with this deck.</b>")
+                    .css("display", "inline")
+                //show a message saying it won't be eligible.
+            } 
+            for(let m in decks) { //for every deck
+                if(m != activeDeck && m != activeDeckPlayerTwo) { //for every deck that isn't active, add a button to make it active.
+                    if(decks[m].length >= 10) { //if the deck has 10 or more cards, add a button.
+                        $("#deck"+m).after($("<button class='activeDeckButton' style='display: inline;'>Set as Active Deck for Player One</button><button class='activeDeckButtonPlayerTwo' style='display: inline;'>Set as Active Deck for Player Two</button>"))
+                    } else { //It has less than 10 cards and is therefore not eligible to be active.
+                        $("#deck"+m).after($("<span>You can't make a deck that has less than 10 cards active!</span><span style='display: none;'>Hi! This is an easter egg. Uhhh idk what to think of you going through our code like this soooo uh yeah thanks for playing Cove Cards! Wooo! -Sapphire7x 4/26/21</span>"))
+                    }
                 }
             }
             $(".activeDeckButton").click(function(){ //If you click that button to make it active...
-                activeDeck = $(this).prev().attr("id").replace("deck", "") //log it as active!
-                showDecks(); //and reshow it so that it will appear as active.
+                if(decks[$(this).prev().attr("id").replace("deck", "")].length < 10) { //if you clicked on a deck with lss than 10 cards
+                    $(this).html("You can't make a deck that has less than 10 cards active!")
+                    //no.
+                } else { //otherwise: 
+                    activeDeck = $(this).prev().attr("id").replace("deck", "") //log it as active!
+                    showDecks(); //and reshow it so that it will appear as active.
+                }
             })
-
+            $(".activeDeckButtonPlayerTwo").click(function(){ //If you click that button to make it active...
+                if(decks[$(this).prev().prev().attr("id").replace("deck", "")].length < 10) { //if you clicked on a deck with less than 10 cards
+                    $(this).html("You can't make a deck that has less than 10 cards active!")
+                    //nope
+                } else {
+                    activeDeckPlayerTwo = $(this).prev().prev().attr("id").replace("deck", "") //log it as active!
+                    showDecks(); //and reshow it so that it will appear as active.
+                }
+            })
             $(".cardRemove").click(function(){ //If you click on a card in a deck
                 $(this).next()
                     .css("display", "block")
@@ -226,28 +291,63 @@
                     showDecks(); //just reshow everything
                 }) 
                 $(".yesChoice").click(function(){ //If you clicked yes, please remove it
-                    decks[$(this).parent().parent().attr('id').replace("deck", "").replace("div", "")].splice($(this).parent().prev().attr("class").replace("cardRemove", "").replace(" ", ""), 1)
-                    //Remove it from the array.
-                    showDecks() //Reshow everything so it's removed.
+                    if($(this).parent().parent().attr('id').replace("deck", "").replace("div", "") == activeDeck || $(this).parent().parent().attr('id').replace("deck", "").replace("div", "") == activeDeckPlayerTwo) {
+                        //If it's an active deck!
+                        if(decks[$(this).parent().parent().attr('id').replace("deck", "").replace("div", "")].length <= 10) {
+                            //if its less than or actually 10 cards
+                            $(this).parent().html("You can't have an active deck with less than 10 cards!")
+                            //you cant remove cards from that deck.
+                        } else {
+                            decks[$(this).parent().parent().attr('id').replace("deck", "").replace("div", "")].splice($(this).parent().prev().attr("class").replace("cardRemove", "").replace(" ", ""), 1)
+                            //Remove it from the array.
+                            showDecks() //Reshow everything so it's removed.
+                        }
+                    } else {
+                        decks[$(this).parent().parent().attr('id').replace("deck", "").replace("div", "")].splice($(this).parent().prev().attr("class").replace("cardRemove", "").replace(" ", ""), 1)
+                        //Remove it from the array.
+                        showDecks() //Reshow everything so it's removed.
+                    }
+                    
                 })
             })
             $("#newDeckButton").click(function(){ //When you clicked the button to make a new mdeck
                 decks.push([]) //Add a blank array to decks to signify a blank deck!
                 showDecks() //reshow the decks to display this new deck.
             })
+            $("#switchActiveDecksButton").click(function(){ //when you click the button to switch the active decks around
+                let prevDeck = activeDeck //log what the previous activeDeck is
+                activeDeck = activeDeckPlayerTwo //change it to the player two deck
+                activeDeckPlayerTwo = prevDeck //change player two deck to what player one deck was
+                showDecks() //resohw the decks to display it
+            })
+            $("#createTenCardDeck").click(function(){
+                decks.push(getRandom(yourCards, 10)) //create a new deck with 10 random cards.
+                showDecks() //reshow the decks to display it
+            })
             $(".removeDeckButton").click(function(){ //When you clicked the button to remove a deck.
                 $(this).next().css("display", "block") //show the next element that contains a yes/no confirmation message
                 $(".theyChoseYes").click(function(){ //Yes, delete this deck.
-                    if(decks.length==1) { //If you only have one deck
-                        $(this).parent().html("You can't delete your only deck!")
+                    if(decks.length==2) { //If you only have one deck
+                        $(this).parent().html("You can't delete active decks!")
                         //You can't delete your only deck.
                     } else { //you have more than one deck so you can delete a deck.
                         //Remove that deck from the decks
-                        decks.splice($(this).parent().prev().prev().prev().attr("id").replace("deck", ""), 1)
-                        if($(this).parent().prev().prev().attr("class")=="activeDeck") activeDeck = 0;
-                        //Set the active deck to zero if the active deck is deleted!
+                        console.log($(this).parent().prev().prev().prev().prev().attr("id").replace("deck", ""))
+                        
+                        if($(this).parent().prev().prev().prev().attr("class")=="activeDeck") {
+                           //if the deck is active, you can't delete it.
+                            $(this).parent().html("You can't delete active decks!")
+                        } else if($(this).parent().prev().prev().prev().attr("class")=="activeDeckPlayerTwo") {
+                            //if the deck is active, you can't delete it.
+                            $(this).parent().html("You can't delete active decks!")
+                        } else {
+                            //get rid of the deck.
+                            decks.splice($(this).parent().prev().prev().prev().prev().attr("id").replace("deck", ""), 1)
+                        }
                         //If you remove a deck below the active deck, update the active deck so it stays with that deck!
-                        if(($(this).parent().prev().prev().prev().attr("id").replace("deck", "")) < activeDeck) activeDeck--
+                        if(($(this).parent().prev().prev().prev().prev().attr("id").replace("deck", "")) < activeDeck) activeDeck--
+                        if(($(this).parent().prev().prev().prev().prev().attr("id").replace("deck", "")) < activeDeckPlayerTwo) activeDeckPlayerTwo--
+                        
                         showDecks() //reshow it to display.
                     }
                 })
@@ -289,6 +389,7 @@
                             //You can add that card to the deck, so add that card to the deck!
                             decks[$(this).html().replace("Deck ", "")-1].push($(this).parent().prev().html())
                             //Reshow everything!
+                            
                             showDecks()
                         }
                     } 

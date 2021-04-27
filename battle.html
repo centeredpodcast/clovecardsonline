@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Clove Cards</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="Clove Cards, Card Game">
+    <meta name="description" content="An online card game!">
+    <meta name="author" content="Sapphire7x and Savanna Campbell">
+</head>
+<body>
+    <header>
+        <!--<div>
+            <img>
+        </div>
+        <nav>
+            <ul></ul>
+        </nav>-->
+    </header>
+    <main>
+        <h1>Play the Game!</h1>
+        <div class="board">
+
+        </div>
+        <!--<button class="testbutton">click me to add cards to your collection!</button>-->
+    </main>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
+    <script src="scripts/game.js"></script> <!--Calls game.js file-->
+    <script src="scripts/onOpen.js"></script> <!--Calls the onOpen.js file-->
+    <script>
+        var board = {
+            playerOneDeck: decks[activeDeck],
+            playerOnePlayed: [],
+            playerOneDiscard: [],
+            playerTwoDeck: [],
+            playerTwoPlayed: [],
+            playerTwoDiscard: []
+        }
+    </script>
+</body>
+</html>
