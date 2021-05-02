@@ -1,4 +1,25 @@
 var cardNames = Object.keys(cards) //Get a list of the names of cards.
+function getStartingDeck(arr, n) {
+    let resultingDeck = [];
+    let h = 0;
+    let rareCard = false;
+    while(h < n) {
+        let randomNumber = Math.floor(Math.random() * arr.length)
+        if(cards[arr[randomNumber]]["Rarity"] === "Mythical") {
+            //continue
+        } else if(cards[arr[randomNumber]]["Rarity"] === "Rare") {
+            if(rareCard === false) {
+                rareCard = true;
+                resultingDeck.push(arr[randomNumber])
+                h++
+            }
+        } else {
+            resultingDeck.push(arr[randomNumber])
+            h++
+        }
+    }
+    return resultingDeck
+}
 var eligibleDeckOne = false; //The active deck for player one is automatically not eligible.
 var eligibleDeckTwo = false; //Same thing for the player two deck.
 //This function loads when the page first loads in and when you click on something that needs to reload the decks/cards!
@@ -7,8 +28,6 @@ if(!localStorage.yourCards) {
     localStorage.setItem("yourCards", JSON.stringify(yourCards))
 } else {
     //If yourCards IS in your local storage
-    //if(!first) localStorage.yourCards = JSON.stringify(yourCards)
-    //That only applies when you made a change to a deck/card, so update the local storage accordingly! ^^
     //If yourCards is in your storage, update yourCards to what the storage has!
     yourCards = JSON.parse(localStorage.yourCards)
 }
@@ -27,8 +46,6 @@ if(!localStorage.activeDeck) {
     //If your active deck isn't in your local storage.
     localStorage.setItem("activeDeck", JSON.stringify(activeDeck))
 } else {
-    //only applies when you made a change to a deck/card, so update the local storage accordingly!
-    //if(!first) localStorage.activeDeck = JSON.stringify(activeDeck)
     //If activeDeck is in your storage, update it to what the storage has.
     activeDeck = JSON.parse(localStorage.activeDeck)
 }
@@ -36,8 +53,6 @@ if(!localStorage.decks) {
     //if decks isn't in your local storage, set it!
     localStorage.setItem("decks", JSON.stringify(decks))
 } else {
-    //only applies when you made a change to a deck/card, so update the local storage accordingly!  
-    //if(!first) localStorage.decks = JSON.stringify(decks)
     //If decks is in the storage, update it to what the storage has.
     decks = JSON.parse(localStorage.decks) 
 }
@@ -62,13 +77,11 @@ if(!localStorage.activeDeckPlayerTwo) { //Check localstorage for activeDeckPlaye
     //set the activeDeckPlayerTwo in the localstorage.
     localStorage.setItem("activeDeckPlayerTwo", JSON.stringify(activeDeckPlayerTwo))
 } else {
-    //if you had changed something previously, update the local storage
-    //if(!first) localStorage.activeDeckPlayerTwo = JSON.stringify(activeDeckPlayerTwo)
     activeDeckPlayerTwo = JSON.parse(localStorage.activeDeckPlayerTwo)
     //update the variable
 }
 if(!yourCards[19]) { //If there are less than 20 cards
-    yourCards = getRandom(cardNames, 10).concat(getRandom(cardNames, 10))
+    yourCards = getStartingDeck(cardNames, 10).concat(getStartingDeck(cardNames, 10))
     //Get 20 random cards for your cards.
     localStorage.yourCards = JSON.stringify(yourCards) //update the local storage.
     decks = [yourCards.slice(0, 10), yourCards.slice(10, 20)] //Update the decks with two decks.
@@ -93,6 +106,10 @@ if(!decks[activeDeck]||!decks[activeDeck][9]||!decks[activeDeckPlayerTwo]||!deck
 /**
  * Do before anything dynamic section!
  **/
+localStorage.decks = JSON.stringify(decks) //update local storage
+localStorage.activeDeck = JSON.stringify(activeDeck) //update local storage
+localStorage.activeDeckPlayerTwo = JSON.stringify(activeDeckPlayerTwo) //update local storage
+localStorage.yourCards = JSON.stringify(yourCards); //update local storage
 for(l in decks) {
     //Get rid of all null values in decks!
     decks[l]=decks[l].filter(function(el) { return el; })

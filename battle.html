@@ -19,23 +19,36 @@
     </header>
     <main>
         <h1>Play the Game!</h1>
-        <div class="board">
-
+        <div id="board">
+            <div class="1 deck"></div>
+            <div class="1 hand"></div>
+            <div class="1 played"></div>
+            <div class="1 discard"></div>
+            <div class="2 played"></div>
+            <div class="2 discard"></div>
+            <div class="2 hand"></div>
+            <div class="2 deck"></div>
         </div>
         <!--<button class="testbutton">click me to add cards to your collection!</button>-->
     </main>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
+    <script src="scripts/functions.js"></script>
     <script src="scripts/onOpen.js"></script> <!--Calls the onOpen.js file-->
     <script>
         var board = {
             playerOneDeck: decks[activeDeck],
+            playerOneHand: [],
             playerOnePlayed: [],
             playerOneDiscard: [],
-            playerTwoDeck: [],
+            playerTwoDeck: decks[activeDeckPlayerTwo],
+            playerTwoHand: [],
             playerTwoPlayed: [],
             playerTwoDiscard: []
         }
+        console.log(board.playerTwoDeck)
+        $(".2.deck").html("Player Two's Deck: " + board.playerTwoDeck.join(" | "))
+        $(".1.deck").html("Player One's Deck: " + board.playerOneDeck.join(" | "))
     </script>
 </body>
 </html>
