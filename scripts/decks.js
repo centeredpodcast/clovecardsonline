@@ -1,5 +1,27 @@
 var cardNames = Object.keys(cards) //Get a list of the names of cards.
+function getStartingDeck(arr, n) {
+    let resultingDeck = [];
+    let h = 0;
+    let rareCard = false;
+    while(h < n) {
+        let randomNumber = Math.floor(Math.random() * arr.length)
+        if(cards[arr[randomNumber]]["Rarity"] === "Mythical") {
+            //continue
+        } else if(cards[arr[randomNumber]]["Rarity"] === "Rare") {
+            if(rareCard === false) {
+                rareCard = true;
+                resultingDeck.push(arr[randomNumber])
+                h++
+            }
+        } else {
+            resultingDeck.push(arr[randomNumber])
+            h++
+        }
+    }
+    return resultingDeck
+}
 function showDecks(first) {
+    decks=decks.filter(function(el) { return el; })
     var eligibleDeckOne = false; //The active deck for player one is automatically not eligible.
     var eligibleDeckTwo = false; //Same thing for the player two deck.
     //This function loads when the page first loads in and when you click on something that needs to reload the decks/cards!
@@ -42,6 +64,7 @@ function showDecks(first) {
         //If decks is in the storage, update it to what the storage has.
         decks = JSON.parse(localStorage.decks) 
     }
+    decks=decks.filter(function(el) { return el; })
     for(let o in decks) {
         //For every deck
         let p = 0;
@@ -69,7 +92,7 @@ function showDecks(first) {
         //update the variable
     }
     if(!yourCards[19]) { //If there are less than 20 cards
-        yourCards = getRandom(cardNames, 10).concat(getRandom(cardNames, 10))
+        yourCards = getStartingDeck(cardNames, 10).concat(getStartingDeck(cardNames, 10))
         //Get 20 random cards for your cards.
         localStorage.yourCards = JSON.stringify(yourCards) //update the local storage.
         decks = [yourCards.slice(0, 10), yourCards.slice(10, 20)] //Update the decks with two decks.
@@ -94,6 +117,10 @@ function showDecks(first) {
     /**
      * Do before anything dynamic section!
      **/
+    localStorage.decks = JSON.stringify(decks) //update local storage
+    localStorage.activeDeck = JSON.stringify(activeDeck) //update local storage
+    localStorage.activeDeckPlayerTwo = JSON.stringify(activeDeckPlayerTwo) //update local storage
+    localStorage.yourCards = JSON.stringify(yourCards); //update local storage
     for(l in decks) {
         //Get rid of all null values in decks!
         decks[l]=decks[l].filter(function(el) { return el; })
@@ -255,7 +282,7 @@ function showDecks(first) {
         showDecks() //resohw the decks to display it
     })
     $("#createTenCardDeck").click(function(){
-        decks.push(getRandom(yourCards, 10)) //create a new deck with 10 random cards.
+        decks.push(getStartingDeck(yourCards, 10)) //create a new deck with 10 random cards.
         showDecks() //reshow the decks to display it
     })
     $(".removeDeckButton").click(function(){ //When you clicked the button to remove a deck.
