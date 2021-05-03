@@ -20,7 +20,7 @@
     <main>
         <h1>Play the Game!</h1>
         <div id="board">
-            <div class="1 deck"></div>
+            <div class="1 deck" onclick="shuffleDeck(1)"></div> <!-- this won't show anymore 'caus we show decks now-->
             <div class="1 hand"></div>
             <div class="1 played"></div>
             <div class="1 discard"></div>
@@ -37,18 +37,53 @@
     <script src="scripts/onOpen.js"></script> <!--Calls the onOpen.js file-->
     <script>
         var board = {
-            playerOneDeck: decks[activeDeck],
-            playerOneHand: [],
-            playerOnePlayed: [],
-            playerOneDiscard: [],
-            playerTwoDeck: decks[activeDeckPlayerTwo],
-            playerTwoHand: [],
-            playerTwoPlayed: [],
-            playerTwoDiscard: []
+            player1Deck: decks[activeDeck],
+            player1Hand: [],
+            player1Played: [],
+            player1Discard: [],
+            player2Deck: decks[activeDeckPlayerTwo],
+            player2Hand: [],
+            player2Played: [],
+            player2Discard: []
         }
-        console.log(board.playerTwoDeck)
-        $(".2.deck").html("Player Two's Deck: " + board.playerTwoDeck.join(" | "))
-        $(".1.deck").html("Player One's Deck: " + board.playerOneDeck.join(" | "))
+        function shuffle(array) {
+            console.log(array)
+            let currentIndex = array.length;
+            let temporaryValue;
+            let randomIndex;
+            // While there remain elements to shuffle...
+            while (0 !== currentIndex) {
+
+                // Pick a remaining element...
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex -= 1; //Lower the currentIndex
+
+                // And swap it with the current element.
+                temporaryValue = array[currentIndex];
+                array[currentIndex] = array[randomIndex];
+                array[randomIndex] = temporaryValue;
+            }
+            //console.log(Array(array))
+            return array;
+        }
+        function shuffleDeck(deckNumber) {
+            //Set the deck to the deck but shuffled
+            board["player" + deckNumber + "Deck"] = shuffle(board["player" + deckNumber + "Deck"])
+            //update the html. this will be deleted.
+            $("."+deckNumber+".hand").html("Player " + deckNumber + "'s Hand: " + board["player" + deckNumber + "Hand"].join(" | "))
+        }
+        if(!eligibleDeckOne) {
+            $("main").html("Deck One isn't eligible to play the game!")
+        } else if(!eligibleDeckTwo) {
+            $("main").html("Deck Two isn't eligible to play the game!")
+        } else {
+            shuffleDeck(1)
+            shuffleDeck(2)
+            board.player1Hand = board.player1Deck.splice(0, 4)
+            board.player2Hand = board.player2Deck.splice(0, 4)
+            $(".2.hand").html("Player Two's Hand: " + board.player2Hand.join(" | "))
+            $(".1.hand").html("Player One's Hand: " + board.player1Hand.join(" | "))
+        }
     </script>
 </body>
 </html>
