@@ -1,21 +1,24 @@
 var cardNames = Object.keys(cards) //Get a list of the names of cards.
 function getStartingDeck(arr, n) {
     let resultingDeck = [];
+    let takenCards = [];
     let h = 0;
     let rareCard = false;
     while(h < n) {
         let randomNumber = Math.floor(Math.random() * arr.length)
-        if(cards[arr[randomNumber]]["Rarity"] === "Mythical") {
-            //continue
-        } else if(cards[arr[randomNumber]]["Rarity"] === "Rare") {
-            if(rareCard === false) {
-                rareCard = true;
+        if(!resultingDeck.includes(arr[randomNumber])) { //if this card you want to add isn't already added
+            if(cards[arr[randomNumber]]["Rarity"] === "Mythical") {
+                //continue
+            } else if(cards[arr[randomNumber]]["Rarity"] === "Rare") {
+                if(rareCard === false) {
+                    rareCard = true;
+                    resultingDeck.push(arr[randomNumber])
+                    h++
+                }
+            } else {
                 resultingDeck.push(arr[randomNumber])
                 h++
             }
-        } else {
-            resultingDeck.push(arr[randomNumber])
-            h++
         }
     }
     return resultingDeck
