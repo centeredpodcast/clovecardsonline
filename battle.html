@@ -36,6 +36,8 @@
     <script src="scripts/functions.js"></script>
     <script src="scripts/onOpen.js"></script> <!--Calls the onOpen.js file-->
     <script>
+        var activePlayer = 1;
+        var nonActivePlayer = (activePlayer+1)%3
         var board = {
             player1Deck: decks[activeDeck],
             player1Hand: [],
@@ -70,7 +72,7 @@
             //Set the deck to the deck but shuffled
             board["player" + deckNumber + "Deck"] = shuffle(board["player" + deckNumber + "Deck"])
             //update the html. this will be deleted.
-            $("."+deckNumber+".hand").html("Player " + deckNumber + "'s Hand: " + board["player" + deckNumber + "Hand"].join(" | "))
+            //$("."+deckNumber+".hand").html("Player " + deckNumber + "'s Hand: " + board["player" + deckNumber + "Hand"].join(" | "))
         }
         if(!eligibleDeckOne) {
             $("main").html("Deck One isn't eligible to play the game!")
@@ -81,8 +83,33 @@
             shuffleDeck(2)
             board.player1Hand = board.player1Deck.splice(0, 4)
             board.player2Hand = board.player2Deck.splice(0, 4)
-            $(".2.hand").html("Player Two's Hand: " + board.player2Hand.join(" | "))
-            $(".1.hand").html("Player One's Hand: " + board.player1Hand.join(" | "))
+            function displayBoard() {
+                let arrayOfCards = [];
+                for(i in board["player" + activePlayer + "Hand"]) {
+                    arrayOfCards.push("<span id = 'activeCard"+i+"'>" + board["player" + activePlayer + "Hand"][i] + "</span> <button id='playCard"+i+"' class='playCardButton'>Play Card</button>")
+                }
+                let arrayOfInactiveCards = [];
+                for(i in board["player" + nonActivePlayer + "Hand"]) {
+                    arrayOfInactiveCards.push("<span id = 'inactiveCard"+i+"'>" + "The back of the card lol" + "</span>")
+                }
+                let arrayOfActivePlayedCards = [];
+                for(i in board["player" + activePlayer + "Played"]) {
+                    arrayOfActivePlayedCards.push("<span id = 'playedCardActive"+i+"'>" + board["player" + activePlayer + "Played"][i] + "</span>")
+                }
+                $("."+activePlayer+".hand").html("Player " + activePlayer + "'s Hand: " + arrayOfCards.join(" | "))
+                $("."+nonActivePlayer+".hand").html("Player " + nonActivePlayer + "'s Hand: " + arrayOfInactiveCards.join(" | "))
+                $("."+activePlayer+".played").html("Player " + activePlayer + "'s Played Cards: " + arrayOfActivePlayedCards.join(" | "))
+                
+                $(".playCardButton").click(function(){
+                    board["player"+activePlayer+"Hand"].splice($(this).attr("id").replace("playCard", ""), 1)
+                    board["player"+activePlayer+"Played"].push($(this).prev().html())
+                    displayBoard()
+                })
+            }
+            displayBoard()
+            
+            //$(".2.hand").html("Player Two's Hand: " + board.player2Hand.join(" | "))
+            //$(".1.hand").html("Player One's Hand: " + board.player1Hand.join(" | "))
         }
     </script>
 </body>
