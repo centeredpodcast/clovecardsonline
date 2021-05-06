@@ -19,7 +19,9 @@
     </header>
     <main>
         <h1>Play the Game!</h1>
+        <span id="turnCount"></span>
         <div id="board">
+            <button class="1 endTurn" onclick="changeTurns()" style="display: none;">End Turn</button>
             <div class="1 deck" onclick="shuffleDeck(1)"></div> <!-- this won't show anymore 'caus we show decks now-->
             <div class="1 hand"></div>
             <div class="1 played"></div>
@@ -28,6 +30,7 @@
             <div class="2 discard"></div>
             <div class="2 hand"></div>
             <div class="2 deck"></div>
+            <button class="2 endTurn" onclick="changeTurns()" style="display: none;">End Turn</button>
         </div>
         <!--<button class="testbutton">click me to add cards to your collection!</button>-->
     </main>
@@ -37,7 +40,7 @@
     <script src="scripts/onOpen.js"></script> <!--Calls the onOpen.js file-->
     <script>
         var activePlayer = 1;
-        var nonActivePlayer = (activePlayer+1)%3
+        var turnCount = 1;
         var board = {
             player1Deck: decks[activeDeck],
             player1Hand: [],
@@ -68,11 +71,25 @@
             //console.log(Array(array))
             return array;
         }
+        function returnArray(array) {
+            return array;
+        }
+        function sortCards(array, required) {
+            array = array.sort()
+            returnArray(array)
+            if(required) displayBoard()
+        }
         function shuffleDeck(deckNumber) {
             //Set the deck to the deck but shuffled
             board["player" + deckNumber + "Deck"] = shuffle(board["player" + deckNumber + "Deck"])
             //update the html. this will be deleted.
             //$("."+deckNumber+".hand").html("Player " + deckNumber + "'s Hand: " + board["player" + deckNumber + "Hand"].join(" | "))
+        }
+        function changeTurns() {
+            activePlayer = (activePlayer)%2+1
+            turnCount++
+            displayBoard();
+            
         }
         if(!eligibleDeckOne) {
             $("main").html("Deck One isn't eligible to play the game!")
@@ -84,22 +101,48 @@
             board.player1Hand = board.player1Deck.splice(0, 4)
             board.player2Hand = board.player2Deck.splice(0, 4)
             function displayBoard() {
+                var nonActivePlayer = (activePlayer)%2+1
                 let arrayOfCards = [];
                 for(i in board["player" + activePlayer + "Hand"]) {
                     arrayOfCards.push("<span id = 'activeCard"+i+"'>" + board["player" + activePlayer + "Hand"][i] + "</span> <button id='playCard"+i+"' class='playCardButton'>Play Card</button>")
                 }
+                arrayOfCards.push("<button id = 'sortCards' onclick = 'sortCards(board[\"player\" + " + activePlayer + " + \"Hand\"], true)'>Sort Cards</button>")
                 let arrayOfInactiveCards = [];
                 for(i in board["player" + nonActivePlayer + "Hand"]) {
                     arrayOfInactiveCards.push("<span id = 'inactiveCard"+i+"'>" + "The back of the card lol" + "</span>")
                 }
                 let arrayOfActivePlayedCards = [];
                 for(i in board["player" + activePlayer + "Played"]) {
+                    //get amount of abilities card has
+                    //for each ability add a string which has <button id='"+j+"useCard"+i+"' class='useCardButton'>Use Ability "+k+"</button> to the string below>>
+                    //where k is the name of the ability, j is the #ability the card has and i is the id of the card being played.
                     arrayOfActivePlayedCards.push("<span id = 'playedCardActive"+i+"'>" + board["player" + activePlayer + "Played"][i] + "</span>")
+                }
+                let arrayOfNonactivePlayedCards = [];
+                for(i in board["player" + nonActivePlayer + "Played"]) {
+                    //the nonactive side is fine- you can't use nonactive cards lol
+                    arrayOfNonactivePlayedCards.push("<span id = 'playedCardNonActive"+i+"'>" + board["player" + nonActivePlayer + "Played"][i] + "</span>")
                 }
                 $("."+activePlayer+".hand").html("Player " + activePlayer + "'s Hand: " + arrayOfCards.join(" | "))
                 $("."+nonActivePlayer+".hand").html("Player " + nonActivePlayer + "'s Hand: " + arrayOfInactiveCards.join(" | "))
                 $("."+activePlayer+".played").html("Player " + activePlayer + "'s Played Cards: " + arrayOfActivePlayedCards.join(" | "))
+                $("."+nonActivePlayer+".played").html("Player " + nonActivePlayer + "'s Played Cards: " + arrayOfNonactivePlayedCards.join(" | "))
                 
+                $("."+activePlayer+".endTurn").css("display", "block")
+                $("."+nonActivePlayer+".endTurn").css("display", "none")
+
+                if(board["player" + activePlayer + "Discard"].length === 0) {
+                    $("."+activePlayer+".discard").html("Player " + activePlayer + "'s Discard Pile: ")
+                } else {
+                    $("."+activePlayer+".discard").html("Player " + activePlayer + "'s Discard Pile: " + board["player" + activePlayer + "Discard"][board["player" + activePlayer + "Discard"].length - 1])
+                }
+                if(board["player" + nonActivePlayer + "Discard"].length === 0) {
+                    $("."+nonActivePlayer+".discard").html("Player " + nonActivePlayer + "'s Discard Pile: ")
+                } else {
+                    $("."+nonActivePlayer+".discard").html("Player " + nonActivePlayer + "'s Discard Pile: " + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1])
+                }
+
+                $("#turnCount").html("Turn Count: " + turnCount)
                 $(".playCardButton").click(function(){
                     board["player"+activePlayer+"Hand"].splice($(this).attr("id").replace("playCard", ""), 1)
                     board["player"+activePlayer+"Played"].push($(this).prev().html())
