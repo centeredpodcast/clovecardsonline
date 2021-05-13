@@ -37,6 +37,7 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
     <script src="scripts/functions.js"></script>
+    
     <script src="scripts/onOpen.js"></script> <!--Calls the onOpen.js file-->
     <script>
         var activePlayer = 1;
@@ -91,6 +92,7 @@
             displayBoard();
             
         }
+        
         if(!eligibleDeckOne) {
             $("main").html("Deck One isn't eligible to play the game!")
         } else if(!eligibleDeckTwo) {
@@ -101,6 +103,24 @@
             board.player1Hand = board.player1Deck.splice(0, 4)
             board.player2Hand = board.player2Deck.splice(0, 4)
             function displayBoard() {
+                function abilities(cardName, abilityID) {
+                    //var nonActivePlayer = (activePlayer)%2+1
+                    console.log(abilityID)
+                    if(Number(abilityID) === 0) {
+                        console.log('asdflk')
+                        let randomCardOfOtherPerson = board["player" + nonActivePlayer + "Hand"][Math.floor(Math.random()*board["player" + nonActivePlayer + "Hand"].length)]
+                        //console.log(randomCardOfOtherPerson)
+                        board["player" + activePlayer + "Played"].splice(board["player" + activePlayer + "Played"].indexOf(cardName, 1))
+                        board["player" + activePlayer + "Played"].push(randomCardOfOtherPerson)
+                        board["player" + nonActivePlayer + "Hand"].splice(board["player" + nonActivePlayer + "Hand"].indexOf(randomCardOfOtherPerson), 1)
+                        board["player" + activePlayer + "Discard"].push(cardName)
+                        //console.log("hello")
+                        //$("<div></div>").html(randomCardOfOtherPerson)
+                        //console.log("hello")
+                        displayBoard()
+                    }
+                    
+                }
                 var nonActivePlayer = (activePlayer)%2+1
                 let arrayOfCards = [];
                 for(i in board["player" + activePlayer + "Hand"]) {
@@ -114,9 +134,15 @@
                 let arrayOfActivePlayedCards = [];
                 for(i in board["player" + activePlayer + "Played"]) {
                     //get amount of abilities card has
+                    let stringOfUseCards = "";
+                    stringOfUseCards = stringOfUseCards + "<span id = 'playedCardActive"+i+"'>" + board["player" + activePlayer + "Played"][i] + "</span>"
+                    for(j in cards[board["player" + activePlayer + "Played"][i]]["Abilities"]) {
+                        stringOfUseCards = stringOfUseCards + " <button class='useCard"+i+" useCardButton' id='ability"+Object.values(cards[board["player" + activePlayer + "Played"][i]]["Abilities"][j])[0]+"'>Use Ability "+Object.keys(cards[board["player" + activePlayer + "Played"][i]]["Abilities"][j])[1]+"</button>"
+                    }
+                    arrayOfActivePlayedCards.push(stringOfUseCards)
                     //for each ability add a string which has <button id='"+j+"useCard"+i+"' class='useCardButton'>Use Ability "+k+"</button> to the string below>>
                     //where k is the name of the ability, j is the #ability the card has and i is the id of the card being played.
-                    arrayOfActivePlayedCards.push("<span id = 'playedCardActive"+i+"'>" + board["player" + activePlayer + "Played"][i] + "</span>")
+                    //arrayOfActivePlayedCards.push("<span id = 'playedCardActive"+i+"'>" + board["player" + activePlayer + "Played"][i] + "</span>")
                 }
                 let arrayOfNonactivePlayedCards = [];
                 for(i in board["player" + nonActivePlayer + "Played"]) {
@@ -148,6 +174,16 @@
                     board["player"+activePlayer+"Played"].push($(this).prev().html())
                     displayBoard()
                 })
+                $(".useCardButton").click(function(){
+                    //console.log("hello")
+                    //console.log(cards[board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")]]["Abilities"][$(this).html().replace("Use Ability ", "")][0])
+                    //console.log($(this).html().replace("Use Ability ", ""))
+                    console.log($(this).attr("id").replace("ability", ""))
+                    //console.log(cards[board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")]]["Abilities"][$(this).html().replace("Use Ability ", "")][0])
+                    abilities(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")], $(this).attr("id").replace("ability", ""))
+                    //console.log(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")])
+                    //$(this).html(cards[board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")]]["Abilities"][$(this).html().replace("Use Ability ", "")][0])
+                })
             }
             displayBoard()
             
@@ -155,5 +191,6 @@
             //$(".1.hand").html("Player One's Hand: " + board.player1Hand.join(" | "))
         }
     </script>
+    <script src="scripts/abilities.js"></script>
 </body>
 </html>

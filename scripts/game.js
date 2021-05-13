@@ -3,7 +3,16 @@
 const cards = {
     "Desert Caravan": {
         "Rarity": "Common",
-        "Abilities": "Barter: Choose one random card in your opponents hand and use it as your own until it is discarded. Upon playing this move, discard Desert Caravan\n\nRoadkill: deal 2 damage to an opposing card",
+        "Abilities": [
+            {
+                "ID": 0,
+                "Barter": "Choose one random card in your opponents hand and use it as your own until it is discarded. Upon playing this move, discard Desert Caravan"
+            },
+            {
+                "ID": 1,
+                "Roadkill": "deal 2 damage to an opposing card"
+            }
+        ],
         "Health": 3,
         "Rating": 5,
         "Art Ready?": "In progress",
@@ -12,7 +21,12 @@ const cards = {
     },
     "Novice Explorer": {
         "Rarity": "Common",
-        "Abilities": "Expedition: Allows you to play an extra card in your turn. Once this ability has been used twice, Novice Explorer is discarded",
+        "Abilities": [
+            {
+                "ID": 2,
+                "Expedition": "Allows you to play an extra card in your turn. Once this ability has been used twice, Novice Explorer is discarded"
+            }
+        ],
         "Health": 3,
         "Rating": 5,
         "Art Ready?": "",
@@ -21,7 +35,12 @@ const cards = {
     },
     "Mooshlett": {
         "Rarity": "Common",
-        "Abilities": "Spread the spore: deals 2 damage to an opposing card, and generates a copy of this card, which cannot be used until your next turn.",
+        "Abilities": [
+            { 
+                "ID": 3,    
+                "Spread the spore": "deals 2 damage to an opposing card, and generates a copy of this card, which cannot be used until your next turn."
+            }
+        ],
         "Health": 2,
         "Rating": 5,
         "Art Ready?": "In progress",
@@ -30,7 +49,16 @@ const cards = {
     },
     "Northern Tribesman": {
         "Rarity": "Common",
-        "Abilities": "Arctic Slash: deals 3 damage to an opposing card\nWhirlwind: deals 2 damage to two opposing cards in play, but takes 2 health from Northern Tribesman",
+        "Abilities": [
+            { 
+                "ID": 4,
+                "Arctic Slash": "deals 3 damage to an opposing card" 
+            },
+            { 
+                "ID": 5,
+                "Whirlwind": "deals 2 damage to two opposing cards in play, but takes 2 health from Northern Tribesman"
+            }
+        ],
         "Health": 4,
         "Rating": 5,
         "Art Ready?": "",
@@ -39,7 +67,16 @@ const cards = {
     },
     "Mechanic": {
         "Rarity": "Common",
-        "Abilities": "Tune up: gives every other card you have in play 1 additional health point\nPassion Project: gives one other card you have in play 3 additional health points.",
+        "Abilities": [
+            {
+                "ID": 6,
+                "Tune up": "gives every other card you have in play 1 additional health point"
+            },
+            {
+                "ID": 7,
+                "Passion Project": "gives one other card you have in play 3 additional health points."
+            }
+        ],
         "Health": 3,
         "Rating": 5,
         "Art Ready?": "",
@@ -48,7 +85,16 @@ const cards = {
     },
     "Outlaw": {
         "Rarity": "Common",
-        "Abilities": "Kidnap: deals 2 damage and prevents one opposing card from using any abilities in the next turn\nNever surrender: allows you to allocate 4 damage in any way across all the cards your opponent has in play, but discards the Outlaw.\n",
+        "Abilities": [
+            { 
+                "ID": 8,
+                "Kidnap": "deals 2 damage and prevents one opposing card from using any abilities in the next turn"
+            },
+            {
+                "ID": 9,
+                "Never surrender": "allows you to allocate 4 damage in any way across all the cards your opponent has in play, but discards the Outlaw."
+            }
+        ],
         "Health": 4,
         "Rating": 5,
         "Art Ready?": "",
@@ -57,7 +103,16 @@ const cards = {
     },
     "Snow Spirit": {
         "Rarity": "Common",
-        "Abilities": "Snowy embrace: choose one other card you have in play; your opponent cannot attack this card during the next turn\nArctic Fury: deals 2 damage to an opposing card",
+        "Abilities": [
+            {
+                "ID": 10,
+                "Snowy embrace": "choose one other card you have in play; your opponent cannot attack this card during the next turn"
+            },
+            {
+                "ID": 11,
+                "Arctic Fury": "deals 2 damage to an opposing card"
+            }
+        ],
         "Health": 5,
         "Rating": 5,
         "Art Ready?": "In progress",
@@ -66,7 +121,16 @@ const cards = {
     },
     "Tundra Fox": {
         "Rarity": "Common",
-        "Abilities": "Leap of faith: has a 50/50 chance of dealing 2 damage to an opposing card\nBurrow: prevents your opponent from attacking Tundra Fox during the next turn",
+        "Abilities": [
+            {
+                "ID": 12,
+                "Leap of faith": "has a 50/50 chance of dealing 2 damage to an opposing card"
+            },
+            {
+                "ID": 13,
+                "Burrow": "prevents your opponent from attacking Tundra Fox during the next turn"
+            }
+        ],
         "Health": 2,
         "Rating": 5,
         "Art Ready?": "",
@@ -75,7 +139,16 @@ const cards = {
     },
     "Peace Keeper": {
         "Rarity": "Common",
-        "Abilities": "Devils Advocate: deals 3 damage to an opposing card\nNegotiations: choose one card you have in play; if your opponent attacks this card during their next turn, the card will receive two less damage.",
+        "Abilities": [
+            {
+                "ID": 14,
+                "Devils Advocate": "deals 3 damage to an opposing card"
+            },
+            {
+                "ID": 15,
+                "Negotiations": "choose one card you have in play; if your opponent attacks this card during their next turn, the card will receive two less damage."
+            }
+        ],
         "Health": 5,
         "Rating": 5,
         "Art Ready?": "In progress",
@@ -84,7 +157,16 @@ const cards = {
     },
     "Street Theif": {
         "Rarity": "Common",
-        "Abilities": "One with the shadows: prevents your opponent from attacking the street thief during the next turn, and gives it one additional health point\nHijack: allows the street thief to perform any ability that the opposing cards in play have; but discards street thief ",
+        "Abilities": [
+            {
+                "ID": 16,
+                "One with the shadows": "prevents your opponent from attacking the street thief during the next turn, and gives it one additional health point"
+            },
+            {
+                "ID": 17,
+                "Hijack": "allows the street thief to perform any ability that the opposing cards in play have; but discards street thief "
+            }
+        ],
         "Health": 2,
         "Rating": 5,
         "Art Ready?": "",
@@ -93,7 +175,16 @@ const cards = {
     },
     "Scholar": {
         "Rarity": "Common",
-        "Abilities": "Self defense: deals 1 damage to an opposing card\nPersuade: allows you to use an opposing card as your own for two turns, but discards the scholar",
+        "Abilities": [
+            {
+                "ID": 18,
+                "Self defense": "deals 1 damage to an opposing card"
+            },
+            {
+                "ID": 19,
+                "Persuade": "allows you to use an opposing card as your own for two turns, but discards the scholar"
+            }
+        ],
         "Health": 2,
         "Rating": 5,
         "Art Ready?": "",
@@ -102,7 +193,16 @@ const cards = {
     },
     "Woodsman": {
         "Rarity": "Common",
-        "Abilities": "Woodland defense: deals 3 damage to an opposing card\nNatural Instinct: allows you to view one random card from your opponents hand (can only be used once)",
+        "Abilities": [
+            {
+                "ID": 20,
+                "Woodland defense": "deals 3 damage to an opposing card"
+            },
+            {
+                "ID": 21,
+                "Natural Instinct": "allows you to view one random card from your opponents hand (can only be used once)"
+            }
+        ],
         "Health": 3,
         "Rating": 5,
         "Art Ready?": "In progress",
