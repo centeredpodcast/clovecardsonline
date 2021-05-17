@@ -24,6 +24,7 @@ function getStartingDeck(arr, n) {
     return resultingDeck
 }
 function showDecks(first) {
+    if(!first) console.log(decks[activeDeck].length)
     decks=decks.filter(function(el) { return el; })
     var eligibleDeckOne = false; //The active deck for player one is automatically not eligible.
     var eligibleDeckTwo = false; //Same thing for the player two deck.
@@ -128,17 +129,19 @@ function showDecks(first) {
         //Get rid of all null values in decks!
         decks[l]=decks[l].filter(function(el) { return el; })
     }
-    if(decks[activeDeck].length = 10) {
+    console.log(decks[activeDeck].length)
+    if(decks[activeDeck].length === 10) {
         eligibleDeckOne = true
         //if the active deck for player one has exactly 10 cards, then its eligible to play.
     } 
-    if(decks[activeDeckPlayerTwo].length > 10) {
+    console.log(decks[activeDeck].length)
+    if(decks[activeDeckPlayerTwo].length === 10) {
         eligibleDeckTwo = true
         //if the active deck for player two has exactly 10 cards, then its eligible to play.
     } 
     $("#clear").html('<h2 id="cardsHeader">Cards:</h2><h2 id="decksHeader">Decks:</h2><button id="newDeckButton" style="display: inline;">New Deck!</button><button id="switchActiveDecksButton" style="display: inline;">Switch your active decks!</button><button id="createTenCardDeck">Create a 10 card deck!</button><br /><span id="afterDecks" style="display: none;"></span>') 
     //clear the board and reset it.
-
+    console.log(decks[activeDeck].length)
     /**
      * Show the cards you have!
      **/
@@ -162,7 +165,7 @@ function showDecks(first) {
     }
     //Then, show the cards and split them with a |.
     $("#cardsHeader").after(arrayOfCards.join(" | "))
-
+    console.log(decks[activeDeck].length)
     /**
      * Show each deck you have!
      * Active Deck Functionality!
@@ -201,7 +204,9 @@ function showDecks(first) {
     //Show the decks that are active as active!
     $("#deck"+activeDeck).after($("<span class='activeDeck'> - <i>Active Deck: Player 1</i></span><span class='afterActiveDeck1' style='display: none;'></span>"))
     $("#deck"+activeDeckPlayerTwo).after($("<span class='activeDeckPlayerTwo'> - <i>Active Deck: Player 2</i></span><span class='afterActiveDeck2' style='display: none;'></span>"))
+    console.log(decks[activeDeck].length)
     if(decks[activeDeck].length > 10) { //if the active deck for player one has more than 10 cards
+        console.log("this should show up")
         $(".afterActiveDeck1")
             .html("<b>This deck has more than 10 cards! You won't be able to play with this deck.</b>")
             .css("display", "inline")
@@ -353,7 +358,7 @@ function showDecks(first) {
                     //You can add that card to the deck, so add that card to the deck!
                     decks[$(this).html().replace("Deck ", "")-1].push($(this).parent().prev().html())
                     //Reshow everything!
-                    
+                    console.log("hello")
                     showDecks()
                 }
             } 
