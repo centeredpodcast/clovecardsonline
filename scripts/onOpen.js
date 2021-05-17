@@ -117,12 +117,12 @@ for(l in decks) {
     //Get rid of all null values in decks!
     decks[l]=decks[l].filter(function(el) { return el; })
 }
-if(decks[activeDeck].length = 10) {
+if(decks[activeDeck].length === 10) {
     eligibleDeckOne = true
     //if the active deck for player one has exactly 10 cards, then its eligible to play.
 } 
 //console.log(decks[activeDeckPlayerTwo].length)
-if(decks[activeDeckPlayerTwo].length = 10) {
+if(decks[activeDeckPlayerTwo].length === 10) {
     //console.log("lsdajfl;")
     eligibleDeckTwo = true
     //if the active deck for player two has exactly 10 cards, then its eligible to play.

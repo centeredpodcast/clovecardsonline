@@ -2,6 +2,7 @@
 
 const cards = {
     "Desert Caravan": {
+        "ID": 0,
         "Rarity": "Common",
         "Abilities": [
             {
@@ -20,6 +21,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Novice Explorer": {
+        "ID": 1,
         "Rarity": "Common",
         "Abilities": [
             {
@@ -34,6 +36,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Mooshlett": {
+        "ID": 2,
         "Rarity": "Common",
         "Abilities": [
             { 
@@ -48,6 +51,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Northern Tribesman": {
+        "ID": 3,
         "Rarity": "Common",
         "Abilities": [
             { 
@@ -66,6 +70,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Mechanic": {
+        "ID": 4,
         "Rarity": "Common",
         "Abilities": [
             {
@@ -84,6 +89,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Outlaw": {
+        "ID": 5,
         "Rarity": "Common",
         "Abilities": [
             { 
@@ -102,6 +108,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Snow Spirit": {
+        "ID": 6,
         "Rarity": "Common",
         "Abilities": [
             {
@@ -120,6 +127,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Tundra Fox": {
+        "ID": 7,
         "Rarity": "Common",
         "Abilities": [
             {
@@ -138,6 +146,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Peace Keeper": {
+        "ID": 8,
         "Rarity": "Common",
         "Abilities": [
             {
@@ -156,6 +165,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Street Theif": {
+        "ID": 9,
         "Rarity": "Common",
         "Abilities": [
             {
@@ -174,6 +184,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Scholar": {
+        "ID": 10,
         "Rarity": "Common",
         "Abilities": [
             {
@@ -192,6 +203,7 @@ const cards = {
         "Sound Effects": ""
     },
     "Woodsman": {
+        "ID": 11,
         "Rarity": "Common",
         "Abilities": [
             {
