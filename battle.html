@@ -158,6 +158,9 @@
             //console.log(decks)
             
             function displayBoard() {
+                let endTurnChecks = {
+                    //all the checks to see if an end turn forcibly happens, and then set up if statements to run the change turn function if everything here is true.
+                }
                 function abilities(cardName, abilityID, cardID) {
                     console.log(cardID)
                     //var nonActivePlayer = (activePlayer)%2+1
@@ -181,7 +184,29 @@
                         }
                         
                     } else if(Number(abilityID) === 1) {
-
+                        console.log("hello")
+                        if(board["player" + nonActivePlayer + "Played"].length > 0) {
+                            let listOfPlayedCards = "Card to deal damage to: ";
+                            for(let f in board["player" + nonActivePlayer + "Played"]) {
+                                listOfPlayedCards += "<button class='roadKill roadkill"+board["player" + nonActivePlayer + "Played"][f][1]+"'>"+ board["player" + nonActivePlayer + "Played"][f][0] + "</button>"
+                                //console.log(".roadkill"+board["player" + nonActivePlayer + "Played"][f][1])
+                                
+                                
+                            }
+                            
+                            $("#ability"+abilityID).parent().append(listOfPlayedCards)
+                            $("#ability"+abilityID).remove()
+                            $(".roadKill").click(function(){
+                                cardHealths["card"+$(this).attr("class").replace("roadKill", "").replace("roadkill", "").replace(" ", "")] -= 2
+                                displayBoard()
+                                //delete that and implement a way to deplete 2 health from a card
+                                //checks for if a card has 0 health left? do that in show active played cards and show inactive played cards, I think.
+                            })
+                            
+                        } else {
+                            console.log("dslf;")
+                            //there isnt a card to deal damage to!
+                        }
                     }
                     
                 }
@@ -205,42 +230,52 @@
                 function showActivePlayedCards() {
                     let arrayOfActivePlayedCards = [];
                     for(i in board["player" + activePlayer + "Played"]) {
-                        //get amount of abilities card has
-                        let stringOfUseCards = "";
-                        stringOfUseCards = stringOfUseCards + "<span id = 'playedCardActive"+i+"' class='cardID"+board["player" + activePlayer + "Played"][i][1]+"'>" + board["player" + activePlayer + "Played"][i][0] + "</span>"
-                        //console.log(playerDecks)
-                        //the number used to get the cards' health is off...
-                        //console.log(board["player" + activePlayer + "Hand"].concat(board["player" + activePlayer + "Deck"]))
-                        console.log(board["player" + activePlayer + "Played"][i])
-                        stringOfUseCards = stringOfUseCards + " <span class='cardID"+board["player" + activePlayer + "Played"][i][1]+"Abilities'>Health: " + cardHealths["card" + board["player" + activePlayer + "Played"][i][1]] + "/" + cards[board["player" + activePlayer + "Played"][i][0]]["Health"]
-                        for(j in cards[board["player" + activePlayer + "Played"][i][0]]["Abilities"]) {
-                            stringOfUseCards = stringOfUseCards + " <button class='useCard"+i+" useCardButton' id='ability"+Object.values(cards[board["player" + activePlayer + "Played"][i][0]]["Abilities"][j])[0]+"'>Use Ability "+Object.keys(cards[board["player" + activePlayer + "Played"][i][0]]["Abilities"][j])[1]+"</button>"
+                        if(cardHealths["card"+board["player" + activePlayer + "Played"][i][1]]<=0) {
+                            board["player" + activePlayer + "Discard"].push(board["player" + activePlayer + "Played"].splice(i, 1)[0])
+                        } else {
+                            //get amount of abilities card has
+                            let stringOfUseCards = "";
+                            stringOfUseCards = stringOfUseCards + "<span id = 'playedCardActive"+i+"' class='cardID"+board["player" + activePlayer + "Played"][i][1]+"'>" + board["player" + activePlayer + "Played"][i][0] + "</span>"
+                            //console.log(playerDecks)
+                            //the number used to get the cards' health is off...
+                            //console.log(board["player" + activePlayer + "Hand"].concat(board["player" + activePlayer + "Deck"]))
+                            console.log(board["player" + activePlayer + "Played"][i])
+                            stringOfUseCards = stringOfUseCards + " <span class='cardID"+board["player" + activePlayer + "Played"][i][1]+"Abilities'>Health: " + cardHealths["card" + board["player" + activePlayer + "Played"][i][1]] + "/" + cards[board["player" + activePlayer + "Played"][i][0]]["Health"]
+                            for(j in cards[board["player" + activePlayer + "Played"][i][0]]["Abilities"]) {
+                                stringOfUseCards = stringOfUseCards + " <button class='useCard"+i+" useCardButton' id='ability"+Object.values(cards[board["player" + activePlayer + "Played"][i][0]]["Abilities"][j])[0]+"'>Use Ability "+Object.keys(cards[board["player" + activePlayer + "Played"][i][0]]["Abilities"][j])[1]+"</button>"
+                            }
+                            arrayOfActivePlayedCards.push(stringOfUseCards)
+                            //for each ability add a string which has <button id='"+j+"useCard"+i+"' class='useCardButton'>Use Ability "+k+"</button> to the string below>>
+                            //where k is the name of the ability, j is the #ability the card has and i is the id of the card being played.
+                            //arrayOfActivePlayedCards.push("<span id = 'playedCardActive"+i+"'>" + board["player" + activePlayer + "Played"][i] + "</span>")
                         }
-                        arrayOfActivePlayedCards.push(stringOfUseCards)
-                        //for each ability add a string which has <button id='"+j+"useCard"+i+"' class='useCardButton'>Use Ability "+k+"</button> to the string below>>
-                        //where k is the name of the ability, j is the #ability the card has and i is the id of the card being played.
-                        //arrayOfActivePlayedCards.push("<span id = 'playedCardActive"+i+"'>" + board["player" + activePlayer + "Played"][i] + "</span>")
+                        
                     }
                     $("."+activePlayer+".played").html("Player " + activePlayer + "'s Played Cards: " + arrayOfActivePlayedCards.join(" | "))
                 }
                 function showInactivePlayedCards() {
                     let arrayOfInActivePlayedCards = [];
                     for(i in board["player" + nonActivePlayer + "Played"]) {
-                        //get amount of abilities card has
-                        let stringOfPlayedCards = "";
-                        stringOfPlayedCards = stringOfPlayedCards + "<span id = 'playedCardNonActive"+i+"' class='cardID"+board["player" + nonActivePlayer + "Played"][i][1]+"'>" + board["player" + nonActivePlayer + "Played"][i][0] + "</span>"
-                        //console.log(playerDecks)
-                        //the number used to get the cards' health is off...
-                        //console.log(board["player" + activePlayer + "Hand"].concat(board["player" + activePlayer + "Deck"]))
-                        stringOfPlayedCards = stringOfPlayedCards + " <span>Health: " + cardHealths["card" + board["player" + nonActivePlayer + "Played"][i][1]] + "/" + cards[board["player" + nonActivePlayer + "Played"][i][0]]["Health"]
-                        console.log(board["player" + nonActivePlayer + "Played"][i])
-                        for(j in cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"]) {
-                            stringOfPlayedCards = stringOfPlayedCards + " <span class='nonActiveCardAbility"+i+"' id='ability"+Object.values(cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"][j])[0]+"'>Ability "+Object.keys(cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"][j])[1]+"</span>"
+                        if(cardHealths["card"+board["player" + nonActivePlayer + "Played"][i][1]]<=0) {
+                            board["player" + nonActivePlayer + "Discard"].push(board["player" + nonActivePlayer + "Played"].splice(i, 1)[0])
+                        } else {
+                            //get amount of abilities card has
+                            let stringOfPlayedCards = "";
+                            stringOfPlayedCards = stringOfPlayedCards + "<span id = 'playedCardNonActive"+i+"' class='cardID"+board["player" + nonActivePlayer + "Played"][i][1]+"'>" + board["player" + nonActivePlayer + "Played"][i][0] + "</span>"
+                            //console.log(playerDecks)
+                            //the number used to get the cards' health is off...
+                            //console.log(board["player" + activePlayer + "Hand"].concat(board["player" + activePlayer + "Deck"]))
+                            stringOfPlayedCards = stringOfPlayedCards + " <span>Health: " + cardHealths["card" + board["player" + nonActivePlayer + "Played"][i][1]] + "/" + cards[board["player" + nonActivePlayer + "Played"][i][0]]["Health"]
+                            console.log(board["player" + nonActivePlayer + "Played"][i])
+                            for(j in cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"]) {
+                                stringOfPlayedCards = stringOfPlayedCards + " <span class='nonActiveCardAbility"+i+"' id='ability"+Object.values(cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"][j])[0]+"'>Ability "+Object.keys(cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"][j])[1]+"</span>"
+                            }
+                            arrayOfInActivePlayedCards.push(stringOfPlayedCards)
+                            //for each ability add a string which has <button id='"+j+"useCard"+i+"' class='useCardButton'>Use Ability "+k+"</button> to the string below>>
+                            //where k is the name of the ability, j is the #ability the card has and i is the id of the card being played.
+                            //arrayOfActivePlayedCards.push("<span id = 'playedCardActive"+i+"'>" + board["player" + activePlayer + "Played"][i] + "</span>")
                         }
-                        arrayOfInActivePlayedCards.push(stringOfPlayedCards)
-                        //for each ability add a string which has <button id='"+j+"useCard"+i+"' class='useCardButton'>Use Ability "+k+"</button> to the string below>>
-                        //where k is the name of the ability, j is the #ability the card has and i is the id of the card being played.
-                        //arrayOfActivePlayedCards.push("<span id = 'playedCardActive"+i+"'>" + board["player" + activePlayer + "Played"][i] + "</span>")
+                        
                     }
                     $("."+nonActivePlayer+".played").html("Player " + nonActivePlayer + "'s Played Cards: " + arrayOfInActivePlayedCards.join(" | "))
                 }
@@ -253,6 +288,9 @@
                     if(board["player" + nonActivePlayer + "Discard"].length === 0) {
                         $("."+nonActivePlayer+".discard").html("Player " + nonActivePlayer + "'s Discard Pile: ")
                     } else {
+                        console.log(board["player" + nonActivePlayer + "Discard"].length - 1)
+                        console.log(board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1])
+                        console.log("lol")
                         $("."+nonActivePlayer+".discard").html("Player " + nonActivePlayer + "'s Discard Pile: <span class='cardID" + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][1] + "'>" + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][0] + "</span>")
                     }
                 }
