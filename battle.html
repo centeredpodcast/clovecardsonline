@@ -119,8 +119,8 @@
                 board.player2Deck[g] = [board.player2Deck[g], Number(g)+10]
             }
             console.log(decks)
-            let copyOfBoard = JSON.parse(JSON.stringify(board))
-            let cardData = {
+            var copyOfBoard = JSON.parse(JSON.stringify(board))
+            var cardData = {
                 card0: [cards[board.player1Deck[0][0]].Health, false],
                 card1: [cards[board.player1Deck[1][0]].Health, false],
                 card2: [cards[board.player1Deck[2][0]].Health, false],
