@@ -322,7 +322,7 @@
                                     stringOfUseCards = stringOfUseCards + " <button class='useCard"+i+" useCardButton' id='ability"+Object.values(cards[board["player" + activePlayer + "Played"][i][0]]["Abilities"][j])[0]+"'>Use Ability "+Object.keys(cards[board["player" + activePlayer + "Played"][i][0]]["Abilities"][j])[1]+"</button>"
                                 }
                             }
-                            
+                            stringOfUseCards = stringOfUseCards + "</span>"
                             arrayOfActivePlayedCards.push(stringOfUseCards)
                             //for each ability add a string which has <button id='"+j+"useCard"+i+"' class='useCardButton'>Use Ability "+k+"</button> to the string below>>
                             //where k is the name of the ability, j is the #ability the card has and i is the id of the card being played.
@@ -349,6 +349,7 @@
                             for(j in cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"]) {
                                 stringOfPlayedCards = stringOfPlayedCards + " <span class='nonActiveCardAbility"+i+"' id='ability"+Object.values(cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"][j])[0]+"'>Ability "+Object.keys(cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"][j])[1]+"</span>"
                             }
+                            stringOfPlayedCards = stringOfPlayedCards + "</span>"
                             arrayOfInActivePlayedCards.push(stringOfPlayedCards)
                             //for each ability add a string which has <button id='"+j+"useCard"+i+"' class='useCardButton'>Use Ability "+k+"</button> to the string below>>
                             //where k is the name of the ability, j is the #ability the card has and i is the id of the card being played.
