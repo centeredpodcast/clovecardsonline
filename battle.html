@@ -47,6 +47,7 @@
         var activePlayer = 1;
         var turnCount = 1;
         var updateTurn = false;
+        var playedCardYet = false;
         // console.log(playerDecks.playerDeck1)
         console.log(decks[activeDeck])
         var board = {
@@ -141,7 +142,32 @@
                 card18: [cards[board.player2Deck[8][0]].Health, false],
                 card19: [cards[board.player2Deck[9][0]].Health, false]
             }
-            console.log("hdllo")
+            console.log(board.player2Deck)
+            for(i in cardData) {
+                //cardData[i].push({})
+                if(Number(i.replace("card", ""))<10) {
+                    let newObject = {};
+                    for(j in cards[board.player1Deck[i.replace("card", "")][0]]["Abilities"]) {
+                        
+                        newObject[Object.values(cards[board.player1Deck[i.replace("card", "")][0]]["Abilities"][j])[0]] = 0;
+                        console.log(newObject)
+                        
+                    }
+                    cardData[i].push(newObject)
+                } else {
+                    let newObject = {};
+                    for(j in cards[board.player2Deck[Number(i.replace("card", ""))-10][0]]["Abilities"]) {
+                        
+                        newObject[Object.values(cards[board.player2Deck[Number(i.replace("card", ""))-10][0]]["Abilities"][j])[0]] = 0;
+                        console.log(newObject)
+                        
+                    }
+                    cardData[i].push(newObject)
+                    console.log(Number(i.replace("card", ""))-10)
+                    
+                }
+            }
+            console.log(cardData)
             console.log(decks)
             shuffleDeck(1)
             shuffleDeck(2)
@@ -163,14 +189,19 @@
                     for(let d in cardData) {
                         cardData[d][1]=false;
                     }
+                    playedCardYet = false;
                     updateTurn = false;
                 }
+                
                 let endTurnChecks = {
                     //all the checks to see if an end turn forcibly happens, and then set up if statements to run the change turn function if everything here is true.
                 }
+                console.log(cardData)
                 function abilities(cardName, abilityID, cardID) {
                     function abilityWasUsed() {
                         cardData["card"+cardID][1] = true;
+                        cardData["card"+cardID][2][abilityID]++
+                        console.log(cardData)
                     }
                     console.log(cardID)
                     //var nonActivePlayer = (activePlayer)%2+1
@@ -219,16 +250,46 @@
                             console.log("dslf;")
                             //there isnt a card to deal damage to!
                         }
+                    } else if(Number(abilityID) === 2) {
+                        //novice explorer's ability
+                        playedCardYet = false;
+                        let cardArray = [cardName, cardID]
+                        console.log(Array([cardName, cardID]))
+                        console.log(board["player" + activePlayer + "Played"])
+                        console.log(board["player" + activePlayer + "Played"].indexOf(cardArray))
+                        console.log(cardArray)
+                        if(cardData["card"+cardID][2][abilityID]>0) {
+                            let a = 0;
+                            while(a < board["player" + activePlayer + "Played"].length) {
+                                if(board["player" + activePlayer + "Played"][a][1]==cardID) {
+                                    board["player" + activePlayer + "Played"].splice(a, 1)
+                                    break; //i think theres a glitch here where it also deletes another of your cards but maybe thats fixed, i don't know.
+                                } else {
+                                    a++
+                                }
+                            }
+                            //board["player" + activePlayer + "Played"].splice(board["player" + activePlayer + "Played"].indexOf(cardArray), 1)
+                            board["player" + activePlayer + "Discard"].push([cardName, cardID])
+                        }
+                        abilityWasUsed()
+                        displayBoard()
+                        //if(cardData["card"+cardID])
                     }
                     
                 }
                 
                 var nonActivePlayer = (activePlayer)%2+1
-                
+                console.log(cardData)
                 function showActivePlayerCards() {
                     let arrayOfCards = [];
                     for(i in board["player" + activePlayer + "Hand"]) {
-                        arrayOfCards.push("<span id = 'activeCard"+i+"' class='cardInHand cardID"+board["player" + activePlayer + "Hand"][i][1]+"'>" + board["player" + activePlayer + "Hand"][i][0] + "</span> <button id='playCard"+i+"' class='playCardButton cardID"+board["player" + activePlayer + "Hand"][i][1]+"'>Play Card</button>")
+                        arrayOfCards.push("<span id = 'activeCard"+i+"' class='cardInHand cardID"+board["player" + activePlayer + "Hand"][i][1]+"'>" + board["player" + activePlayer + "Hand"][i][0] + "</span>")
+                        if(!playedCardYet) {
+                            arrayOfCards[arrayOfCards.length - 1] +=" <button id='playCard"+i+"' class='playCardButton cardID"+board["player" + activePlayer + "Hand"][i][1]+"'>Play Card</button>"
+                            
+                        } else {
+                            //don't display the button saying to play the card.
+                        }
                     }
                     arrayOfCards.push("<button id = 'sortCards' onclick = 'sortCards(board[\"player\" + " + activePlayer + " + \"Hand\"], true)'>Sort Cards</button>")
                     $("."+activePlayer+".hand").html("Player " + activePlayer + "'s Hand: " + arrayOfCards.join(" | "))
@@ -318,7 +379,7 @@
                 showActivePlayedCards()
                 showInactivePlayedCards()
                 showDiscardPiles()
-                
+                console.log(cardData)
                 $("."+activePlayer+".endTurn").css("display", "block")
                 $("."+nonActivePlayer+".endTurn").css("display", "none")
                 $("." + activePlayer + ".draw").css("display", "block")
@@ -342,6 +403,7 @@
                         })
                     
                     $(".playCardButton").click(function(){
+                        playedCardYet = true;
                         board["player"+activePlayer+"Hand"].splice($(this).attr("id").replace("playCard", ""), 1)
                         board["player"+activePlayer+"Played"].push([listOfCards[$(this).attr("class").replace("playCardButton", "").replace("cardID", "").replace(" ", "")], $(this).attr("class").replace("playCardButton", "").replace("cardID", "").replace(" ", "")])
                         //i very much dislike this use of .prev()
@@ -351,6 +413,15 @@
                     })
 
                     $(".useCardButton").click(function(){
+                        console.log(cardData)
+                        /* for(i in cardData["card" + $(this).parent().attr("class").replace("cardID", "").replace("Abilities", "")][2]) {
+                            //if(Object.keys(cardData["card" + $(this).parent().attr("class").replace("cardID", "").replace("Abilities", "")][2][i])[0]==$(this).attr("id").replace("ability", "")) {
+                            cardData["card" + $(this).parent().attr("class").replace("cardID", "").replace("Abilities", "")][2][i][$(this).attr("id").replace("ability", "")]++
+                            //make this work
+                            //why did cardData disappear?
+                            //should this go at the end of the abilities function anyway>
+                        } */
+                        //cardData["card"+$(this).attr("id").replace("ability", "")][2]
                         abilities(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")][0], $(this).attr("id").replace("ability", ""), $(this).parent().attr("class").replace("cardID", "").replace("Abilities", ""))
                         //console.log(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")])
                         //$(this).html(cards[board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")]]["Abilities"][$(this).html().replace("Use Ability ", "")][0])
@@ -369,11 +440,11 @@
                     })
                 }
                 hotkeys()
-                
+                console.log(cardData)
                 
             }
             displayBoard()
-            
+            console.log(cardData)
             //$(".2.hand").html("Player Two's Hand: " + board.player2Hand.join(" | "))
             //$(".1.hand").html("Player One's Hand: " + board.player1Hand.join(" | "))
         }
