@@ -439,6 +439,17 @@
                         $("#hovered"+$(this).attr("id").replace("activeCard", "")).remove()
                         previousHTML=""
                     })
+                    $(".played [id^='playedCard']").hover(function(){
+                        let cardAbilityDescription = [];
+                        previousHTML = $(this).html()
+                        for(i in cards[$(this).html()]["Abilities"]) {
+                            cardAbilityDescription.push(Object.keys(cards[$(this).html()]["Abilities"][i])[1] + ": " + Object.values(cards[$(this).html()]["Abilities"][i])[1])
+                        }
+                        $(this).append("<span id='hovered"+$(this).attr("id")+"'>Abilities: " + cardAbilityDescription.join(", "))
+                    }, function(){
+                        $("#hovered"+$(this).attr("id")).remove()
+                        previousHTML=""
+                    })
                 }
                 hotkeys()
                 console.log(cardData)
