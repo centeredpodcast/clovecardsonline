@@ -177,6 +177,7 @@
             function displayBoard() { //display the board function
                 if(updateTurn) { //if you have to update turn
                     for(let d in cardData) {
+                        cardData[d][3]=false;
                         cardData[d][1]=false; //reset every played card thing to false.
                     }
                     playedCardYet = false; //you have not played a card yet this new turn
@@ -265,16 +266,149 @@
                                 //deal 2 damage to that card
                                 cardData["card"+$(this).attr("class").replace("spreadSpore", "").replace("spreadSpore", "").replace(" ", "")][0] -= 2
                                 //create a copy of mooshlett
-                                board["player" + activePlayer + "Hand"].push(["Mooshlett", Object.keys(cardData).length])
+                                board["player" + activePlayer + "Hand"].push(["Mooshlett", String(Object.keys(cardData).length)])
                                 //create a data entry for it
                                 var objectToAdd = {}
                                 objectToAdd[abilityID] = 0;
                                 cardData["card"+Object.keys(cardData).length] = [cards["Mooshlett"].Health, false, objectToAdd, true]
+                                listOfCards.push(cardName)
                                 console.log(cardData)
                                 console.log(board)
                                 abilityWasUsed() //used an ability
                                 displayBoard() //display the board again.
                             })
+                        } else {
+                            //there isnt a card to deal damage to!
+                        }
+                    } else if(Number(abilityID) === 4) { //if ability 4 (Northern Tribesman's Arctic Slash) was used
+                        //if the other person has played a card
+                        if(board["player" + nonActivePlayer + "Played"].length > 0) {
+                            let listOfPlayedCards = "Card to deal damage to: "; //start off what you're going to show with a prompt
+                            for(let f in board["player" + nonActivePlayer + "Played"]) { //for each of their played cards
+                                listOfPlayedCards += "<button class='arcticSlash arcticSlash"+board["player" + nonActivePlayer + "Played"][f][1]+"'>"+ board["player" + nonActivePlayer + "Played"][f][0] + "</button>"
+                                //add a button that when clicked you'll deal damage to that card.
+                            }
+                            //add this list to the page
+                            $("#ability"+abilityID).parent().append(listOfPlayedCards)
+                            $("#ability"+abilityID).remove() //get rid of the button to play this ability
+                            $(".arcticSlash").click(function(){ //when you click on a card to deal damage to
+                                //deal 3 damage to that card
+                                cardData["card"+$(this).attr("class").replace("arcticSlash", "").replace("arcticSlash", "").replace(" ", "")][0] -= 3
+                                abilityWasUsed() //used an ability
+                                displayBoard() //display the board again.
+                            })
+                        } else {
+                            //there isnt a card to deal damage to!
+                        }
+                    } else if(Number(abilityID) === 5) { //if ability 5 (Northern Tribesman's Whirlwind) was used
+                        //if the other person has played a card <-- should this be two+ cards in play?
+                        if(board["player" + nonActivePlayer + "Played"].length >= 2) {
+                            let listOfPlayedCards = "Cards to deal damage to: "; //start off what you're going to show with a prompt
+                            for(let f in board["player" + nonActivePlayer + "Played"]) { //for each of their played cards
+                                listOfPlayedCards += "<button class='notSelected whirlwind whirlwind"+board["player" + nonActivePlayer + "Played"][f][1]+"'>"+ board["player" + nonActivePlayer + "Played"][f][0] + "</button>"
+                                //add a button that when clicked you'll deal damage to that card.
+                            }
+                            listOfPlayedCards+="<button class='submitWhirlwind' style='display: none;'>Submit</button>"
+                            //add this list to the page
+                            $("#ability"+abilityID).parent().append(listOfPlayedCards)
+                            $("#ability"+abilityID).remove() //get rid of the button to play this ability
+                            var selectedCards = [];
+                            $(".whirlwind").click(function(){ //if you click on a card to deal damage to
+                                console.log($(this).attr("class"))
+                                //get the name of the card you clicked
+                                var thisCardName = listOfCards[$(this).attr("class").replace("whirlwind whirlwind", "").replace("notSelected", "").replace("selected", "").replace(" ", "")]
+                                if($(this).hasClass("notSelected")) { //if it wasn't selected previously
+                                    console.log("not selected")
+                                    $(this).removeClass("notSelected").addClass("selected") //select it
+                                    selectedCards.push(thisCardName) //add it to the list
+                                    $(this).html(thisCardName+" | Selected") //say selected on its button
+                                } else if($(this).hasClass("selected")) { //if it was selected previously
+                                    console.log("selected")
+                                    $(this).removeClass("selected").addClass("notSelected") //unselect it
+                                    $(this).html(thisCardName) //reset its html
+                                    selectedCards.splice(selectedCards.indexOf(thisCardName), 1); //delete it from the list
+                                }
+                                console.log(selectedCards)
+                                if(selectedCards.length === 2) { //if there are two selected cards
+                                    $(".submitWhirlwind").css("display", "inline") //show the submit button
+                                } else {
+                                    $(".submitWhirlwind").css("display", "none") //hide it otherwise
+                                }
+                            })
+                            $(".submitWhirlwind").click(function(){
+                                $(".selected").each(function() { //for each selected card
+                                    //take away 2 health
+                                    cardData["card"+$(this).attr("class").replace("selected", "").replace("whirlwind whirlwind", "").replace(" ", "")][0] -= 2
+                                });
+                                cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
+                                abilityWasUsed()
+                                displayBoard()
+                                //you have used your ability, and now redisplay everything.
+                                $(".selected").each(function() { //for each selected card
+                                    //take away 2 health
+                                    cardData["card"+$(this).attr("class").replace("selected", "").replace("whirlwind whirlwind", "").replace(" ", "")][0] -= 2
+                                });
+                                cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
+                                abilityWasUsed()
+                                displayBoard()
+                                //you have used your ability, and now redisplay everything.
+                            
+                            })
+                            /* function whirlwindHotkey() { //create a recursive function that can run again to reset click functions.
+                                function showSubmitButton(selector) {
+                                    $(selector).unbind('click') //test unbinds
+                                    if(selectedCards.length === 2) {
+                                        //add a button to submit
+                                        $(selector).parent().append("<button class='submitWhirlwind'>Submit</button>")
+                                        $(".submitWhirlwind").click(function(){ //when you clikc it
+                                            $(".selected").each(function() { //for each selected card
+                                                //take away 2 health
+                                                cardData["card"+$(selector).attr("class").replace("selected", "").replace("whirlwind whirlwind", "").replace(" ", "")][0] -= 2
+                                            });
+                                            cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
+                                            abilityWasUsed()
+                                            displayBoard()
+                                            //you have used your ability, and now redisplay everything.
+                                        })
+                                    } else { //if there aren't two cards selected
+                                        console.log("wefkl;j")
+                                        if($(".submitWhirlwind")) { //if there is a submit button
+                                            $(".submitWhirlwind").remove() //delete it
+                                        }
+                                    }
+                                }
+                                $(".whirlwind.notSelected").click(function(){ //when you click on a card to deal damage to
+                                    //select it
+                                    $(this).unbind('click')
+                                    $(this).removeClass("notSelected").addClass("selected")
+                                    //Set its html to the name of the card and selected.
+                                    $(this).html(listOfCards[$(this).attr("class").replace("whirlwind whirlwind", "").replace(" notSelected", "").replace(" selected", "")]+" | Selected")
+                                    selectedCards.push(listOfCards[$(this).attr("class").replace("whirlwind whirlwind", "").replace(" notSelected", "").replace(" selected", "")])
+                                    //this ran 3 times... why?
+                                    console.log(selectedCards)
+                                    $(this).unbind('click')
+                                    //unbind click so this function doesn't run again until called.
+                                    //if there are exactly two cards selected (so i guess this should only run if 2+ cards are played)
+                                    showSubmitButton(this)
+                                    $(this).click(function(){ //if you click on a selected card
+                                        //unselect it
+                                        $(this).unbind('click')
+                                        $(this).removeClass("selected").addClass("notSelected")
+                                        $(this).html($(this).html().replace(" | Selected", "")) //remove the selected from the html
+                                        selectedCards.splice(selectedCards.indexOf($(this).html()), 1)
+                                        console.log(selectedCards)
+                                        $(this).unbind('click')
+                                        //recall the function so the select function works again.
+                                        showSubmitButton(this) //when should the submit button show up?
+                                        //when there are two cards in selected cards
+                                        whirlwindHotkey()
+                                        
+                                    })
+                                })
+                                console.log(selectedCards)
+                            }
+                            whirlwindHotkey() //call the function to select a card for whirlwind                
+                        */
                         } else {
                             //there isnt a card to deal damage to!
                         }
@@ -319,6 +453,9 @@
                             stringOfUseCards = stringOfUseCards + "<span id = 'playedCardActive"+i+"' class='cardID"+board["player" + activePlayer + "Played"][i][1]+"'>" + board["player" + activePlayer + "Played"][i][0] + "</span>"
                             //Add the name of the card
                             //add its health
+                            console.log(board["player" + activePlayer + "Played"][i][0])
+                            console.log(board["player" + activePlayer + "Played"][i])
+                            console.log(board["player" + activePlayer + "Played"])
                             stringOfUseCards = stringOfUseCards + " <span class='cardID"+board["player" + activePlayer + "Played"][i][1]+"Abilities'>Health: " + cardData["card" + board["player" + activePlayer + "Played"][i][1]][0] + "/" + cards[board["player" + activePlayer + "Played"][i][0]]["Health"]
                             if(cardData["card"+board["player" + activePlayer + "Played"][i][1]][1]) { //if you have used this card already, then you can't use it again
                                 stringOfUseCards+="You've already used this card once this turn!"
