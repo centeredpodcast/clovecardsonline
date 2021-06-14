@@ -344,15 +344,6 @@
                                 abilityWasUsed()
                                 displayBoard()
                                 //you have used your ability, and now redisplay everything.
-                                $(".selected").each(function() { //for each selected card
-                                    //take away 2 health
-                                    cardData["card"+$(this).attr("class").replace("selected", "").replace("whirlwind whirlwind", "").replace(" ", "")][0] -= 2
-                                });
-                                cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
-                                abilityWasUsed()
-                                displayBoard()
-                                //you have used your ability, and now redisplay everything.
-                            
                             })
                             /* function whirlwindHotkey() { //create a recursive function that can run again to reset click functions.
                                 function showSubmitButton(selector) {
