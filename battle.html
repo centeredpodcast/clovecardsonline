@@ -610,6 +610,13 @@
                     })
                 }
                 hotkeys() //call the hotkeys originally so they work off the ba
+
+                for(i in board) {
+                    console.log("hi")
+                    for(j in board[i]) {
+                        $("#board").after($("<span>" + board[i][j][0] + " ("+board[i][j][1]+"): " + i + "</span><br />"))
+                    }
+                }
             }
             //show the board when you load the page.
             displayBoard()
