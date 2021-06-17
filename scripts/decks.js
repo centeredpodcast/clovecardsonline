@@ -368,7 +368,15 @@ function showDecks(first) {
 showDecks(true);
 //This triggers when the page first loads. This is true so you don't update the localstorage with the preset variables.
 
-$(".testbutton").click(function(){
-    addCards(["secondone", "lol", "lol", "what", "name", "Tundra Fox", "lol"])
-    showDecks(true);
-})
+/*$(".testbutton").click(function(){
+    for(i in cards) {
+        $(".testbutton").after($("<button class='" + i + "'>" + i + "</button>"))
+        $("."+i).click(function(){
+            yourCards.push($(this).html())
+            showDecks()
+        })
+        
+    }
+    //addCards(["secondone", "lol", "lol", "what", "name", "Tundra Fox", "lol"])
+    //showDecks(true);
+})*/

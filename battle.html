@@ -192,17 +192,22 @@
                         cardData["card"+cardID][1] = true; //set the marker to true; you did use that ability.
                         cardData["card"+cardID][2][abilityID]++ //up the amount of times you've used each card's ability
                     }
-                    
+                    function errorMessage(errorMessage, abilityName, abilityButton, override) {
+                        if(!override) $(abilityButton).replaceWith($("<span>Couldn't use ability " + abilityName + "; " + errorMessage + "</span>"))
+                        if(override) {
+                            $(abilityButton).replaceWith($("<span>"+override+" " + abilityName + "; " + errorMessage + "</span>"))
+                        }
+                    }
                     //If ability 0 (Desert Caravan's Barter) was used
                     if(Number(abilityID) === 0) {
                         if(board["player" + nonActivePlayer + "Hand"].length > 0) { //if the other person has cards in their hand
                             //get a random card from their hand
                             let randomCardOfOtherPerson = board["player" + nonActivePlayer + "Hand"][Math.floor(Math.random()*board["player" + nonActivePlayer + "Hand"].length)]
                             //get rid of Desert Caravan from your hands
-                            board["player" + activePlayer + "Played"].splice(board["player" + activePlayer + "Played"].indexOf(cardName, 1))
+                            board["player" + activePlayer + "Played"].splice(board["player" + activePlayer + "Played"].indexOf([cardName, cardID], 1))
                             //add the random card to your hand
                             board["player" + activePlayer + "Played"].push(randomCardOfOtherPerson)
-                            //get rid of the random card from the other person's handd
+                            //get rid of the random card from the other person's hand
                             board["player" + nonActivePlayer + "Hand"].splice(board["player" + nonActivePlayer + "Hand"].indexOf(randomCardOfOtherPerson), 1)
                             //add desert caravan to your discard pile
                             board["player" + activePlayer + "Discard"].push([cardName, cardID])
@@ -211,6 +216,7 @@
                             displayBoard() //redisplay the board.
                         } else {
                             //you dont have a card to take from the other person!
+                            errorMessage("there is not a card to take from the your opponent!", "Barter", "#ability"+abilityID)
                         }
                     } else if(Number(abilityID) === 1) { //if ability 1 (Desert Caravan's Roadkill) was used
                         //if the other person has played a card
@@ -231,6 +237,7 @@
                             })
                         } else {
                             //there isnt a card to deal damage to!
+                            errorMessage("your opponent has not played a card to deal damage to!", "Roadkill", "#ability"+abilityID)
                         }
                     } else if(Number(abilityID) === 2) { //if ability 2 (Novice Explorer's Expedition) was used
                         //change playedcardyet to false, so you can play one more card!
@@ -250,6 +257,7 @@
                         }
                         abilityWasUsed() //an ability was used
                         displayBoard() //redisplay the board
+                        //should this not be able to run if there is not another card in your hand?
                     } else if(Number(abilityID) === 3) {//if ability 3 (Mooshlett's Spread the Spore) was used
                         //if the other person has played a card
                         console.log("hi")
@@ -279,6 +287,7 @@
                             })
                         } else {
                             //there isnt a card to deal damage to!
+                            errorMessage("your opponent has not played a card to deal damage to!", "Spread the Spore", "#ability"+abilityID)
                         }
                     } else if(Number(abilityID) === 4) { //if ability 4 (Northern Tribesman's Arctic Slash) was used
                         //if the other person has played a card
@@ -299,6 +308,7 @@
                             })
                         } else {
                             //there isnt a card to deal damage to!
+                            errorMessage("your opponent has not played a card to deal damage to!", "Arctic Slash", "#ability"+abilityID)
                         }
                     } else if(Number(abilityID) === 5) { //if ability 5 (Northern Tribesman's Whirlwind) was used
                         //if the other person has played a card <-- should this be two+ cards in play?
@@ -345,63 +355,99 @@
                                 displayBoard()
                                 //you have used your ability, and now redisplay everything.
                             })
-                            /* function whirlwindHotkey() { //create a recursive function that can run again to reset click functions.
-                                function showSubmitButton(selector) {
-                                    $(selector).unbind('click') //test unbinds
-                                    if(selectedCards.length === 2) {
-                                        //add a button to submit
-                                        $(selector).parent().append("<button class='submitWhirlwind'>Submit</button>")
-                                        $(".submitWhirlwind").click(function(){ //when you clikc it
-                                            $(".selected").each(function() { //for each selected card
-                                                //take away 2 health
-                                                cardData["card"+$(selector).attr("class").replace("selected", "").replace("whirlwind whirlwind", "").replace(" ", "")][0] -= 2
-                                            });
-                                            cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
-                                            abilityWasUsed()
-                                            displayBoard()
-                                            //you have used your ability, and now redisplay everything.
-                                        })
-                                    } else { //if there aren't two cards selected
-                                        console.log("wefkl;j")
-                                        if($(".submitWhirlwind")) { //if there is a submit button
-                                            $(".submitWhirlwind").remove() //delete it
-                                        }
-                                    }
-                                }
-                                $(".whirlwind.notSelected").click(function(){ //when you click on a card to deal damage to
-                                    //select it
-                                    $(this).unbind('click')
-                                    $(this).removeClass("notSelected").addClass("selected")
-                                    //Set its html to the name of the card and selected.
-                                    $(this).html(listOfCards[$(this).attr("class").replace("whirlwind whirlwind", "").replace(" notSelected", "").replace(" selected", "")]+" | Selected")
-                                    selectedCards.push(listOfCards[$(this).attr("class").replace("whirlwind whirlwind", "").replace(" notSelected", "").replace(" selected", "")])
-                                    //this ran 3 times... why?
-                                    console.log(selectedCards)
-                                    $(this).unbind('click')
-                                    //unbind click so this function doesn't run again until called.
-                                    //if there are exactly two cards selected (so i guess this should only run if 2+ cards are played)
-                                    showSubmitButton(this)
-                                    $(this).click(function(){ //if you click on a selected card
-                                        //unselect it
-                                        $(this).unbind('click')
-                                        $(this).removeClass("selected").addClass("notSelected")
-                                        $(this).html($(this).html().replace(" | Selected", "")) //remove the selected from the html
-                                        selectedCards.splice(selectedCards.indexOf($(this).html()), 1)
-                                        console.log(selectedCards)
-                                        $(this).unbind('click')
-                                        //recall the function so the select function works again.
-                                        showSubmitButton(this) //when should the submit button show up?
-                                        //when there are two cards in selected cards
-                                        whirlwindHotkey()
-                                        
-                                    })
-                                })
-                                console.log(selectedCards)
-                            }
-                            whirlwindHotkey() //call the function to select a card for whirlwind                
-                        */
                         } else {
                             //there isnt a card to deal damage to!
+                            errorMessage("your opponent has not played two+ cards to deal damage to!", "Whirlwind", "#ability"+abilityID)
+                        }
+                    } else if(Number(abilityID) === 6) { //if ability 6 (Mechanic's Tune Up) was used
+                        //if you have played another card
+                        if(board["player" + activePlayer + "Played"].length > 1) {
+                            
+                            //tune up is not working. fix
+                            let listOfCardsToHeal = []; //start off what you're going to show with a prompt
+                            for(let f in board["player" + activePlayer + "Played"]) { //for each of their played cards
+                                console.log(f)
+                                if(board["player" + activePlayer + "Played"][f][1] != cardID) { //for every card that isn't this mechanic card
+                                    console.log(cardData["card"+board["player" + activePlayer + "Played"][f][1]][0])
+                                    console.log(cards[listOfCards[board["player" + activePlayer + "Played"][f][1]]])
+                                    if(cardData["card"+board["player" + activePlayer + "Played"][f][1]][0]<cards[listOfCards[board["player" + activePlayer + "Played"][f][1]]]["Health"]) {
+                                        console.log(false)
+                                        listOfCardsToHeal.push(board["player" + activePlayer + "Played"][f][1])
+                                    }
+                                    //listOfPlayedCards += "<button class='tuneUp tuneUp"+board["player" + activePlayer + "Played"][f][1]+"'>"+ board["player" + activePlayer + "Played"][f][0] + "</button>"
+                                    //add a button that when clicked you'll heal that card.
+                                }
+                            }
+                            console.log(listOfCardsToHeal)
+                            if(listOfCardsToHeal == []) { //all your cards are full health
+                                //error message
+                                errorMessage("the rest of your cards in play are fully healed!", "Tune Up", "#ability6", "Could not use ability")
+                            } else {
+                                for(let e of listOfCardsToHeal) {
+                                    cardData["card" + e][0]+=1 //heal 1 damage to each card to heal
+                                    abilityWasUsed()
+                                    displayBoard()
+                                }
+                            }
+
+                            //add this list to the page
+                            /*$("#ability"+abilityID).parent().append(listOfPlayedCards)
+                            $("#ability"+abilityID).remove() //get rid of the button to play this ability
+                            $(".tuneUp").click(function(){ //when you click on a card to heal
+                                console.log(cards[listOfCards[$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")]]["Health"])
+                                console.log(cardData["card"+$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")][0])
+                                if(cardData["card"+$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")][0] < cards[listOfCards[$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")]]["Health"]) {
+                                    cardData["card"+$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")][0] += 1
+                                    //heal 1 damage to that card
+                                    abilityWasUsed() //used an ability
+                                    displayBoard() //display the board again.
+                                } else { //the card is at full health
+                                    errorMessage("this card is at full health!", listOfCards[$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")], ".tuneUp"+$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", ""), "Couldn't heal")
+                                }
+
+                                
+                                
+                            })*/
+                        } else {
+                            //there isnt a card to heal damage to!
+                            errorMessage("you have not played another card to heal!", "Tune Up", "#ability"+abilityID)
+                        }
+                    } else if(Number(abilityID) === 7) { //if ability 7 (Mechanic's Passion Project) was used
+                        //if you have played another card
+                        if(board["player" + activePlayer + "Played"].length > 1) {
+                            let listOfPlayedCards = "Card to heal: "; //start off what you're going to show with a prompt
+                            for(let f in board["player" + activePlayer + "Played"]) { //for each of their played cards
+                                if(board["player" + activePlayer + "Played"][f][1] !== cardID) { //for every card that isn't this mechanic card
+                                    listOfPlayedCards += "<button class='passionProject passionProject"+board["player" + activePlayer + "Played"][f][1]+"'>"+ board["player" + activePlayer + "Played"][f][0] + "</button>"
+                                    //add a button that when clicked you'll heal that card.
+                                }
+                            }
+                            //add this list to the page
+                            $("#ability"+abilityID).parent().append(listOfPlayedCards)
+                            $("#ability"+abilityID).remove() //get rid of the button to play this ability
+                            $(".passionProject").click(function(){ //when you click on a card to heal
+                                console.log(cards[listOfCards[$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", "")]]["Health"])
+                                console.log(cardData["card"+$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", "")][0])
+                                if(cardData["card"+$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", "")][0] < cards[listOfCards[$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", "")]]["Health"]) {
+                                    //if the card is not max health
+                                    cardData["card"+$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", "")][0] += 3
+                                    //heal 3 damage to that card
+                                    if(cardData["card"+$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", "")][0] > cards[listOfCards[$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", "")]]["Health"]) {
+                                        //if it overhealed that card, reset it to max health
+                                        cardData["card"+$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", "")][0] = cards[listOfCards[$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", "")]]["Health"]
+                                    }
+                                    abilityWasUsed() //used an ability
+                                    displayBoard() //display the board again.
+                                } else { //the card is at full health
+                                    errorMessage("this card is at full health!", listOfCards[$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", "")], ".passionProject"+$(this).attr("class").replace("passionProject", "").replace("passionProject", "").replace(" ", ""), "Couldn't heal")
+                                }
+
+                                
+                                
+                            })
+                        } else {
+                            //there isnt a card to heal damage to!
+                            errorMessage("you have not played another card to heal!", "Tune Up", "#ability"+abilityID)
                         }
                     }
                 }
