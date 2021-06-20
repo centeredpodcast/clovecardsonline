@@ -42,6 +42,7 @@
     
     <script src="scripts/onOpen.js"></script> <!--Calls the onOpen.js file-->
     <script>
+        
         //TODO:
         // the #ability<ability number> detection system does not work. How to fix it? Add cardIDabilityAbilityNumber
         // ^ change each ability+something into cardid+ability+abilityid for every ability 
@@ -205,6 +206,9 @@
                     //all the checks to see if an end turn forcibly happens, and then set up if statements to run the change turn function if everything here is true. todo!
                 }
                 function abilities(cardName, abilityID, cardID) { //function for each ability.
+                    console.log(cardName)
+                    console.log(abilityID)
+                    console.log(cardID)
                     function abilityWasUsed() { //if an ability was used
                         cardData["card"+cardID][1] = true; //set the marker to true; you did use that ability.
                         cardData["card"+cardID][2][abilityID]++ //up the amount of times you've used each card's ability
@@ -217,16 +221,25 @@
                         }
                     }
                     //If ability 0 (Desert Caravan's Barter) was used
-                    if(Number(abilityID) === 0) {
+                    if(Number(abilityID) === 0) { //idk what happened but it put in outlaw instead of the place of 5
+                        //is it registering twice? should I unbind it and rebind it <- i dont think so
+                        //its like backwards updating so that when I update it in the future it changes the past????
+                        //maybe that's just google doing its auto update, but what should that change in the code?
                         if(board["player" + nonActivePlayer + "Hand"].length > 0) { //if the other person has cards in their hand
                             //get a random card from their hand
                             let randomCardOfOtherPerson = board["player" + nonActivePlayer + "Hand"][Math.floor(Math.random()*board["player" + nonActivePlayer + "Hand"].length)]
                             //get rid of Desert Caravan from your hands
-                            board["player" + activePlayer + "Played"].splice(board["player" + activePlayer + "Played"].indexOf([cardName, cardID], 1))
+                            let activeBoardCopy = JSON.parse(JSON.stringify(board["player" + activePlayer + "Played"]))
+                            let cardIndex = myIndexOf(activeBoardCopy, [cardName, cardID])
+                            console.log(cardIndex)
+                            board["player" + activePlayer + "Played"].splice(cardIndex, 1)
                             //add the random card to your hand
                             board["player" + activePlayer + "Played"].push(randomCardOfOtherPerson)
                             //get rid of the random card from the other person's hand
-                            board["player" + nonActivePlayer + "Hand"].splice(board["player" + nonActivePlayer + "Hand"].indexOf(randomCardOfOtherPerson), 1)
+                            let inactiveBoardCopy = JSON.parse(JSON.stringify(board["player" + nonActivePlayer + "Played"]))
+
+                            let otherPersonCardIndex = myIndexOf(inactiveBoardCopy, randomCardOfOtherPerson)
+                            board["player" + nonActivePlayer + "Hand"].splice(otherPersonCardIndex, 1)
                             //add desert caravan to your discard pile
                             board["player" + activePlayer + "Discard"].push([cardName, cardID])
                             //you used an ability
@@ -264,7 +277,7 @@
                         if(cardData["card"+cardID][2][abilityID]>0) { //if this card has been used more than once
                             let a = 0; //define a
                             while(a < board["player" + activePlayer + "Played"].length) { //while a in played cards
-                                if(board["player" + activePlayer + "Played"][a][1]==cardID) { //if that is the played card id
+                                if(board["player" + activePlayer + "Played"][a][1]===cardID) { //if that is the played card id
                                     board["player" + activePlayer + "Played"].splice(a, 1) //get rid of that card from your played
                                     break; //i think theres a glitch here where it also deletes another of your cards but maybe thats fixed, i don't know.
                                     //stop the while loop.
@@ -356,6 +369,7 @@
                                     $(this).removeClass("selected").addClass("notSelected") //unselect it
                                     $(this).html(thisCardName) //reset its html
                                     selectedCards.splice(selectedCards.indexOf(thisCardName), 1); //delete it from the list
+                                    //will this work? because you're indexing splices recursive all that
                                 }
                                 console.log(selectedCards)
                                 if(selectedCards.length === 2) { //if there are two selected cards
@@ -497,7 +511,8 @@
                 }
                 function showActivePlayedCards() { //display your played cards
                     let arrayOfActivePlayedCards = []; //set an array
-                    for(i in board["player" + activePlayer + "Played"]) { //for every played card
+                    let i = 0;
+                    while(i<board["player"+activePlayer+"Played"].length) { //for every played card
                         if(cardData["card"+board["player" + activePlayer + "Played"][i][1]][0]<=0) { //if this card's health is less than or equal to 0, discard it.
                             board["player" + activePlayer + "Discard"].push(board["player" + activePlayer + "Played"].splice(i, 1)[0])
                         } else { //otherwise
@@ -519,6 +534,7 @@
                             }
                             stringOfUseCards = stringOfUseCards + "</span>" //close the span element
                             arrayOfActivePlayedCards.push(stringOfUseCards) //push it to the array
+                            i++
                         }      
                     }
                     //add it to the board, separated by |s
@@ -526,7 +542,27 @@
                 }
                 function showInactivePlayedCards() { //show inactive played cards
                     let arrayOfInActivePlayedCards = []; //set an array
-                    for(i in board["player" + nonActivePlayer + "Played"]) { //for each of them
+                    let i = 0;
+                    while(i<board["player" + nonActivePlayer + "Played"].length) {
+                        if(cardData["card"+board["player" + nonActivePlayer + "Played"][i][1]][0]<=0) { //if the card has 0 or less health discard it
+                            board["player" + nonActivePlayer + "Discard"].push(board["player" + nonActivePlayer + "Played"].splice(i, 1)[0])
+                        } else { //otherwise
+                            //set up a string
+                            let stringOfPlayedCards = "";
+                            stringOfPlayedCards = stringOfPlayedCards + "<span id = 'playedCardNonActive"+i+"' class='cardID"+board["player" + nonActivePlayer + "Played"][i][1]+"'>" + board["player" + nonActivePlayer + "Played"][i][0] + "</span>"
+                            //add the card's name
+                            //add its health
+                            stringOfPlayedCards = stringOfPlayedCards + " <span>Health: " + cardData["card" + board["player" + nonActivePlayer + "Played"][i][1]][0] + "/" + cards[board["player" + nonActivePlayer + "Played"][i][0]]["Health"]
+                            for(j in cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"]) { //for each of its abilities add itss ability name
+                                stringOfPlayedCards = stringOfPlayedCards + " <span class='nonActiveCardAbility"+i+"' id='ability"+Object.values(cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"][j])[0]+"'>Ability "+Object.keys(cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"][j])[1]+"</span>"
+                            }
+                            stringOfPlayedCards = stringOfPlayedCards + "</span>" //close the span element off
+                            arrayOfInActivePlayedCards.push(stringOfPlayedCards) //push the string to the array
+                            i++
+                        }
+                        //i++
+                    }
+                   /* for(i in board["player" + nonActivePlayer + "Played"]) { //for each of them
                         if(cardData["card"+board["player" + nonActivePlayer + "Played"][i][1]][0]<=0) { //if the card has 0 or less health discard it
                             board["player" + nonActivePlayer + "Discard"].push(board["player" + nonActivePlayer + "Played"].splice(i, 1)[0])
                         } else { //otherwise
@@ -542,7 +578,7 @@
                             stringOfPlayedCards = stringOfPlayedCards + "</span>" //close the span element off
                             arrayOfInActivePlayedCards.push(stringOfPlayedCards) //push the string to the array
                         } 
-                    }
+                    }*/
                     //display the inactive played cards
                     $("."+nonActivePlayer+".played").html("Player " + nonActivePlayer + "'s Played Cards: " + arrayOfInActivePlayedCards.join(" | "))
                 }
@@ -601,7 +637,7 @@
                         console.log(board)
                         console.log($(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", ""))
                         console.log(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")])
-                        abilities(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")][0], $(this).attr("id").replace($(this).parent().attr("class").replace("cardID", "").replace("Abilities", ""), "").replace("ability", ""), $(this).parent().attr("class").replace("cardID", "").replace("Abilities", ""))
+                        abilities(String(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")][0]), String($(this).attr("id").replace($(this).parent().attr("class").replace("cardID", "").replace("Abilities", ""), "").replace("ability", "")), String($(this).parent().attr("class").replace("cardID", "").replace("Abilities", "")))
                     })
                     
                     $(".cardInHand").hover(function(){ //if you hover over a card in your hand
