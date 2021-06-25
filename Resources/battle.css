@@ -1,0 +1,62 @@
+body {
+    background-color: aliceblue;
+    text-align: center;
+}
+#activeCard0 {
+    display: inline-block;
+    width: 150px;
+    height: 200px;
+    background-color: yellow;
+    margin: 0;
+}
+#activeCard1 {
+    display: inline-block;
+    width: 150px;
+    height: 200px;
+    background-color: yellow;
+    margin: 0;
+}
+#activeCard2 {
+    display: inline-block;
+    width: 150px;
+    height: 200px;
+    background-color: yellow;
+    margin: 0;
+
+}
+#activeCard3 {
+    display: inline-block;
+    width: 150px;
+    height: 200px;
+    background-color: yellow;
+    margin: 0;
+
+}
+.hand {
+    background-color: skyblue;
+}
+#board {
+    background-color: skyblue;
+}
+.playCardButton {
+    display: inline-block;
+    background-color: teal;
+}
+.inactive {
+    display: inline-block;
+    width: 100px;
+    height:150px;
+    background-color: orange;
+}
+.card {
+    position: relative;
+    display: inline-block;
+    width: 30%;
+    height: 50%px;
+    background-color: orangered;
+    margin: 0;
+}
+#boardDebug {
+    /* display: grid; */
+    margin: 0;
+}

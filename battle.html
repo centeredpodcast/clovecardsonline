@@ -7,6 +7,7 @@
     <meta name="keywords" content="Clove Cards, Card Game">
     <meta name="description" content="An online card game!">
     <meta name="author" content="Sapphire7x and Savanna Campbell">
+    <link rel="stylesheet" href="Resources/battle.css">
 </head>
 <body>
     <header>
@@ -188,7 +189,7 @@
                 for(i in board) {
                     console.log("hi")
                     for(j in board[i]) {
-                        $("#boardDebug").prepend($("<span>" + board[i][j][0] + " ("+board[i][j][1]+"): " + i + "</span><br />"))
+                        $("#boardDebug").prepend($("<div class='card'><p>" + board[i][j][0] + " ("+board[i][j][1]+"): " + i + "</p></div>"))
                     }
                 }
             }
@@ -505,7 +506,7 @@
                 function showInactivePlayerCards() { //display inactive cards
                     let arrayOfInactiveCards = []; //set the array
                     for(i in board["player" + nonActivePlayer + "Hand"]) { //for each one you get to see the back of the card
-                        arrayOfInactiveCards.push("<span id = 'inactiveCard"+i+"'>" + "The back of the card lol" + "</span>")
+                        arrayOfInactiveCards.push("<span class='inactive' id = 'inactiveCard"+i+"'>" + "The back of the card lol" + "</span>")
                     } //set it to the board
                     $("."+nonActivePlayer+".hand").html("Player " + nonActivePlayer + "'s Hand: " + arrayOfInactiveCards.join(" | "))
                 }

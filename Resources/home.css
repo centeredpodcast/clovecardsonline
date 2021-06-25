@@ -1,3 +1,24 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+body {
+    position: relative;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-attachment: fixed;
+    background: linear-gradient(145deg, hsla(120,100%,50%, 0.4), #FFF);
+}
 h1 {
-    color: purple;
+    position: relative;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 60px;
+    top: 15%;
+}
+.play {
+    position: relative;
+    text-align: center;
+    bottom: 10px;
 }
