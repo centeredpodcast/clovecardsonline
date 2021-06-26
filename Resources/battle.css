@@ -50,13 +50,20 @@ body {
 }
 .card {
     position: relative;
-    display: inline-block;
-    width: 30%;
-    height: 50%px;
+    display: flex;
+    width: 100px;
+    height: 150px;
     background-color: orangered;
-    margin: 0;
+    margin: 2px;
+    border: 1px solid;
+    padding: 0;
+    flex-direction: column;
+
 }
 #boardDebug {
-    /* display: grid; */
+    display: flex;
     margin: 0;
+    padding: 2%;
+    flex-wrap: wrap;
+    justify-content: center;
 }
