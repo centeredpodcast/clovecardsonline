@@ -22,18 +22,18 @@
         <h1>Play the Game!</h1>
         <span id="turnCount"></span>
         <div id="board">
-            <button class="1 endTurn" onclick="changeTurns()" style="display: none;">End Turn</button>
-            <button class="1 draw" style="display: none;">Draw</button>
-            <div class="1 deck" onclick="shuffleDeck(1)"></div> <!-- this won't show anymore 'caus we show hands now-->
-            <div class="1 hand"></div> <!-- here is your board -->
-            <div class="1 played"></div>
-            <div class="1 discard"></div>
-            <div class="2 played"></div>
-            <div class="2 discard"></div>
-            <div class="2 hand"></div>
-            <div class="2 deck"></div>
-            <button class="2 draw" style="display: none;">Draw</button> <!-- draw button -->
-            <button class="2 endTurn" onclick="changeTurns()" style="display: none;">End Turn</button> <!-- end turn button -->
+            <button class="1 endTurn one" onclick="changeTurns()" style="display: none;">End Turn</button>
+            <button class="1 draw one" style="display: none;">Draw</button>
+            <div class="1 deck one" onclick="shuffleDeck(1)"></div> <!-- this won't show anymore 'caus we show hands now-->
+            <div class="1 hand one"></div> <!-- here is your board -->
+            <div class="1 played one"></div>
+            <div class="1 discard one"></div>
+            <div class="2 played two"></div>
+            <div class="2 discard two"></div>
+            <div class="2 hand two"></div>
+            <div class="2 deck two"></div>
+            <button class="2 draw two" style="display: none;">Draw</button> <!-- draw button -->
+            <button class="2 endTurn two" onclick="changeTurns()" style="display: none;">End Turn</button> <!-- end turn button -->
         </div>
         <!--<button class="testbutton">click me to add cards to your collection!</button>-->
     </main>
@@ -489,7 +489,7 @@
                     let arrayOfCards = []; //set your cards
                     for(i in board["player" + activePlayer + "Hand"]) { //for every card in your hand
                         //push it to the array
-                        arrayOfCards.push("<span id = 'activeCard"+i+"' class='cardInHand cardID"+board["player" + activePlayer + "Hand"][i][1]+"'>" + board["player" + activePlayer + "Hand"][i][0] + "</span>")
+                        arrayOfCards.push("<span class = 'active' id = 'activeCard"+i+"' class='cardInHand cardID"+board["player" + activePlayer + "Hand"][i][1]+"'>" + board["player" + activePlayer + "Hand"][i][0] + "</span>")
                         if(!playedCardYet) { //if you haven't played a card yet, add a button to play it.
                             if(cardData["card"+board["player" + activePlayer + "Hand"][i][1]][3]===false) {
                                 arrayOfCards[arrayOfCards.length - 1] +=" <button id='playCard"+i+"' class='playCardButton cardID"+board["player" + activePlayer + "Hand"][i][1]+"'>Play Card</button>"
@@ -501,14 +501,14 @@
                     } 
                     //push a sort cards button at the end
                     arrayOfCards.push("<button id = 'sortCards' onclick = 'sortCards(board[\"player\" + " + activePlayer + " + \"Hand\"], true)'>Sort Cards</button>")
-                    $("."+activePlayer+".hand").html("Player " + activePlayer + "'s Hand: " + arrayOfCards.join(" | ")) //set it to the page, divided by |s.
+                    $("."+activePlayer+".hand").html("Player " + activePlayer + "'s Hand: " + "<br>"+ arrayOfCards.join(" | ")) //set it to the page, divided by |s.
                 }
                 function showInactivePlayerCards() { //display inactive cards
                     let arrayOfInactiveCards = []; //set the array
                     for(i in board["player" + nonActivePlayer + "Hand"]) { //for each one you get to see the back of the card
                         arrayOfInactiveCards.push("<span class='inactive' id = 'inactiveCard"+i+"'>" + "The back of the card lol" + "</span>")
                     } //set it to the board
-                    $("."+nonActivePlayer+".hand").html("Player " + nonActivePlayer + "'s Hand: " + arrayOfInactiveCards.join(" | "))
+                    $("."+nonActivePlayer+".hand").html("Player " + nonActivePlayer + "'s Hand: " + "<br>" + arrayOfInactiveCards.join(" | "))
                 }
                 function showActivePlayedCards() { //display your played cards
                     let arrayOfActivePlayedCards = []; //set an array

@@ -1,42 +1,30 @@
 body {
     background-color: aliceblue;
     text-align: center;
+    margin: 0;
+    padding: 0;
 }
-#activeCard0 {
+.active {
     display: inline-block;
-    width: 150px;
-    height: 200px;
+    width: 100px;
+    height: 150px;
     background-color: yellow;
     margin: 0;
 }
-#activeCard1 {
-    display: inline-block;
-    width: 150px;
-    height: 200px;
-    background-color: yellow;
-    margin: 0;
-}
-#activeCard2 {
-    display: inline-block;
-    width: 150px;
-    height: 200px;
-    background-color: yellow;
-    margin: 0;
 
-}
-#activeCard3 {
-    display: inline-block;
-    width: 150px;
-    height: 200px;
-    background-color: yellow;
-    margin: 0;
-
-}
 .hand {
     background-color: skyblue;
+    display: flex;
+    justify-content: center;
+    
 }
 #board {
     background-color: skyblue;
+    display: block;
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 .playCardButton {
     display: inline-block;
@@ -46,7 +34,9 @@ body {
     display: inline-block;
     width: 100px;
     height:150px;
-    background-color: orange;
+    background-color: #ffa500;
+    padding: 10px;
+    margin: 10px;
 }
 .card {
     position: relative;
@@ -67,3 +57,9 @@ body {
     flex-wrap: wrap;
     justify-content: center;
 }
+/* .stuff {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+} */
