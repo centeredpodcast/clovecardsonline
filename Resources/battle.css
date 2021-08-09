@@ -4,12 +4,15 @@ body {
     margin: 0;
     padding: 0;
 }
-.active {
+.cardThatIsActive:not(:empty), .activePlayerPlayedCards:not(:empty) {
     display: inline-block;
-    width: 100px;
-    height: 150px;
+    width: auto;
+    max-width: 200px;
+    min-width: 100px;
+    height: auto;
+    min-height: 150px;
     background-color: yellow;
-    margin: 0;
+    margin: 5px;
 }
 
 .hand {
@@ -27,8 +30,12 @@ body {
     padding: 0;
 }
 .playCardButton {
-    display: inline-block;
+    display: block;
     background-color: teal;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
 }
 .inactive {
     display: inline-block;
