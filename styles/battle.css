@@ -4,15 +4,15 @@ body {
     margin: 0;
     padding: 0;
 }
-.cardThatIsActive:not(:empty), .activePlayerPlayedCards:not(:empty) {
+.cardThatIsActive:not(:empty), .activePlayerPlayedCards:not(:empty), .inactivePlayerPlayedCards:not(:empty) {
     display: inline-block;
+    width: 100px;
+    
+    height: 125px;
+    /*height: 100%;
     width: auto;
-    max-width: 200px;
-    min-width: 100px;
-    height: auto;
-    min-height: 150px;
     background-color: yellow;
-    margin: 5px;
+    margin: 5px;*/
 }
 
 .hand {
@@ -70,3 +70,20 @@ body {
     flex-wrap: wrap;
     justify-content: center;
 } */
+.cardFaceUp:hover .abilityInformation {
+    display:block;
+    position:fixed;
+    overflow:hidden;
+    background: yellow;
+    max-width: 300px;
+}
+[id^="hover"] {
+    text-align: left;
+    padding: 5px;
+}
+.inactivePlayerPlayedCards.active {
+    border-color: blue;
+    -webkit-box-shadow: 0 0 5px blue;
+       -moz-box-shadow: 0 0 5px blue;
+            box-shadow: 0 0 5px blue;
+}

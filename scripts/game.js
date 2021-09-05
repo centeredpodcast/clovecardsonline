@@ -16,9 +16,10 @@ const cards = {
         ],
         "Health": 3,
         "Rating": 5,
-        "Art Ready?": "In progress",
+        "Art Ready?": "Yes",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": "Desert_Caravan.png"
     },
     "Novice Explorer": {
         "ID": 1,
@@ -31,9 +32,10 @@ const cards = {
         ],
         "Health": 3,
         "Rating": 5,
-        "Art Ready?": "",
+        "Art Ready?": "Yes",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": "Novice_Explorer.png"
     },
     "Mooshlett": {
         "ID": 2,
@@ -46,9 +48,10 @@ const cards = {
         ],
         "Health": 2,
         "Rating": 5,
-        "Art Ready?": "In progress",
+        "Art Ready?": "Yes",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": "Mooshlett.png"
     },
     "Northern Tribesman": {
         "ID": 3,
@@ -67,7 +70,8 @@ const cards = {
         "Rating": 5,
         "Art Ready?": "",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": ""
     },
     "Mechanic": {
         "ID": 4,
@@ -86,7 +90,8 @@ const cards = {
         "Rating": 5,
         "Art Ready?": "",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": ""
     },
     "Outlaw": {
         "ID": 5,
@@ -105,7 +110,8 @@ const cards = {
         "Rating": 5,
         "Art Ready?": "",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": ""
     },
     "Snow Spirit": {
         "ID": 6,
@@ -122,9 +128,10 @@ const cards = {
         ],
         "Health": 5,
         "Rating": 5,
-        "Art Ready?": "In progress",
+        "Art Ready?": "Yes",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": "Snow_Spirit.png"
     },
     "Tundra Fox": {
         "ID": 7,
@@ -143,7 +150,8 @@ const cards = {
         "Rating": 5,
         "Art Ready?": "",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": ""
     },
     "Peace Keeper": {
         "ID": 8,
@@ -162,7 +170,8 @@ const cards = {
         "Rating": 5,
         "Art Ready?": "In progress",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": ""
     },
     "Street Theif": {
         "ID": 9,
@@ -181,7 +190,8 @@ const cards = {
         "Rating": 5,
         "Art Ready?": "",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": ""
     },
     "Scholar": {
         "ID": 10,
@@ -200,7 +210,8 @@ const cards = {
         "Rating": 5,
         "Art Ready?": "",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": ""
     },
     "Woodsman": {
         "ID": 11,
@@ -219,7 +230,8 @@ const cards = {
         "Rating": 5,
         "Art Ready?": "In progress",
         "Music": "",
-        "Sound Effects": ""
+        "Sound Effects": "",
+        "Art": ""
     }
 }; //This will eventually get all of the cards possible and their data!!
 let yourCards = []; //This will eventually be a list of all the cards you have.
