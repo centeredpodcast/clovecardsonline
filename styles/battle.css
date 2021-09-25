@@ -4,34 +4,18 @@ body {
     margin: 0;
     padding: 0;
 }
+.right {
+    position: relative;
+}
 .cardThatIsActive:not(:empty), .activePlayerPlayedCards:not(:empty), .inactivePlayerPlayedCards:not(:empty) {
     display: inline-block;
     width: 100px;
     height: 125px;
-    position: absolute; /* work with this!!!!!! loop through it in javascript? */ 
-    margin-top: -70px;
-
-    
-    /*height: 100%;
-    width: auto;
-    background-color: yellow;
-    margin: 5px;*/
+    position: relative; /* work with this!!!!!! loop through it in javascript? */ 
+    top: 0;
+    margin-top: auto;
+    margin-bottom: auto;
 }
-
-/*.hand {
-    background-color: skyblue;
-    /*display: flex;
-    justify-content: center;
-    
-}*/
-/*#board {
-    background-color: skyblue;
-    display: block;
-    width: 100%;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
-}*/
 .playCardButton {
     display: block;
     background-color: teal;
@@ -97,9 +81,9 @@ body {
             box-shadow: 0 0 5px blue;
 }
 .abilityPopout {
-    position: relative;
+    position: absolute;
     top: -30%;
-    right: -100%;
+    left: 100%;
     height: auto;
     width: 200%;
     background: yellow;
