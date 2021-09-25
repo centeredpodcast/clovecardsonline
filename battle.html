@@ -28,7 +28,7 @@
                     <td class='functions'><button class="1 draw one" style="display: none;">Draw</button></td>
                 </tr>
                 <tr class="1 hand one">
-                    <td class='left handTitle'>Player 1's Hand:<br><button class="sortCards" onclick="sortCards(board['player' + 1 + 'Hand'], true)">Sort Cards</button></td>
+                    <td class='left handTitle'>Player 1's Hand:<button class="sortCards" onclick="sortCards(board['player' + 1 + 'Hand'], true)">Sort Cards</button></td>
                     <td class='right handContent'></td>
                 </tr> <!-- here is your board -->
                 <!--<div class="1 deck one" onclick="shuffleDeck(1)"></div> <!-- this won't show anymore 'caus we show hands now-->
@@ -49,7 +49,7 @@
                     <td class='right discardContent'></td>
                 </tr>
                 <tr class="2 hand two">
-                    <td class='left handTitle'>Player 2's Hand:<br><button class="sortCards" onclick="sortCards(board['player' + 2 + 'Hand'], true)">Sort Cards</button></td>
+                    <td class='left handTitle'>Player 2's Hand:<button class="sortCards" onclick="sortCards(board['player' + 2 + 'Hand'], true)">Sort Cards</button></td>
                     <td class='right handContent'></td>
                 </tr>
                 <!--<tr class="2 deck two"></tr>-->
@@ -292,7 +292,6 @@
                             //get rid of Desert Caravan from your hands
                             let activeBoardCopy = JSON.parse(JSON.stringify(board["player" + activePlayer + "Played"]))
                             let cardIndex = myIndexOf(activeBoardCopy, [cardName, cardID])
-                            console.log(cardIndex)
                             board["player" + activePlayer + "Played"].splice(cardIndex, 1)
                             //add the random card to your hand
                             board["player" + activePlayer + "Played"].push(randomCardOfOtherPerson)
@@ -308,7 +307,6 @@
                             displayBoard() //redisplay the board.
                         } else {
                             //you dont have a card to take from the other person!
-                            console.log("#"+cardID+"ability"+abilityID)
                             errorMessage("there is not a card to take from the your opponent!", "Barter", "#abilityNumber"+abilityID)
                         }
                     } else if(Number(abilityID) === 1) { //if ability 1 (Desert Caravan's Roadkill) was used
@@ -317,9 +315,8 @@
                             let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
                             message += " <button class='useAnotherAbility'>Cancel</button></span>"
 
-                            //$(".useAnotherAbility").css("display", "inline-block")
                             //let oldAbilityElement = $("#"+cardID+"ability"+abilityID).clone()
-                            console.log("#abilityNumber"+abilityID+" .abilityInformation")
+
                             //#abilityNumber"+abilityID+" .abilityInformation
                             $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
                             $(".errorMessage").remove();
@@ -338,29 +335,9 @@
                             })
 
                             $(".useAnotherAbility").click(function() {
-                                //$(".inactivePlayerPlayedCards").unbind('click');
-                                //$(".useCardButton").css("display", "inline-block");
-                                //$(".useAnotherAbility").css("display", "none")
-                                /*console.log($(".pickMessage"))
-                                $(".useAnotherAbility").remove();
-                                console.log(oldAbilityElement)
-                                $(".pickMessage").replaceWith(oldAbilityElement);*/
                                 displayBoard(); //exit out of the menu/redisplay the board.
                             })
 
-                            /*let listOfPlayedCards = "Card to deal damage to: "; //start off what you're going to show with a prompt
-                            for(let f in board["player" + nonActivePlayer + "Played"]) { //for each of their played cards
-                                listOfPlayedCards += "<button class='roadKill roadkill"+board["player" + nonActivePlayer + "Played"][f][1]+"'>"+ board["player" + nonActivePlayer + "Played"][f][0] + "</button>"
-                                //add a button that when clicked you'll deal damage to that card.
-                            }*/
-                            //add this list to the page
-                            
-                            /*$(".roadKill").click(function(){ //when you click on a card to deal damage to
-                                //deal 2 damage to that card
-                                cardData["card"+$(this).attr("class").replace("roadKill", "").replace("roadkill", "").replace(" ", "")][0] -= 2
-                                abilityWasUsed() //used an ability
-                                displayBoard() //display the board again.
-                            })*/
                         } else {
                             //there isnt a card to deal damage to!
                             errorMessage("your opponent has not played a card to deal damage to!", "Roadkill", "#abilityNumber"+abilityID)
@@ -535,23 +512,6 @@
                             }
 
                             //add this list to the page
-                            /*$("#ability" +abilityID).parent().append(listOfPlayedCards)
-                            $("#ability" +abilityID).remove() //get rid of the button to play this ability
-                            $(".tuneUp").click(function(){ //when you click on a card to heal
-                                console.log(cards[listOfCards[$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")]]["Health"])
-                                console.log(cardData["card"+$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")][0])
-                                if(cardData["card"+$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")][0] < cards[listOfCards[$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")]]["Health"]) {
-                                    cardData["card"+$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")][0] += 1
-                                    //heal 1 damage to that card
-                                    abilityWasUsed() //used an ability
-                                    displayBoard() //display the board again.
-                                } else { //the card is at full health
-                                    errorMessage("this card is at full health!", listOfCards[$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", "")], ".tuneUp"+$(this).attr("class").replace("tuneUp", "").replace("tuneUp", "").replace(" ", ""), "Couldn't heal")
-                                }
-
-                                
-                                
-                            })*/
                         } else {
                             //there isnt a card to heal damage to!
                             errorMessage("you have not played another card to heal!", "Tune Up", "#abilityNumber"+abilityID)
@@ -673,24 +633,8 @@
                                         $(".submitNeverSurrender").css("display", "none") //don't display the submit button
                                     }
 
-                                    
-                                
-                                    /*if(neverSurrenderSelected.indexOf($(this).html()) == -1) {
-                                        if($(".neverSurrenderSelected.neverSurrender" + $(this).attr("class").replace("neverSurrender", "").replace("neverSurrender", "").replace(" ", "").replace(" ", "").replace("neverSurrender", "")))
-                                        $(this).html() = $(this).html().replace(" | Selected", "")
-                                        $(this).removeClass("neverSurrenderSelected")
-                                    } else {
-                                        $(this).html() += " | Selected"
-                                        $(this).addClass("neverSurrenderSelected")
-                                    }*/
                                 })
-                            /*$(".neverSurrender1").click(function(){ //when you click on a card to deal damage to
-                                //deal 1 damage to that card
-                                cardData["card"+$(this).attr("class").replace("neverSurrender1", "").replace("neverSurrender1", "").replace(" ", "")][0] -= 1
-                                kidnapCheck[turnCount+1] = $(this).attr("class").replace("neverSurrender1", "").replace("neverSurrender1", "").replace(" ", "")
-                                //abilityWasUsed() //used an ability
-                                //displayBoard() //display the board again.
-                            })*/
+
                             $(".submitNeverSurrender").click(function() { //if you click the submit button
                                 for(let o in neverSurrenderSelected) { //for every damage point
                                     console.log(neverSurrenderSelected[o])
@@ -775,7 +719,7 @@
                     showCardImages()
                     $(".cardFaceUp.cardThatIsActive").each(function(i, obj) {
                         console.log(i)
-                        $(this).css("left", i*100+135)
+                        //$(this).css("left", i*100)
                     })
                 }
                 
@@ -831,7 +775,7 @@
                     showCardImages()
                     $(".cardFaceUp.activePlayerPlayedCards").each(function(i, obj) {
                         console.log(i)
-                        $(this).css("left", i*100+125)
+                        //$(this).css("left", i*100)
                     })
                 }
 
@@ -873,37 +817,12 @@
                         }      
                     }
                     //add it to the board, separated by |s
-                    /*$("."+nonActivePlayer+".played").html("Player " + activePlayer + "'s Played Cards: <span class='cardFaceUp activePlayerPlayedCards'>" + arrayOfActivePlayedCards.join("</span><span class='cardFaceUp activePlayerPlayedCards'>")+"</span>")
-                    showCardImages()
                     
-                    /*let i = 0;
-                    while(i<board["player" + nonActivePlayer + "Played"].length) {
-                        if(cardData["card"+board["player" + nonActivePlayer + "Played"][i][1]][0]<=0) { //if the card has 0 or less health discard it
-                            board["player" + nonActivePlayer + "Discard"].push(board["player" + nonActivePlayer + "Played"].splice(i, 1)[0])
-                        } else { //otherwise
-                            //set up a string
-                            let stringOfPlayedCards = "";
-                            stringOfPlayedCards = stringOfPlayedCards + "<span id = 'playedCardNonActive"+i+"' class='cardID"+board["player" + nonActivePlayer + "Played"][i][1]+"'>" + board["player" + nonActivePlayer + "Played"][i][0] + "</span>"
-                            //add the card's name
-                            //add its health
-                            stringOfPlayedCards = stringOfPlayedCards + " <span>Health: " + cardData["card" + board["player" + nonActivePlayer + "Played"][i][1]][0] + "/" + cards[board["player" + nonActivePlayer + "Played"][i][0]]["Health"]
-                            if(kidnapCheck[turnCount + 1] && kidnapCheck[turnCount + 1] == board["player" + nonActivePlayer + "Played"][i][1]) {
-                                stringOfPlayedCards += " Outlaw's Kidnap: This card will not be able to use its abilities next turn."
-                            }
-                            for(j in cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"]) { //for each of its abilities add itss ability name
-                                stringOfPlayedCards = stringOfPlayedCards + " <span class='nonActiveCardAbility"+i+"' id='ability"+Object.values(cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"][j])[0]+"'>Ability "+Object.keys(cards[board["player" + nonActivePlayer + "Played"][i][0]]["Abilities"][j])[1]+"</span>"
-                            }
-                            stringOfPlayedCards = stringOfPlayedCards + "</span>" //close the span element off
-                            arrayOfInActivePlayedCards.push(stringOfPlayedCards) //push the string to the array
-                            i++
-                        }
-                        //i++
-                    }*/
                     //display the inactive played cards
                     $("."+nonActivePlayer+".played .right").html("<span class='cardFaceUp inactivePlayerPlayedCards'>" + arrayOfInActivePlayedCards.join("</span><span class='cardFaceUp inactivePlayerPlayedCards'>")+"</span>")
                     showCardImages();
                     $(".cardFaceUp.inactivePlayerPlayedCards").each(function(i, obj) {
-                        $(this).css("left", i*100+125)
+                        //$(this).css("left", i*100)
                     })
                 }
                 function showInactivePlayerCards() { //display inactive cards
@@ -986,47 +905,6 @@
                         let theAbilityID = String($(this).attr("id").replace(theCardID, "").replace("ability", ""));
                         abilities(theCardName, theAbilityID, theCardID)
                     })
-                    
-                    /*$(".cardFaceUp:not(.cardFaceUp.activePlayerPlayedCards)").hover(function(){ //if you hover over a card that is face up
-                        //$(".cardFaceUp").unbind('hover')
-                        //console.log("hello?")
-                        console.log("hello")
-                        console.log($(this))
-                        let cardAbilityDescription = []; //set an array
-                        //console.log($($(this).children()[0]).html())
-                        for(i in cards[$($(this).children()[0]).html()]["Abilities"]) { //for each ability
-                            //push the array with the name: description
-                            cardAbilityDescription.push(Object.keys(cards[$($(this).children()[0]).html()]["Abilities"][i])[1] + ": " + Object.values(cards[$($(this).children()[0]).html()]["Abilities"][i])[1])
-                        }
-                        //console.log(cardAbilityDescription)
-                        //show the array separated by line breaks.
-                        $(this).append("<span id='hovered"+$($(this).children()[0]).attr("id").replace("activeCard", "")+"' class='abilityInformation'> Abilities: <br />" + cardAbilityDescription.join("<br /> ") + "</span>");
-
-                        var tooltipSpan = $("#hovered"+$($(this).children()[0]).attr("id").replace("activeCard", ""))[0];
-                        //get the ability list element
-                        //console.log(tooltipSpan)
-                        //$("#hovered"+$($(this).children()[2]).attr("id").replace("activeCard", "")).remove()
-                        w   indow.onmousemove = function (e) { //when you move your mouse
-                            var x = e.clientX,
-                                y = e.clientY;
-                            //define x and y of the mouse
-                            tooltipSpan.style.top = (y+10) + 'px'; //put the top of the list at the mousey
-                            //console.log(y)
-                            tooltipSpan.style.left = (x+10) + 'px'; //put the left of the list at the mousex
-                        };
-                    }, function(){ //when you unhover over it
-                        $("#hovered"+$($(this).children()[0]).attr("id").replace("activeCard", "")).remove() //remove the explanation
-                            //remove the explanation
-                    })
-                    /*$(".played [id^='playedCard']").hover(function(){ //same thing but if you hover over a played card.
-                        let cardAbilityDescription = [];
-                        for(i in cards[$(this).html()]["Abilities"]) {
-                            cardAbilityDescription.push(Object.keys(cards[$(this).html()]["Abilities"][i])[1] + ": " + Object.values(cards[$(this).html()]["Abilities"][i])[1])
-                        }
-                        $(this).append("<span id='hovered"+$(this).attr("id")+"'>Abilities: " + cardAbilityDescription.join(", "))
-                    }, function(){
-                        $("#hovered"+$(this).attr("id")).remove()
-                    })*/
                     $(".cardFaceUp").hover(function() {
                         if($(this).find(".abilityPopout").length > 0) {
                             $(this).find(".abilityPopout").css("display", "block")
@@ -1037,16 +915,6 @@
                     }, function() {
                         $(this).find(".abilityPopout").css("display", "none")
                     })
-                    /*$(".cardFaceUp.activePlayerPlayedCards").hover(function() {
-                        // get the card's id
-                        //cardID#Abilities .next() (or whatever the next function is)
-                        let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "");
-                        $(".cardID"+theCardID+"Abilities").next().css("display", "inline-block")
-
-                    }, function() {
-                        let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "");
-                        $(".cardID"+theCardID+"Abilities").next().css("display", "none")
-                    })*/
                     debugPanel()
                 }
                 hotkeys() //call the hotkeys originally so they work off the ba

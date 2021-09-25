@@ -68,10 +68,10 @@ const cards = {
         ],
         "Health": 4,
         "Rating": 5,
-        "Art Ready?": "",
+        "Art Ready?": "Yes",
         "Music": "",
         "Sound Effects": "",
-        "Art": ""
+        "Art": "Northern_Tribesman.png"
     },
     "Mechanic": {
         "ID": 4,
