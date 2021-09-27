@@ -21,11 +21,11 @@
     <main>
         <h1>Play the Game!</h1>
         <span id="turnCount"></span>
-        <table id="board">
+        <table id="board" frame=void>
             <tbody>
                 <tr class='1 functions one'>
-                    <td class='functions'><button class="1 endTurn one" onclick="changeTurns()" style="display: none;">End Turn</button></td>
-                    <td class='functions'><button class="1 draw one" style="display: none;">Draw</button></td>
+                    <td class='left functionsEnd'><button class="1 endTurn one" onclick="changeTurns()">End Turn</button></td>
+                    <td class='right functionsDraw'><button class="1 draw one">Draw</button></td>
                 </tr>
                 <tr class="1 hand one">
                     <td class='left handTitle'>Player 1's Hand:<button class="sortCards" onclick="sortCards(board['player' + 1 + 'Hand'], true)">Sort Cards</button></td>
@@ -54,8 +54,9 @@
                 </tr>
                 <!--<tr class="2 deck two"></tr>-->
                 <tr class='2 functions two'>
-                    <td class='functions'><button class="2 draw two" style="display: none;">Draw</button> <!-- draw button --></td>
-                    <td class='functions'><button class="2 endTurn two" onclick="changeTurns()" style="display: none;">End Turn</button> <!-- end turn button --></td>
+                    
+                    <td class='left functionsEnd'><button class="2 endTurn two" onclick="changeTurns()">End Turn</button> <!-- end turn button --></td>
+                    <td class='right functionsDraw'><button class="2 draw two">Draw</button> <!-- draw button --></td>
                 </tr>
             </tbody>
         </table>
@@ -248,10 +249,16 @@
                         debugPanel()
                     }
                     function errorMessage(errorMessage, abilityName, abilityButton, override) {
-                        if(!override) $(abilityButton).replaceWith($("<span class='errorMessage'>Couldn't use ability " + abilityName + "; " + errorMessage + "</span>"))
+                        $(".abilityPopout br, .abilityPopout .abilitiesTitle, .cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber']:not(#abilityNumber"+abilityID+")").remove()
+                        $(".cardID"+cardID+"Abilities .abilityPopout .cardHealthTotal").after("<br>")
+                        if(!override) $(abilityButton).replaceWith($("<span class='errorMessage'>Couldn't use ability " + abilityName + "; " + errorMessage + "</span> <button class='useAnotherAbility'>Exit</button>"))
                         if(override) {
-                            $(abilityButton).replaceWith($("<span class='errorMessage'>"+override+" " + abilityName + "; " + errorMessage + "</span>"))
+                            $(abilityButton).replaceWith($("<span class='errorMessage'>"+override+" " + abilityName + "; " + errorMessage + "</span> <button class='useAnotherAbility'>Exit</button>"))
+                            
                         }
+                        $(".useAnotherAbility").click(function() {
+                            displayBoard(); // note to myself when redesigning have the cardName be in the cardID table. This way, you can simply have the IDs in the board table (not [name, id]) and you won't have to use arrays of card names to get the name of the card.
+                        })
                     }
                     function glow(element, color) {
                         console.log($(element))
@@ -313,7 +320,7 @@
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
                             let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
-                            message += " <button class='useAnotherAbility'>Cancel</button></span>"
+                            message += " <button class='useAnotherAbility'>Exit</button></span>"
 
                             //let oldAbilityElement = $("#"+cardID+"ability"+abilityID).clone()
 
@@ -322,6 +329,11 @@
                             $(".errorMessage").remove();
                             $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
                             $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                            $("[id^='abilityNumber']").each(function(index) { // for every use card button
+                                $(this).replaceWith($("<b id='"+$(this).attr("id")+"'>"+$(this).html()+":</b>")) // turn it into bold text
+                            })
+                            
+                            //$(".activePlayerPlayedCards [class$='Abilities'] .abilityPopout [id^='abilityNumber'] .useCardButton").
                             //$(".inactivePlayerPlayedCards").css("border", "orange outset 2px") //set an outline for the cards to pick
                             
                             glow(".inactivePlayerPlayedCards")
@@ -340,6 +352,8 @@
 
                         } else {
                             //there isnt a card to deal damage to!
+                            $(".abilityPopout br, .abilityPopout .abilitiesTitle, .cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber']:not(#abilityNumber"+abilityID+")").remove()
+                            $(".cardID"+cardID+"Abilities .abilityPopout .cardHealthTotal").after("<br>")
                             errorMessage("your opponent has not played a card to deal damage to!", "Roadkill", "#abilityNumber"+abilityID)
                         }
                     } else if(Number(abilityID) === 2) { //if ability 2 (Novice Explorer's Expedition) was used
@@ -367,12 +381,15 @@
                         console.log("hi")
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
                             let message = "<span class='pickMessage'>Pick an opposing card to deal damage to!";
-                            message += " <button class='useAnotherAbility'>Cancel</button></span>"
+                            message += " <button class='useAnotherAbility'>Exit</button></span>"
 
                             $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
                             $(".errorMessage").remove();
                             $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
                             $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                            $(".useCardButton").each(function(index) { // for every use card button
+                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                            })
                             glow(".inactivePlayerPlayedCards");
                             $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
                                 let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
@@ -401,12 +418,15 @@
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
                             let message = "<span class='pickMessage'>Pick an opposing card to deal damage to!";
-                            message += " <button class='useAnotherAbility'>Cancel</button></span>"
+                            message += " <button class='useAnotherAbility'>Exit</button></span>"
 
                             $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
                             $(".errorMessage").remove();
                             $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
                             $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                            $(".useCardButton").each(function(index) { // for every use card button
+                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                            })
                             
                             glow(".inactivePlayerPlayedCards") // Glow the cards to pick of the other person.
 
@@ -520,13 +540,15 @@
                         //if you have played another card
                         if(board["player" + activePlayer + "Played"].length > 1) {
                             let message = "<span class='pickMessage'>Pick an ally card to heal!";
-                            message += " <button class='useAnotherAbility'>Cancel</button></span>"
+                            message += " <button class='useAnotherAbility'>Exit</button></span>"
 
                             $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
                             $(".errorMessage").remove();
                             $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
                             $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
-                            
+                            $(".useCardButton").each(function(index) { // for every use card button
+                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                            })
                             console.log(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))")
                             glow(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))") // Glow the cards to pick of the other person.
 
@@ -564,13 +586,16 @@
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
                             let message = "<span class='pickMessage'>Pick an opposing card to deal damage to and restrict from using abilities!";
-                            message += " <button class='useAnotherAbility'>Cancel</button></span>"
+                            message += " <button class='useAnotherAbility'>Exit</button></span>"
 
                             $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
                             $(".errorMessage").remove();
                             $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
                             $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
-                            
+                            $(".useCardButton").each(function(index) { // for every use card button
+                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                            })
+
                             glow(".inactivePlayerPlayedCards") // Glow the cards to pick of the other person.
 
                             $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
@@ -660,6 +685,11 @@
                             //there isnt a card to deal damage to!
                             errorMessage("your opponent has not played a card to deal damage to!", "Never Surrender", "#abilityNumber"+abilityID)
                         }
+                    } else {
+                        let theCardName = $("#abilityNumber" + abilityID + " .useCardButton").html()
+                        $(".abilityPopout br, .abilityPopout .abilitiesTitle, .cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber']:not(#abilityNumber"+abilityID+")").remove()
+                        $(".cardID"+cardID+"Abilities .abilityPopout .cardHealthTotal").after("<br>") //copy paste this everywhere!!!
+                        errorMessage("this ability has not been coded in yet!", theCardName, "#abilityNumber" + abilityID)
                     }
                 } 
                 
@@ -670,10 +700,11 @@
                         console.log($(this).html())
                         console.log($(this))
                         console.log($(this).children())
-                        console.log($(this).children()[0])
+                        console.log($($(this).find("[class^='cardID']")))
                         console.log($($(this).children()[0]))
                         console.log($($(this).children()[0]).html())
                         console.log(cards[$($(this).children()[0]).html()])
+                        //let theCardName = $(this).children()
                         //console.log(cards[$($(this).children()[0]).html()]["Art"])
                         if(cards[$($(this).children()[0]).html()]["Art"] !== "") {
                             console.log("hello")
@@ -704,12 +735,13 @@
                         } else {
                             //otherwise don't display the button saying to play the card.
                         }
-                        arrayOfCards[arrayOfCards.length - 1] += "<div class='abilityPopout' style='display: none;'>"+" Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"<br />Abilities:<br />";
+                        arrayOfCards[arrayOfCards.length - 1] += "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span><br />Abilities:<br />";
                         for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
                             arrayOfCards[arrayOfCards.length - 1]+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
                             arrayOfCards[arrayOfCards.length - 1]+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br>"
                         }
                         arrayOfCards[arrayOfCards.length - 1]+= "</div>"
+                        arrayOfCards[arrayOfCards.length - 1]+= "<span class='cardHealth cardID" + theCardID + "'>"+cardData["card" + theCardID][0]+"</span>"
                     } 
                     
                     //arrayOfCards.push("<button id = 'sortCards' onclick = 'sortCards(board[\"player\" + " + activePlayer + " + \"Hand\"], true)'>Sort Cards</button>")
@@ -741,7 +773,7 @@
                             //add its health
                             // this should eventually be positioned at the bottom right of the card.
                             stringOfUseCards+= " <span class='cardID"+theCardID+"Abilities'>"
-                            stringOfUseCards+= "<div class='abilityPopout' style='display: none;'>"+" Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"<br />";
+                            stringOfUseCards+= "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span> <br />";
                             if(cardData["card"+board["player" + activePlayer + "Played"][i][1]][1]) { //if you have used this card already, then you can't use it again
                                 stringOfUseCards+="You've already used this card once this turn!" //move these two into the ability popout!
                             } else { //you havent used this card yet this turn
@@ -765,6 +797,8 @@
                             }
                             stringOfUseCards+= "</div>"
                             stringOfUseCards+= "</span>" //close the span element
+                            stringOfUseCards+= "<span class='cardHealth cardID" + theCardID + "'>"+cardData["card" + theCardID][0]+"</span>"
+                            //stringOfUseCards+= "<span id = 'playedCardActive"+i+"' class='cardID"+theCardID+"'>" + theCardName + "</span>"
                             arrayOfActivePlayedCards.push(stringOfUseCards) //push it to the array
                             i++
                         }      
@@ -797,7 +831,7 @@
                             //add its health
                             // this should eventually be positioned at the bottom right of the card.
                             //stringOfUseCards+= " Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"] + " <span class='cardID"+theCardID+"Abilities'>"
-                            stringOfUseCards+= "<div class='abilityPopout' style='display: none;'>"+" Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"<br />Abilities:<br />";
+                            stringOfUseCards+= "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span><br />Abilities:<br />";
                             if(kidnapCheck[turnCount + 1] && kidnapCheck[turnCount + 1] == theCardID) {
                                 stringOfUseCards += " <span class='outlawKidnap red'>Outlaw's Kidnap: This card will not be able to use its abilities next turn.</span><br>"
                             }
@@ -810,8 +844,9 @@
                             }
                             stringOfUseCards+= "</div>"
                                 
-                            
+                            stringOfUseCards+= "<span class='cardHealth cardID" + theCardID + "'>"+cardData["card" + theCardID][0]+"</span>"
                             stringOfUseCards+= "</span>" //close the span element
+                            
                             arrayOfInActivePlayedCards.push(stringOfUseCards) //push it to the array
                             i++
                         }      
@@ -833,7 +868,7 @@
                     for(i in board["player" + nonActivePlayer + "Hand"]) { //for each one you get to see the back of the card
                         arrayOfInactiveCards.push("<span class='inactive' id = 'inactiveCard"+i+"'>" + "The back of the card lol" + "</span>")
                     } //set it to the board
-                    $("."+nonActivePlayer+".hand .right").html(arrayOfInactiveCards.join("|"))
+                    $("."+nonActivePlayer+".hand .right").html(arrayOfInactiveCards.join(""))
                     $(".inactive").each(function(i, obj) {
                         console.log(obj)
                         console.log(i)
@@ -842,15 +877,31 @@
                 }
                 function showDiscardPiles() { //show the discard piles
                     if(board["player" + activePlayer + "Discard"].length === 0) { //if your discard pile is empty then just show a label.
-                        $("."+activePlayer+".discard").html("<td>Player " + activePlayer + "'s Discard Pile: </td><td></td>")
+                        $("."+activePlayer+".discard").html("<td class='left discardTitle'>Player " + activePlayer + "'s Discard Pile: </td><td class='right discardContent'></td>")
                     } else { //show the label and the top card's name otherwise.
-                        $("."+activePlayer+".discard").html("<td>Player " + activePlayer + "'s Discard Pile: </td><td class='cardFaceUp discardPile'><span class='cardID" + board["player" + activePlayer + "Discard"][board["player" + activePlayer + "Discard"].length - 1][1] + "'>" + board["player" + activePlayer + "Discard"][board["player" + activePlayer + "Discard"].length - 1][0] + "</span></td>")
+                        let theCardID = board["player" + activePlayer + "Discard"][board["player" + activePlayer + "Discard"].length - 1][1];
+                        let theCardName = board["player" + activePlayer + "Discard"][board["player" + activePlayer + "Discard"].length - 1][0];
+                        let activePlayerDiscardString = "<td class='left discardTitle'>Player " + activePlayer + "'s Discard Pile: </td>"
+                        activePlayerDiscardString+= "<td class='right discardContent'>";
+                        activePlayerDiscardString+= "<span class='cardFaceUp discardPile'><span class='cardID" + theCardID + "'>" + theCardName + "</span></span>";
+                        activePlayerDiscardString+= "</td>"
+                        $("."+activePlayer+".discard").html(activePlayerDiscardString);
+                        showCardImages();
                     }
                     //same thing for non active cards.
                     if(board["player" + nonActivePlayer + "Discard"].length === 0) {
-                        $("."+nonActivePlayer+".discard").html("<td>Player " + nonActivePlayer + "'s Discard Pile: </td><td></td>")
+                        $("."+nonActivePlayer+".discard").html("<td class='left discardTitle'>Player " + nonActivePlayer + "'s Discard Pile: </td><td class='right discardContent'></td>")
                     } else {
-                        $("."+nonActivePlayer+".discard").html("<td>Player " + nonActivePlayer + "'s Discard Pile: </td><td class='cardFaceUp discardPile'><span class='cardID" + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][1] + "'>" + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][0] + "</span></td>")
+                        let theCardID = board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][1];
+                        let theCardName = board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][0];
+                        let nonActivePlayerDiscardString = "<td class='left discardTitle'>Player " + nonActivePlayer + "'s Discard Pile: </td>"
+                        nonActivePlayerDiscardString+= "<td class='right discardContent'>";
+                        nonActivePlayerDiscardString+= "<span class='cardFaceUp discardPile'><span class='cardID" + theCardID + "'>" + theCardName + "</span></span>";
+                        nonActivePlayerDiscardString+= "</td>"
+                        $("."+nonActivePlayer+".discard").html(nonActivePlayerDiscardString);
+                        showCardImages();
+
+                        //$("."+nonActivePlayer+".discard").html("<td>Player " + nonActivePlayer + "'s Discard Pile: </td><td class='cardFaceUp discardPile'><span class='cardID" + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][1] + "'>" + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][0] + "</span></td>")
                     }
                 }
                 
@@ -860,12 +911,13 @@
                 showActivePlayerCards() //show your hand <-- this has to be last since otherwise it will count the nonactive cards as active first.
                 showDiscardPiles() //show the discard piles
 
-                $("."+activePlayer+".endTurn").css("display", "block") //show the end turn button for you
-                $("."+nonActivePlayer+".functions td").css("border-top", "none")
-                $("."+activePlayer+".functions td").css("border-top", "5px solid red")
-                $("."+nonActivePlayer+".endTurn").css("display", "none") //hide it for the other person
-                $("." + activePlayer + ".draw").css("display", "block") //show your draw button <- how will drawing work in game?
-                $("." + nonActivePlayer + ".draw").css("display", "none") //hide it for them
+                $("."+activePlayer+".functions").removeAttr("style") //show the end turn button for you
+                $("."+nonActivePlayer+".functions").css("display", "none")
+                $("."+activePlayer+".functions.right").css("height", "15px")
+                //$(".functions")
+                //$("."+nonActivePlayer+".endTurn").css("display", "none") //hide it for the other person
+                //$("." + activePlayer + ".draw").css("display", "block") //show your draw button <- how will drawing work in game?
+                //$("." + nonActivePlayer + ".draw").css("display", "none") //hide it for them
                 $("#turnCount").html("Turn Count: " + turnCount) //show the turn count
 
                 function hotkeys() { //hotkeys function for clicks/hovers
@@ -878,7 +930,7 @@
                                 showActivePlayerCards() //reshow your hand
                                 hotkeys() //recall hotkeys so they will still work.
                             } else { //no cards left to draw
-                                $(this).html("There are no more cards left to draw!")
+                                $(this).replaceWith("<b>There are no more cards left to draw!</b>")
                             }
                         })
                     //when you click draw
@@ -894,7 +946,7 @@
                             displayBoard();
                             //hotkeys() //recall hotkeys so they will still work.
                         })
-
+                    let abilityOverride = {};
                     $(".useCardButton").click(function(){ //if you click on a use abillity button
                         //run the abilities function (cardName, abilityID, cardID)
                         console.log(board)
@@ -903,17 +955,39 @@
                         let theCardName = String(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")][0]);
                         let theCardID = String(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")][1]);
                         let theAbilityID = String($(this).attr("id").replace(theCardID, "").replace("ability", ""));
+                        //$(this).parent().css("display", "block")
+                        abilityOverride[theCardID] = true;
+                        console.log(abilityOverride)
                         abilities(theCardName, theAbilityID, theCardID)
+                        
                     })
                     $(".cardFaceUp").hover(function() {
                         if($(this).find(".abilityPopout").length > 0) {
+                            let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "")
                             $(this).find(".abilityPopout").css("display", "block")
+                            console.log(abilityOverride)
+                            if(JSON.stringify(abilityOverride) == "{}") {
+                                // now we need to position the health of the card in the bottom right corner
+                            } else if(abilityOverride[theCardID] && abilityOverride[theCardID] == true) { 
+                                // do nothing
+                            } else {
+                                console.log($(this).find("abilityPopout"))
+                                $(this).find(".abilityPopout").css("display", "none")
+                            }
+                            
                         }
                         //let us make one hover function for every cardFaceUp
                         //for activePlayerPlayedCards, it'll also show the buttons.
                         //then, rework the error messages and displays of abilities.
                     }, function() {
-                        $(this).find(".abilityPopout").css("display", "none")
+                        console.log(abilityOverride)
+                        let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "")
+                        if(abilityOverride[theCardID] == true) { 
+                            // nothing?
+                        } else {
+                            $(this).find(".abilityPopout").css("display", "none")
+                        }
+                        
                     })
                     debugPanel()
                 }
