@@ -261,7 +261,7 @@
                         })
                     }
                     function glow(element, color) {
-                        console.log($(element))
+                        //console.log($(element))
                         $(element).css({
                             //'background-color': '#ccc',
                             'border': '1px solid transparent',
@@ -272,7 +272,7 @@
                         })
                         $(element).hover(function() {
                             //$(this).unbind('hover')
-                            console.log("hello??")
+                            //console.log("hello??")
                             $(element).css("cursor", "pointer")
                         }, function() {
                             $(element).css("cursor", "auto")
@@ -280,8 +280,8 @@
                         $(function() {  
                             var glower = $(element);
                             window.setInterval(function() {  
-                                console.log("hello")
-                                console.log(glower)
+                                //console.log("hello")
+                                //console.log(glower)
                                 //glower.toggleClass('inactive')
                                 glower.toggleClass('active')
                             }, 500);
@@ -296,16 +296,19 @@
                         if(board["player" + nonActivePlayer + "Hand"].length > 0) { //if the other person has cards in their hand
                             //get a random card from their hand
                             let randomCardOfOtherPerson = board["player" + nonActivePlayer + "Hand"][Math.floor(Math.random()*board["player" + nonActivePlayer + "Hand"].length)]
+                            console.log(randomCardOfOtherPerson);
                             //get rid of Desert Caravan from your hands
                             let activeBoardCopy = JSON.parse(JSON.stringify(board["player" + activePlayer + "Played"]))
                             let cardIndex = myIndexOf(activeBoardCopy, [cardName, cardID])
+                            console.log(cardIndex)
                             board["player" + activePlayer + "Played"].splice(cardIndex, 1)
                             //add the random card to your hand
                             board["player" + activePlayer + "Played"].push(randomCardOfOtherPerson)
                             //get rid of the random card from the other person's hand
-                            let inactiveBoardCopy = JSON.parse(JSON.stringify(board["player" + nonActivePlayer + "Played"]))
-
+                            let inactiveBoardCopy = JSON.parse(JSON.stringify(board["player" + nonActivePlayer + "Hand"]))
+                            console.log(inactiveBoardCopy)
                             let otherPersonCardIndex = myIndexOf(inactiveBoardCopy, randomCardOfOtherPerson)
+                            console.log(otherPersonCardIndex)
                             board["player" + nonActivePlayer + "Hand"].splice(otherPersonCardIndex, 1)
                             //add desert caravan to your discard pile
                             board["player" + activePlayer + "Discard"].push([cardName, cardID])
@@ -378,7 +381,7 @@
                         //should this not be able to run if there is not another card in your hand?
                     } else if(Number(abilityID) === 3) {//if ability 3 (Mooshlett's Spread the Spore) was used
                         //if the other person has played a card
-                        console.log("hi")
+                        //console.log("hi")
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
                             let message = "<span class='pickMessage'>Pick an opposing card to deal damage to!";
                             message += " <button class='useAnotherAbility'>Exit</button></span>"
@@ -448,7 +451,79 @@
                     } else if(Number(abilityID) === 5) { //if ability 5 (Northern Tribesman's Whirlwind) was used
                         //if the other person has played a card <-- should this be two+ cards in play?
                         if(board["player" + nonActivePlayer + "Played"].length >= 2) {
-                            let listOfPlayedCards = "Cards to deal damage to: "; //start off what you're going to show with a prompt
+                            let message = "<span class='pickMessage'>Pick two opposing cards to deal damage to!";
+                            message += " <button class='useAnotherAbility'>Exit</button> <button class='submitWhirlwind' style='display: none;'>Submit</button></span>"
+
+                            $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                            $(".errorMessage").remove();
+                            $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                            $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                            $(".useCardButton").each(function(index) { // for every use card button
+                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                            })
+                            
+                            glow(".inactivePlayerPlayedCards") // Glow the cards to pick of the other person.
+
+                            var selectedCards = [];
+                            let damageToDeal = 2;
+                            $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
+                                let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                //let damageToDeal = 3; //you are deailng 3 damage to it
+                                //cardData["card" + theCardID][0] -= damageToDeal; //deal the damage
+                                //abilityWasUsed(); //you used an ability
+                                //displayBoard(); //redisplay the board
+                                
+                                if($(this).hasClass("selected")) { //if it was selected previously
+                                    console.log("selected")
+                                    $(this).removeClass("selected") //unselect it
+                                    //$(this).html(theCardID) //reset its html
+                                    //console.log($(".damageCounter"))
+                                    selectedCards.splice(selectedCards.indexOf(theCardID), 1); //delete it from the list
+                                    //console.log($(".damageCounter"))
+                                    console.log(".damageCounter.cardID" + theCardID)
+                                    $(".damageCounter.cardID" + theCardID).remove();
+                                    //will this work? because you're indexing splices recursive all that
+                                } else {
+                                    $(this).addClass("selected"); //add selected class
+                                    selectedCards.push(theCardID); // select it
+                                    
+                                    $(this).append("<span class='damageCounter cardID" + theCardID + "'>-"+damageToDeal+"</span>")
+                                }
+
+                                if(selectedCards.length === 2) { //if there are two selected cards
+                                    $(".submitWhirlwind").css("display", "inline") //show the submit button
+                                } else {
+                                    $(".submitWhirlwind").css("display", "none") //hide it otherwise
+                                }
+
+
+                            })
+
+                            $(".submitWhirlwind").click(function(){
+                                for(v of selectedCards) { // for each selected card
+                                    cardData["card"+v][0] -= damageToDeal; // get rid of 2 damage
+                                }
+                                
+                                cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
+                                abilityWasUsed()
+                                displayBoard()
+                                //you have used your ability, and now redisplay everything.
+                            })
+
+                            $(".useAnotherAbility").click(function() {
+                                displayBoard(); //exit out of the menu/redisplay the board.
+                            })
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            /*let listOfPlayedCards = "Cards to deal damage to: "; //start off what you're going to show with a prompt
                             for(let f in board["player" + nonActivePlayer + "Played"]) { //for each of their played cards
                                 listOfPlayedCards += "<button class='notSelected whirlwind whirlwind"+board["player" + nonActivePlayer + "Played"][f][1]+"'>"+ board["player" + nonActivePlayer + "Played"][f][0] + "</button>"
                                 //add a button that when clicked you'll deal damage to that card.
@@ -490,7 +565,7 @@
                                 abilityWasUsed()
                                 displayBoard()
                                 //you have used your ability, and now redisplay everything.
-                            })
+                            })*/
                         } else {
                             //there isnt a card to deal damage to!
                             errorMessage("your opponent has not played two+ cards to deal damage to!", "Whirlwind", "#abilityNumber"+abilityID)
@@ -504,12 +579,12 @@
                             //tune up is not working. fix
                             let listOfCardsToHeal = []; //start off what you're going to show with a prompt
                             for(let f in board["player" + activePlayer + "Played"]) { //for each of their played cards
-                                console.log(f)
+                                //console.log(f)
                                 if(board["player" + activePlayer + "Played"][f][1] != cardID) { //for every card that isn't this mechanic card
-                                    console.log(cardData["card"+board["player" + activePlayer + "Played"][f][1]][0])
-                                    console.log(cards[listOfCards[board["player" + activePlayer + "Played"][f][1]]])
+                                    //console.log(cardData["card"+board["player" + activePlayer + "Played"][f][1]][0])
+                                    //console.log(cards[listOfCards[board["player" + activePlayer + "Played"][f][1]]])
                                     if(cardData["card"+board["player" + activePlayer + "Played"][f][1]][0]<cards[listOfCards[board["player" + activePlayer + "Played"][f][1]]]["Health"]) {
-                                        console.log(false)
+                                        //console.log(false)
                                         listOfCardsToHeal.push(board["player" + activePlayer + "Played"][f][1])
                                     }
                                     //listOfPlayedCards += "<button class='tuneUp tuneUp"+board["player" + activePlayer + "Played"][f][1]+"'>"+ board["player" + activePlayer + "Played"][f][0] + "</button>"
@@ -519,11 +594,11 @@
 
                             if(JSON.stringify(listOfCardsToHeal)=="[]") { //all your cards are full health
                                 //error message
-                                console.log("hello??")
+                                //console.log("hello??")
                                 errorMessage("the rest of your cards in play are fully healed!", "Tune Up", "#abilityNumber"+abilityID, "Could not use ability")
                             } else {
-                                console.log("dlkf")
-                                console.log(listOfCardsToHeal)
+                                //console.log("dlkf")
+                                //console.log(listOfCardsToHeal)
                                 for(let e of listOfCardsToHeal) {
                                     cardData["card" + e][0]+=1 //heal 1 damage to each card to heal
                                     abilityWasUsed()
@@ -549,7 +624,7 @@
                             $(".useCardButton").each(function(index) { // for every use card button
                                 $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
                             })
-                            console.log(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))")
+                            //console.log(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))")
                             glow(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))") // Glow the cards to pick of the other person.
 
                             $(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))").click(function() { //if you click on an opposing card
@@ -566,7 +641,7 @@
                                     abilityWasUsed(); //you used an ability
                                     displayBoard(); //redisplay the board
                                 } else { //the card is at full health
-                                    console.log($("#passionProject"+theCardID).length)
+                                    //console.log($("#passionProject"+theCardID).length)
                                     if($("#passionProject"+theCardID).length == 0) { //if there is no error message for this card already
                                         //problem: multiple cards with the same name will display the same error message. Should the error message be in the card itself? Below it? Above it? In it? where.
                                         $(".useAnotherAbility").after(" <span class='errorMessage' id='passionProject"+theCardID+"'>Could not heal " + listOfCards[theCardID] + ", it is at full health!</span>")
@@ -697,19 +772,19 @@
                 
                 function showCardImages() {
                     $(".cardFaceUp:not(:empty)").each(function() {
-                        console.log($(this).html())
-                        console.log($(this))
-                        console.log($(this).children())
-                        console.log($($(this).find("[class^='cardID']")))
-                        console.log($($(this).children()[0]))
-                        console.log($($(this).children()[0]).html())
-                        console.log(cards[$($(this).children()[0]).html()])
+                        //console.log($(this).html())
+                        //console.log($(this))
+                        //console.log($(this).children())
+                        //console.log($($(this).find("[class^='cardID']")))
+                        //console.log($($(this).children()[0]))
+                        //console.log($($(this).children()[0]).html())
+                        //console.log(cards[$($(this).children()[0]).html()])
                         //let theCardName = $(this).children()
                         //console.log(cards[$($(this).children()[0]).html()]["Art"])
                         if(cards[$($(this).children()[0]).html()]["Art"] !== "") {
-                            console.log("hello")
-                            console.log('url(' + "/images/cards/" + cards[$($(this).children()[0]).html()]["Art"] + '") 100%')
-                            console.log($(this))
+                            //console.log("hello")
+                            //console.log('url(' + "/images/cards/" + cards[$($(this).children()[0]).html()]["Art"] + '") 100%')
+                            //console.log($(this))
                             $(this).css('background-image', 'url("' + ".//images/cards/" + cards[$($(this).children()[0]).html()]["Art"] + '")');
                             //$(this).css('background-image', 'url(' + "/images/cards/" + cards[$($(this).children()[0]).html()]["Art"] + '")');
                             $(this).css('background-size', "100%")
@@ -750,7 +825,7 @@
                     //$("."+activePlayer+".hand .left").html($("."+activePlayer+".hand .left").html() + "<button id = 'sortCards' onclick = 'sortCards(board[\"player\" + " + activePlayer + " + \"Hand\"], true)'>Sort Cards</button>")
                     showCardImages()
                     $(".cardFaceUp.cardThatIsActive").each(function(i, obj) {
-                        console.log(i)
+                        //console.log(i)
                         //$(this).css("left", i*100)
                     })
                 }
@@ -804,11 +879,11 @@
                         }      
                     }
                     //add it to the board, separated by |s
-                    console.log($("."+activePlayer+".played"))
+                    //console.log($("."+activePlayer+".played"))
                     $("."+activePlayer+".played .right").html("<span class='cardFaceUp activePlayerPlayedCards'>" + arrayOfActivePlayedCards.join("</span><span class='cardFaceUp activePlayerPlayedCards'>")+"</span>")
                     showCardImages()
                     $(".cardFaceUp.activePlayerPlayedCards").each(function(i, obj) {
-                        console.log(i)
+                        //console.log(i)
                         //$(this).css("left", i*100)
                     })
                 }
@@ -863,15 +938,15 @@
                 function showInactivePlayerCards() { //display inactive cards
                     $("."+nonActivePlayer+".hand .left .sortCards").css('display', "none")
                     let arrayOfInactiveCards = []; //set the array
-                    console.log(nonActivePlayer)
-                    console.log("fa;skdfja;kslfj;l")
+                    //console.log(nonActivePlayer)
+                    //console.log("fa;skdfja;kslfj;l")
                     for(i in board["player" + nonActivePlayer + "Hand"]) { //for each one you get to see the back of the card
                         arrayOfInactiveCards.push("<span class='inactive' id = 'inactiveCard"+i+"'>" + "The back of the card lol" + "</span>")
                     } //set it to the board
                     $("."+nonActivePlayer+".hand .right").html(arrayOfInactiveCards.join(""))
                     $(".inactive").each(function(i, obj) {
-                        console.log(obj)
-                        console.log(i)
+                        //console.log(obj)
+                        //console.log(i)
                         //$(this).css("left", i*100+150)
                     })
                 }
@@ -883,7 +958,15 @@
                         let theCardName = board["player" + activePlayer + "Discard"][board["player" + activePlayer + "Discard"].length - 1][0];
                         let activePlayerDiscardString = "<td class='left discardTitle'>Player " + activePlayer + "'s Discard Pile: </td>"
                         activePlayerDiscardString+= "<td class='right discardContent'>";
-                        activePlayerDiscardString+= "<span class='cardFaceUp discardPile'><span class='cardID" + theCardID + "'>" + theCardName + "</span></span>";
+                        activePlayerDiscardString+= "<span class='cardFaceUp discardPile'><span class='cardID" + theCardID + "'>" + theCardName + "</span>";
+                        activePlayerDiscardString+= " <span class='cardID"+theCardID+"Abilities'>"
+                        //currently displaying 0/max health
+                        activePlayerDiscardString+= "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: 0/" + cards[theCardName]["Health"]+"</span> <br />";
+                        for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
+                            activePlayerDiscardString+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
+                            activePlayerDiscardString+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br />"
+                        }
+                        activePlayerDiscardString+= "</div><span class='cardHealth cardID" + theCardID + "'>0</span></span>";
                         activePlayerDiscardString+= "</td>"
                         $("."+activePlayer+".discard").html(activePlayerDiscardString);
                         showCardImages();
@@ -896,7 +979,15 @@
                         let theCardName = board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][0];
                         let nonActivePlayerDiscardString = "<td class='left discardTitle'>Player " + nonActivePlayer + "'s Discard Pile: </td>"
                         nonActivePlayerDiscardString+= "<td class='right discardContent'>";
-                        nonActivePlayerDiscardString+= "<span class='cardFaceUp discardPile'><span class='cardID" + theCardID + "'>" + theCardName + "</span></span>";
+                        nonActivePlayerDiscardString+= "<span class='cardFaceUp discardPile'><span class='cardID" + theCardID + "'>" + theCardName + "</span>";
+                        nonActivePlayerDiscardString+= " <span class='cardID"+theCardID+"Abilities'>"
+                        //this is currently displaying 0/max health. 
+                        nonActivePlayerDiscardString+= "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: 0/" + cards[theCardName]["Health"]+"</span> <br />";
+                        for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
+                            nonActivePlayerDiscardString+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
+                            nonActivePlayerDiscardString+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br />"
+                        }
+                        nonActivePlayerDiscardString+= "</div><span class='cardHealth cardID" + theCardID + "'>0</span></span>";
                         nonActivePlayerDiscardString+= "</td>"
                         $("."+nonActivePlayer+".discard").html(nonActivePlayerDiscardString);
                         showCardImages();
@@ -949,15 +1040,15 @@
                     let abilityOverride = {};
                     $(".useCardButton").click(function(){ //if you click on a use abillity button
                         //run the abilities function (cardName, abilityID, cardID)
-                        console.log(board)
-                        console.log($(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", ""))
-                        console.log(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")])
+                        //console.log(board)
+                        //console.log($(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", ""))
+                        //console.log(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")])
                         let theCardName = String(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")][0]);
                         let theCardID = String(board["player"+activePlayer+"Played"][$(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", "")][1]);
                         let theAbilityID = String($(this).attr("id").replace(theCardID, "").replace("ability", ""));
                         //$(this).parent().css("display", "block")
                         abilityOverride[theCardID] = true;
-                        console.log(abilityOverride)
+                        //console.log(abilityOverride)
                         abilities(theCardName, theAbilityID, theCardID)
                         
                     })
@@ -965,13 +1056,13 @@
                         if($(this).find(".abilityPopout").length > 0) {
                             let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "")
                             $(this).find(".abilityPopout").css("display", "block")
-                            console.log(abilityOverride)
+                            //console.log(abilityOverride)
                             if(JSON.stringify(abilityOverride) == "{}") {
                                 // now we need to position the health of the card in the bottom right corner
                             } else if(abilityOverride[theCardID] && abilityOverride[theCardID] == true) { 
                                 // do nothing
                             } else {
-                                console.log($(this).find("abilityPopout"))
+                                //console.log($(this).find("abilityPopout"))
                                 $(this).find(".abilityPopout").css("display", "none")
                             }
                             
@@ -980,7 +1071,7 @@
                         //for activePlayerPlayedCards, it'll also show the buttons.
                         //then, rework the error messages and displays of abilities.
                     }, function() {
-                        console.log(abilityOverride)
+                        //console.log(abilityOverride)
                         let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "")
                         if(abilityOverride[theCardID] == true) { 
                             // nothing?
