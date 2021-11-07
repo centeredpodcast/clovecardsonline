@@ -116,6 +116,12 @@ td {
     bottom: 8px;
     right: 25px;
 }
+.damageCounter:not(.blueDamage) {
+    position: absolute;
+    bottom: 8px;
+    left: 25px;
+    color: red;
+}
 #board {
     border: 10px gold groove;
     border-radius: 10px;
