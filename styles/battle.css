@@ -134,3 +134,7 @@ td {
 main h1 {
     text-align: center;
 }
+/*.cardFaceUp {
+    transition-timing-function: linear;
+    transition: width 1s;
+}*/

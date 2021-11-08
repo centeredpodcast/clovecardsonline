@@ -225,8 +225,11 @@
                 }*/ 
                 // no debug panel for now.
             }
-            function displayBoard() { //display the board function
+            function displayBoard(previousBoard) { //display the board function
                 //display none the other sort cards button.
+                console.log(previousBoard)
+                console.log(board)
+                var thePreviousBoard = JSON.parse(JSON.stringify(board));
                 if(updateTurn) { //if you have to update turn
                     for(let d in cardData) {
                         cardData[d][3]=false;
@@ -246,7 +249,7 @@
                     function abilityWasUsed() { //if an ability was used
                         cardData["card"+cardID][1] = true; //set the marker to true; you did use that ability.
                         cardData["card"+cardID][2][abilityID]++ //up the amount of times you've used each card's ability
-                        debugPanel()
+                        //debugPanel()
                     }
                     function errorMessage(errorMessage, abilityName, abilityButton, override) {
                         $(".abilityPopout br, .abilityPopout .abilitiesTitle, .cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber']:not(#abilityNumber"+abilityID+")").remove()
@@ -314,7 +317,7 @@
                             board["player" + activePlayer + "Discard"].push([cardName, cardID])
                             //you used an ability
                             abilityWasUsed()
-                            displayBoard() //redisplay the board.
+                            displayBoard(thePreviousBoard) //redisplay the board.
                         } else {
                             //you dont have a card to take from the other person!
                             errorMessage("there is not a card to take from the your opponent!", "Barter", "#abilityNumber"+abilityID)
@@ -346,7 +349,7 @@
                                 let damageToDeal = 2; //you are deailng 2 damage to it
                                 cardData["card" + theCardID][0] -= damageToDeal; //deal the damage
                                 abilityWasUsed(); //you used an ability
-                                displayBoard(); //redisplay the board
+                                displayBoard(thePreviousBoard); //redisplay the board
                             })
 
                             $(".useAnotherAbility").click(function() {
@@ -362,9 +365,19 @@
                     } else if(Number(abilityID) === 2) { //if ability 2 (Novice Explorer's Expedition) was used
                         //change playedcardyet to false, so you can play one more card!
                         playedCardYet = false; //if you use novice explorer multiple times, then should you be allowed to play multiple cards? Or should it be a feature that you have to use the card and then play new cards one at a time?
+                        console.log(cardData["card"+cardID][2])
                         if(cardData["card"+cardID][2][abilityID]>0) { //if this card has been used more than once
-                            let a = 0; //define a
-                            while(a < board["player" + activePlayer + "Played"].length) { //while a in played cards
+                            //let a = 0; //define a
+                            let indexOfCard = myIndexOf(board["player" + activePlayer + "Played"], [cardName, cardID]);
+                            console.log([cardName, cardID])
+                            console.log(board["player" + activePlayer + "Played"])
+                            console.log(indexOfCard)
+                            if(indexOfCard < 0) {
+                                console.log("SDF:LKD")
+                                indexOfCard = myIndexOf(board["player" + activePlayer + "Played"], [cardName, Number(cardID)]);
+                            }
+                            board["player" + activePlayer + "Played"].splice(indexOfCard, 1)
+                            /*while(a < board["player" + activePlayer + "Played"].length) { //while a in played cards
                                 if(board["player" + activePlayer + "Played"][a][1]===cardID) { //if that is the played card id
                                     board["player" + activePlayer + "Played"].splice(a, 1) //get rid of that card from your played
                                     break; //i think theres a glitch here where it also deletes another of your cards but maybe thats fixed, i don't know.
@@ -373,11 +386,11 @@
                                 } else {
                                     a++ //continue...
                                 }
-                            }
+                            }*/
                             board["player" + activePlayer + "Discard"].push([cardName, cardID]) //add this card to the discard pile.
                         }
                         abilityWasUsed() //an ability was used
-                        displayBoard() //redisplay the board
+                        displayBoard(thePreviousBoard) //redisplay the board
                         //should this not be able to run if there is not another card in your hand?
                     } else if(Number(abilityID) === 3) {//if ability 3 (Mooshlett's Spread the Spore) was used
                         //if the other person has played a card
@@ -406,7 +419,7 @@
                                 cardData["card"+Object.keys(cardData).length] = [cards["Mooshlett"].Health, false, objectToAdd, true]
                                 listOfCards.push(cardName)
                                 abilityWasUsed(); //you used an ability
-                                displayBoard(); //redisplay the board
+                                displayBoard(thePreviousBoard); //redisplay the board
                             })
 
                             $(".useAnotherAbility").click(function() {
@@ -438,7 +451,7 @@
                                 let damageToDeal = 3; //you are deailng 3 damage to it
                                 cardData["card" + theCardID][0] -= damageToDeal; //deal the damage
                                 abilityWasUsed(); //you used an ability
-                                displayBoard(); //redisplay the board
+                                displayBoard(thePreviousBoard); //redisplay the board
                             })
 
                             $(".useAnotherAbility").click(function() {
@@ -506,66 +519,13 @@
                                 
                                 cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
                                 abilityWasUsed()
-                                displayBoard()
+                                displayBoard(thePreviousBoard)
                                 //you have used your ability, and now redisplay everything.
                             })
 
                             $(".useAnotherAbility").click(function() {
                                 displayBoard(); //exit out of the menu/redisplay the board.
                             })
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            /*let listOfPlayedCards = "Cards to deal damage to: "; //start off what you're going to show with a prompt
-                            for(let f in board["player" + nonActivePlayer + "Played"]) { //for each of their played cards
-                                listOfPlayedCards += "<button class='notSelected whirlwind whirlwind"+board["player" + nonActivePlayer + "Played"][f][1]+"'>"+ board["player" + nonActivePlayer + "Played"][f][0] + "</button>"
-                                //add a button that when clicked you'll deal damage to that card.
-                            }
-                            listOfPlayedCards+="<button class='submitWhirlwind' style='display: none;'>Submit</button>"
-                            //add this list to the page
-                            $("#"+cardID+"ability"+abilityID).parent().append(listOfPlayedCards)
-                            $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
-                            var selectedCards = [];
-                            $(".whirlwind").click(function(){ //if you click on a card to deal damage to
-                                console.log($(this).attr("class"))
-                                //get the name of the card you clicked
-                                var thisCardName = listOfCards[$(this).attr("class").replace("whirlwind whirlwind", "").replace("notSelected", "").replace("selected", "").replace(" ", "")]
-                                if($(this).hasClass("notSelected")) { //if it wasn't selected previously
-                                    console.log("not selected")
-                                    $(this).removeClass("notSelected").addClass("selected") //select it
-                                    selectedCards.push(thisCardName) //add it to the list
-                                    $(this).html(thisCardName+" | Selected") //say selected on its button
-                                } else if($(this).hasClass("selected")) { //if it was selected previously
-                                    console.log("selected")
-                                    $(this).removeClass("selected").addClass("notSelected") //unselect it
-                                    $(this).html(thisCardName) //reset its html
-                                    selectedCards.splice(selectedCards.indexOf(thisCardName), 1); //delete it from the list
-                                    //will this work? because you're indexing splices recursive all that
-                                }
-                                console.log(selectedCards)
-                                if(selectedCards.length === 2) { //if there are two selected cards
-                                    $(".submitWhirlwind").css("display", "inline") //show the submit button
-                                } else {
-                                    $(".submitWhirlwind").css("display", "none") //hide it otherwise
-                                }
-                            })
-                            $(".submitWhirlwind").click(function(){
-                                $(".selected").each(function() { //for each selected card
-                                    //take away 2 health
-                                    cardData["card"+$(this).attr("class").replace("selected", "").replace("whirlwind whirlwind", "").replace(" ", "")][0] -= 2
-                                });
-                                cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
-                                abilityWasUsed()
-                                displayBoard()
-                                //you have used your ability, and now redisplay everything.
-                            })*/
                         } else {
                             //there isnt a card to deal damage to!
                             errorMessage("your opponent has not played two+ cards to deal damage to!", "Whirlwind", "#abilityNumber"+abilityID)
@@ -601,9 +561,10 @@
                                 //console.log(listOfCardsToHeal)
                                 for(let e of listOfCardsToHeal) {
                                     cardData["card" + e][0]+=1 //heal 1 damage to each card to heal
-                                    abilityWasUsed()
-                                    displayBoard()
+                                    
                                 }
+                                abilityWasUsed()
+                                displayBoard(thePreviousBoard)
                             }
 
                             //add this list to the page
@@ -639,7 +600,7 @@
                                         cardData["card"+theCardID][0] = cards[listOfCards[theCardID]]["Health"]
                                     }
                                     abilityWasUsed(); //you used an ability
-                                    displayBoard(); //redisplay the board
+                                    displayBoard(thePreviousBoard); //redisplay the board
                                 } else { //the card is at full health
                                     //console.log($("#passionProject"+theCardID).length)
                                     if($("#passionProject"+theCardID).length == 0) { //if there is no error message for this card already
@@ -682,7 +643,7 @@
                                 console.log(kidnapCheck)
                                 console.log(cardData["card"+theCardID][0])
                                 abilityWasUsed(); //you used an ability
-                                displayBoard(); //redisplay the board
+                                displayBoard(thePreviousBoard); //redisplay the board
                             })
 
                             $(".useAnotherAbility").click(function() {
@@ -694,10 +655,101 @@
                         }
                     } else if(Number(abilityID) === 9) { //if ability 9 (Outlaw's Never Surrender) was used
                         //create a new variable containing all the selected cards to deal damage to
-                        var neverSurrenderSelected = {}    
+                        var neverSurrenderSelected = [,,,];   
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
-                            let listOfPlayedCards = "" //the list of played cards is blank for now
+                            let activeDamagePoint = 1;
+                            let message = "<span class='pickMessage'>Select an Opposing Card to Deal Damage Point <span class='damagePoint'>1</span>: ";
+                            message += "<span class='damageContext1' style='font-weight: bold;'>Damage Point 1: <span class='damagePoint1'>None</span></span><br> ";
+                            message += "<span class='damageContext2'>Damage Point 2: <span class='damagePoint2'>None</span></span><br> ";
+                            message += "<span class='damageContext3'>Damage Point 3: <span class='damagePoint3'>None</span></span><br> ";
+                            message += "<span class='damageContext4'>Damage Point 4: <span class='damagePoint4'>None</span></span><br> ";
+                            message += "Click on another Damage Point to change the card being dealt damage to."
+                            message += " <button class='useAnotherAbility'>Exit</button> <button class='submitNeverSurrender' style='display: none;'>Submit</button></span>"
+
+                            $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                            $(".errorMessage").remove();
+                            $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                            $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                            $(".useCardButton").each(function(index) { // for every use card button
+                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                            })
+                            
+                            glow(".inactivePlayerPlayedCards") // Glow the cards to pick of the other person.
+
+                            let damageToDeal = 1;
+
+                            $("[class^='damagePoint']:not(.damagePoint)").click(function() {
+                                activeDamagePoint = $(this).attr("class").replace("damagePoint", "");
+                                $(".damagePoint").html(activeDamagePoint);
+                                $("[class^='damageContext']").css("font-weight", "normal");
+                                $(".damageContext" + activeDamagePoint).css("font-weight", "bold");
+                            })
+                            $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
+                                let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                let theCardName = listOfCards[theCardID]
+                                //let damageToDeal = 3; //you are deailng 3 damage to it
+                                //cardData["card" + theCardID][0] -= damageToDeal; //deal the damage
+                                //abilityWasUsed(); //you used an ability
+                                //displayBoard(); //redisplay the board
+                                neverSurrenderSelected[activeDamagePoint - 1] = theCardID;
+                                $(".damageCounter").remove();
+
+                                let nSCopy = neverSurrenderSelected.filter(String)
+                                let occurrences = nSCopy.reduce(function (acc, curr) {
+                                    return acc[curr] ? ++acc[curr] : acc[curr] = 1, acc
+                                }, {});
+
+
+                                for(i in occurrences) {
+                                    if(i != null) {
+                                        let thisCardID = i
+
+                                        $("[id^='playedCardNonActive'].cardID" + thisCardID).parent().append("<span class='damageCounter cardID" + thisCardID + "'>-"+occurrences[i]+"</span>")
+                                    }
+                                }
+
+                                $(".damagePoint" + activeDamagePoint).html(theCardName);
+
+                                if(nSCopy.length === 4) { //if there are two selected cards
+                                    $(".submitNeverSurrender").css("display", "inline") //show the submit button
+                                } else {
+                                    $(".submitNeverSurrender").css("display", "none") //hide it otherwise
+                                }
+
+
+                            })
+
+                            $(".submitNeverSurrender").click(function(){
+                                for(v of neverSurrenderSelected) { // for each selected card
+                                    cardData["card"+v][0] -= damageToDeal; // get rid of 2 damage
+                                }
+                                let a = 0;
+                                while(a < board["player" + activePlayer + "Played"].length) { //while a in your played cards
+                                    if(board["player" + activePlayer + "Played"][a][1]===cardID) { //if that is the played card id
+                                        board["player" + activePlayer + "Played"].splice(a, 1) //get rid of that card from your played
+                                        break; 
+                                        //stop the while loop.
+                                    } else {
+                                        a++ //continue...
+                                    }
+                                }
+                                board["player" + activePlayer + "Discard"].push([cardName, cardID]); //add it to the discard pile.
+                                //cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
+                                abilityWasUsed()
+                                displayBoard(thePreviousBoard)
+                                //you have used your ability, and now redisplay everything.
+                            })
+
+                            $(".useAnotherAbility").click(function() {
+                                displayBoard(); //exit out of the menu/redisplay the board.
+                            })
+
+
+
+
+
+                            /*let listOfPlayedCards = "" //the list of played cards is blank for now
                             for(let g = 1; g < 5; g++) { //loop 4 times, one for every damage point
                                 listOfPlayedCards += "Damage Point "+g+": "; //start off what you're going to show with a prompt
                                 for(let f in board["player" + nonActivePlayer + "Played"]) { //for each of their played cards
@@ -755,7 +807,7 @@
 
                                 abilityWasUsed() //you used an ability
                                 displayBoard() //redisplay the board
-                            })
+                            })*/
                         } else {
                             //there isnt a card to deal damage to!
                             errorMessage("your opponent has not played a card to deal damage to!", "Never Surrender", "#abilityNumber"+abilityID)
@@ -961,7 +1013,7 @@
                         activePlayerDiscardString+= "<span class='cardFaceUp discardPile'><span class='cardID" + theCardID + "'>" + theCardName + "</span>";
                         activePlayerDiscardString+= " <span class='cardID"+theCardID+"Abilities'>"
                         //currently displaying 0/max health
-                        activePlayerDiscardString+= "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: 0/" + cards[theCardName]["Health"]+"</span> <br />";
+                        activePlayerDiscardString+= "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: 0/" + cards[theCardName]["Health"]+"</span> <br />Abilities:<br />";
                         for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
                             activePlayerDiscardString+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
                             activePlayerDiscardString+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br />"
@@ -1034,11 +1086,13 @@
                             board["player"+activePlayer+"Hand"].splice($(this).attr("id").replace("playCard", ""), 1) //get rid of the card from your hand
                             //add it to your played section
                             board["player"+activePlayer+"Played"].push([listOfCards[$(this).attr("class").replace("playCardButton", "").replace("cardID", "").replace(" ", "")], $(this).attr("class").replace("playCardButton", "").replace("cardID", "").replace(" ", "")])
-                            displayBoard();
+                            displayBoard(thePreviousBoard);
                             //hotkeys() //recall hotkeys so they will still work.
                         })
                     let abilityOverride = {};
-                    $(".useCardButton").click(function(){ //if you click on a use abillity button
+                    $(".useCardButton")
+                        .unbind('click')
+                        .click(function(){ //if you click on a use abillity button
                         //run the abilities function (cardName, abilityID, cardID)
                         //console.log(board)
                         //console.log($(this).attr("class").replace("useCardButton", "").replace("useCard", "").replace(" ", ""))
@@ -1080,11 +1134,11 @@
                         }
                         
                     })
-                    debugPanel()
+                    //debugPanel()
                 }
                 hotkeys() //call the hotkeys originally so they work off the ba
                 
-                debugPanel()
+                //debugPanel()
             }
             //show the board when you load the page.
             displayBoard()
