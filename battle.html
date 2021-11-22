@@ -25,44 +25,44 @@
             <tbody>
                 <tr class='1 functions one'>
                     <td class='left functionsEnd'><button class="1 endTurn one" onclick="changeTurns()">End Turn</button></td>
-                    <td class='right functionsDraw'><button class="1 draw one">Draw</button></td>
+                    <td colspan="3" class='right functionsDraw'><button class="1 draw one">Draw</button></td>
                 </tr>
                 <tr class="1 hand one">
                     <td class='left handTitle'>Player 1's Hand:<button class="sortCards" onclick="sortCards(board['player' + 1 + 'Hand'], true)">Sort Cards</button></td>
-                    <td class='right handContent'></td>
+                    <td colspan="3" class='right handContent'></td>
                 </tr> <!-- here is your board -->
                 <!--<div class="1 deck one" onclick="shuffleDeck(1)"></div> <!-- this won't show anymore 'caus we show hands now-->
                 <tr class="1 played one">
                     <td class='left playedTitle'>Player 1's Played Cards:</td>
-                    <td class='right playedContent'></td>
-                </tr>
-                <tr class="1 discard one">
+                    <td class='playedContent'></td>
+                <!--</tr>
+                <tr class="1 discard one">-->
                     <td class='left discardTitle'>Player 1's Discard Pile:</td>
-                    <td class='right discardContent'></td>
+                    <td class='discardContent' id='discard1'></td>
                 </tr>
                 <tr class="2 played two">
                     <td class='left playedTitle'>Player 2's Played Cards:</td>
-                    <td class='right playedContent'></td>
-                </tr>
-                <tr class="2 discard two">
+                    <td class='playedContent'></td>
+                <!--</tr>
+                <tr class="2 discard two">-->
                     <td class='left discardTitle'>Player 2's Discard Pile:</td>
-                    <td class='right discardContent'></td>
+                    <td class='discardContent' id='discard2'></td>
                 </tr>
                 <tr class="2 hand two">
                     <td class='left handTitle'>Player 2's Hand:<button class="sortCards" onclick="sortCards(board['player' + 2 + 'Hand'], true)">Sort Cards</button></td>
-                    <td class='right handContent'></td>
+                    <td colspan="3" class='right handContent'></td>
                 </tr>
                 <!--<tr class="2 deck two"></tr>-->
                 <tr class='2 functions two'>
                     
                     <td class='left functionsEnd'><button class="2 endTurn two" onclick="changeTurns()">End Turn</button> <!-- end turn button --></td>
-                    <td class='right functionsDraw'><button class="2 draw two">Draw</button> <!-- draw button --></td>
+                    <td colspan="3" class='right functionsDraw'><button class="2 draw two">Draw</button> <!-- draw button --></td>
                 </tr>
             </tbody>
         </table>
         <!--<button class="testbutton">click me to add cards to your collection!</button>-->
     </main>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> <!--jQuery!-->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> <!--jQuery!-->
     <script src="scripts/game.js"></script> <!--Calls game.js file-->
     <script src="scripts/functions.js"></script><!--Calls functions.js file-->
     
@@ -227,8 +227,8 @@
             }
             function displayBoard(previousBoard) { //display the board function
                 //display none the other sort cards button.
-                console.log(previousBoard)
-                console.log(board)
+                //console.log(previousBoard)
+                //console.log(board)
                 var thePreviousBoard = JSON.parse(JSON.stringify(board));
                 if(updateTurn) { //if you have to update turn
                     for(let d in cardData) {
@@ -268,10 +268,11 @@
                         $(element).css({
                             //'background-color': '#ccc',
                             'border': '1px solid transparent',
-                            '-webkit-transition': 'border 0.1s linear, box-shadow 0.5s linear',
-                            '-moz-transition': 'border 0.1s linear, box-shadow 0.5s linear',
-                            'transition': 'border 0.1s linear, box-shadow 0.5s linear',
-                            'margin': '5px'
+                            '-webkit-transition': 'box-shadow 0.5s linear',
+                            '-moz-transition': 'box-shadow 0.5s linear',
+                            'transition': 'box-shadow 0.5s linear',
+                            'margin': '0px 9px 0px 9px',
+                            'padding': '10px'
                         })
                         $(element).hover(function() {
                             //$(this).unbind('hover')
@@ -304,14 +305,13 @@
                             let activeBoardCopy = JSON.parse(JSON.stringify(board["player" + activePlayer + "Played"]))
                             let cardIndex = myIndexOf(activeBoardCopy, [cardName, cardID])
                             console.log(cardIndex)
-                            board["player" + activePlayer + "Played"].splice(cardIndex, 1)
-                            //add the random card to your hand
-                            board["player" + activePlayer + "Played"].push(randomCardOfOtherPerson)
+                            // replace the card with the card from the other person
+                            board["player" + activePlayer + "Played"][cardIndex] = randomCardOfOtherPerson
                             //get rid of the random card from the other person's hand
                             let inactiveBoardCopy = JSON.parse(JSON.stringify(board["player" + nonActivePlayer + "Hand"]))
-                            console.log(inactiveBoardCopy)
+                            //console.log(inactiveBoardCopy)
                             let otherPersonCardIndex = myIndexOf(inactiveBoardCopy, randomCardOfOtherPerson)
-                            console.log(otherPersonCardIndex)
+                            //console.log(otherPersonCardIndex)
                             board["player" + nonActivePlayer + "Hand"].splice(otherPersonCardIndex, 1)
                             //add desert caravan to your discard pile
                             board["player" + activePlayer + "Discard"].push([cardName, cardID])
@@ -364,39 +364,56 @@
                         }
                     } else if(Number(abilityID) === 2) { //if ability 2 (Novice Explorer's Expedition) was used
                         //change playedcardyet to false, so you can play one more card!
-                        playedCardYet = false; //if you use novice explorer multiple times, then should you be allowed to play multiple cards? Or should it be a feature that you have to use the card and then play new cards one at a time?
-                        console.log(cardData["card"+cardID][2])
-                        if(cardData["card"+cardID][2][abilityID]>0) { //if this card has been used more than once
-                            //let a = 0; //define a
-                            let indexOfCard = myIndexOf(board["player" + activePlayer + "Played"], [cardName, cardID]);
-                            console.log([cardName, cardID])
-                            console.log(board["player" + activePlayer + "Played"])
-                            console.log(indexOfCard)
-                            if(indexOfCard < 0) {
-                                console.log("SDF:LKD")
-                                indexOfCard = myIndexOf(board["player" + activePlayer + "Played"], [cardName, Number(cardID)]);
-                            }
-                            board["player" + activePlayer + "Played"].splice(indexOfCard, 1)
-                            /*while(a < board["player" + activePlayer + "Played"].length) { //while a in played cards
-                                if(board["player" + activePlayer + "Played"][a][1]===cardID) { //if that is the played card id
-                                    board["player" + activePlayer + "Played"].splice(a, 1) //get rid of that card from your played
-                                    break; //i think theres a glitch here where it also deletes another of your cards but maybe thats fixed, i don't know.
-                                    //glitch where it deletes it on first click?
-                                    //stop the while loop.
-                                } else {
-                                    a++ //continue...
+                        if(playedCardYet) {
+                            let isTherePlayable = false;
+                            for(i in board["player" + activePlayer + "Hand"]) {
+                                let theCardID = board["player" + activePlayer + "Hand"][i][1]
+                                if(cardData["card" + theCardID][3] === false) {
+                                    isTherePlayable = true;
                                 }
-                            }*/
-                            board["player" + activePlayer + "Discard"].push([cardName, cardID]) //add this card to the discard pile.
+                            }
+                            if(isTherePlayable) {
+                                playedCardYet = false; //if you use novice explorer multiple times, then should you be allowed to play multiple cards? Or should it be a feature that you have to use the card and then play new cards one at a time?
+                                console.log(cardData["card"+cardID][2])
+                                if(cardData["card"+cardID][2][abilityID]>0) { //if this card has been used more than once
+                                    //let a = 0; //define a
+                                    let indexOfCard = myIndexOf(board["player" + activePlayer + "Played"], [cardName, cardID]);
+                                    console.log([cardName, cardID])
+                                    console.log(board["player" + activePlayer + "Played"])
+                                    console.log(indexOfCard)
+                                    if(indexOfCard < 0) {
+                                        console.log("SDF:LKD")
+                                        indexOfCard = myIndexOf(board["player" + activePlayer + "Played"], [cardName, Number(cardID)]);
+                                    }
+                                    board["player" + activePlayer + "Played"].splice(indexOfCard, 1)
+                                    /*while(a < board["player" + activePlayer + "Played"].length) { //while a in played cards
+                                        if(board["player" + activePlayer + "Played"][a][1]===cardID) { //if that is the played card id
+                                            board["player" + activePlayer + "Played"].splice(a, 1) //get rid of that card from your played
+                                            break; //i think theres a glitch here where it also deletes another of your cards but maybe thats fixed, i don't know.
+                                            //glitch where it deletes it on first click?
+                                            //stop the while loop.
+                                        } else {
+                                            a++ //continue...
+                                        }
+                                    }*/
+                                    board["player" + activePlayer + "Discard"].push([cardName, cardID]) //add this card to the discard pile.
+                                }
+                            
+                            
+                                abilityWasUsed() //an ability was used
+                                displayBoard(thePreviousBoard) //redisplay the board
+                            } else {
+                                errorMessage("you must have a card to play first!", "Expedition", "#abilityNumber"+abilityID)
+                            }
+                        } else {
+                            errorMessage("you must play a card first!", "Expedition", "#abilityNumber"+abilityID)
                         }
-                        abilityWasUsed() //an ability was used
-                        displayBoard(thePreviousBoard) //redisplay the board
                         //should this not be able to run if there is not another card in your hand?
                     } else if(Number(abilityID) === 3) {//if ability 3 (Mooshlett's Spread the Spore) was used
                         //if the other person has played a card
                         //console.log("hi")
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
-                            let message = "<span class='pickMessage'>Pick an opposing card to deal damage to!";
+                            let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
                             message += " <button class='useAnotherAbility'>Exit</button></span>"
 
                             $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
@@ -433,7 +450,7 @@
                     } else if(Number(abilityID) === 4) { //if ability 4 (Northern Tribesman's Arctic Slash) was used
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
-                            let message = "<span class='pickMessage'>Pick an opposing card to deal damage to!";
+                            let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
                             message += " <button class='useAnotherAbility'>Exit</button></span>"
 
                             $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
@@ -464,8 +481,8 @@
                     } else if(Number(abilityID) === 5) { //if ability 5 (Northern Tribesman's Whirlwind) was used
                         //if the other person has played a card <-- should this be two+ cards in play?
                         if(board["player" + nonActivePlayer + "Played"].length >= 2) {
-                            let message = "<span class='pickMessage'>Pick two opposing cards to deal damage to!";
-                            message += " <button class='useAnotherAbility'>Exit</button> <button class='submitWhirlwind' style='display: none;'>Submit</button></span>"
+                            let message = "<br><span class='pickMessage'>Pick two opposing cards to deal damage to!";
+                            message += " <button class='submitWhirlwind' style='display: none;'>Submit</button> <span class='whirlwindNumSelected'></span> <button class='useAnotherAbility'>Exit</button></span>"
 
                             $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
                             $(".errorMessage").remove();
@@ -505,8 +522,14 @@
 
                                 if(selectedCards.length === 2) { //if there are two selected cards
                                     $(".submitWhirlwind").css("display", "inline") //show the submit button
+                                    $(".whirlwindNumSelected").html("");
                                 } else {
                                     $(".submitWhirlwind").css("display", "none") //hide it otherwise
+                                    if(selectedCards.length > 2) {
+                                        $(".whirlwindNumSelected").html("You've selected " + (selectedCards.length - 2) + " card(s) too many!");
+                                    } else {
+                                        $(".whirlwindNumSelected").html("You've selected " + selectedCards.length + " card(s) so far.");
+                                    }
                                 }
 
 
@@ -575,7 +598,7 @@
                     } else if(Number(abilityID) === 7) { //if ability 7 (Mechanic's Passion Project) was used
                         //if you have played another card
                         if(board["player" + activePlayer + "Played"].length > 1) {
-                            let message = "<span class='pickMessage'>Pick an ally card to heal!";
+                            let message = "<br><span class='pickMessage'>Pick an ally card to heal!";
                             message += " <button class='useAnotherAbility'>Exit</button></span>"
 
                             $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
@@ -605,6 +628,7 @@
                                     //console.log($("#passionProject"+theCardID).length)
                                     if($("#passionProject"+theCardID).length == 0) { //if there is no error message for this card already
                                         //problem: multiple cards with the same name will display the same error message. Should the error message be in the card itself? Below it? Above it? In it? where.
+                                        $(".errorMessage").remove();
                                         $(".useAnotherAbility").after(" <span class='errorMessage' id='passionProject"+theCardID+"'>Could not heal " + listOfCards[theCardID] + ", it is at full health!</span>")
                                     }
                                 }
@@ -621,7 +645,7 @@
                     } else if(Number(abilityID) === 8) { //if ability 8 (Outlaw's Kidnap) was used
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
-                            let message = "<span class='pickMessage'>Pick an opposing card to deal damage to and restrict from using abilities!";
+                            let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to and restrict from using abilities!";
                             message += " <button class='useAnotherAbility'>Exit</button></span>"
 
                             $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
@@ -659,7 +683,7 @@
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
                             let activeDamagePoint = 1;
-                            let message = "<span class='pickMessage'>Select an Opposing Card to Deal Damage Point <span class='damagePoint'>1</span>: ";
+                            let message = "<br><span class='pickMessage'>Select an Opposing Card to Deal Damage Point <span class='damagePoint'>1</span>:<br>";
                             message += "<span class='damageContext1' style='font-weight: bold;'>Damage Point 1: <span class='damagePoint1'>None</span></span><br> ";
                             message += "<span class='damageContext2'>Damage Point 2: <span class='damagePoint2'>None</span></span><br> ";
                             message += "<span class='damageContext3'>Damage Point 3: <span class='damagePoint3'>None</span></span><br> ";
@@ -678,12 +702,15 @@
                             glow(".inactivePlayerPlayedCards") // Glow the cards to pick of the other person.
 
                             let damageToDeal = 1;
-
-                            $("[class^='damagePoint']:not(.damagePoint)").click(function() {
-                                activeDamagePoint = $(this).attr("class").replace("damagePoint", "");
+                            function updateDamagePoint() {
+                                
                                 $(".damagePoint").html(activeDamagePoint);
                                 $("[class^='damageContext']").css("font-weight", "normal");
                                 $(".damageContext" + activeDamagePoint).css("font-weight", "bold");
+                            }
+                            $("[class^='damagePoint']:not(.damagePoint)").click(function() {
+                                activeDamagePoint = $(this).attr("class").replace("damagePoint", "");
+                                updateDamagePoint();
                             })
                             $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
                                 let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
@@ -710,7 +737,10 @@
                                 }
 
                                 $(".damagePoint" + activeDamagePoint).html(theCardName);
-
+                                if(activeDamagePoint != 4 && !neverSurrenderSelected[activeDamagePoint]) {
+                                    activeDamagePoint++;
+                                    updateDamagePoint();
+                                }
                                 if(nSCopy.length === 4) { //if there are two selected cards
                                     $(".submitNeverSurrender").css("display", "inline") //show the submit button
                                 } else {
@@ -824,26 +854,9 @@
                 
                 function showCardImages() {
                     $(".cardFaceUp:not(:empty)").each(function() {
-                        //console.log($(this).html())
-                        //console.log($(this))
-                        //console.log($(this).children())
-                        //console.log($($(this).find("[class^='cardID']")))
-                        //console.log($($(this).children()[0]))
-                        //console.log($($(this).children()[0]).html())
-                        //console.log(cards[$($(this).children()[0]).html()])
-                        //let theCardName = $(this).children()
-                        //console.log(cards[$($(this).children()[0]).html()]["Art"])
                         if(cards[$($(this).children()[0]).html()]["Art"] !== "") {
-                            //console.log("hello")
-                            //console.log('url(' + "/images/cards/" + cards[$($(this).children()[0]).html()]["Art"] + '") 100%')
-                            //console.log($(this))
                             $(this).css('background-image', 'url("' + ".//images/cards/" + cards[$($(this).children()[0]).html()]["Art"] + '")');
-                            //$(this).css('background-image', 'url(' + "/images/cards/" + cards[$($(this).children()[0]).html()]["Art"] + '")');
-                            $(this).css('background-size', "100%")
-                            //$(this).css({
-                            //    'background': 'url(' + "/images/cards/" + cards[$($(this).children()[0]).html()]["Art"] + '") 100%'
-                            //})
-                            //$(this).css("background-image", "url(/images/cards/" + cards[$($(this).children()[0]).html()]["Art"]+")")
+                            $(this).css('background-size', "100%");
                         }
                     })
                 }
@@ -862,7 +875,8 @@
                         } else {
                             //otherwise don't display the button saying to play the card.
                         }
-                        arrayOfCards[arrayOfCards.length - 1] += "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span><br />Abilities:<br />";
+                        arrayOfCards[arrayOfCards.length - 1] += "<div class='abilityPopout' style='display: none;'>"+" <span class='cardName'>"+theCardName+"</span><br>"
+                        arrayOfCards[arrayOfCards.length - 1] += "<span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span><br />Abilities:<br />";
                         for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
                             arrayOfCards[arrayOfCards.length - 1]+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
                             arrayOfCards[arrayOfCards.length - 1]+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br>"
@@ -876,10 +890,6 @@
                     //push a sort cards button at the end
                     //$("."+activePlayer+".hand .left").html($("."+activePlayer+".hand .left").html() + "<button id = 'sortCards' onclick = 'sortCards(board[\"player\" + " + activePlayer + " + \"Hand\"], true)'>Sort Cards</button>")
                     showCardImages()
-                    $(".cardFaceUp.cardThatIsActive").each(function(i, obj) {
-                        //console.log(i)
-                        //$(this).css("left", i*100)
-                    })
                 }
                 
                 function showActivePlayedCards() { //display your played cards
@@ -900,16 +910,35 @@
                             //add its health
                             // this should eventually be positioned at the bottom right of the card.
                             stringOfUseCards+= " <span class='cardID"+theCardID+"Abilities'>"
-                            stringOfUseCards+= "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span> <br />";
+                            stringOfUseCards+= "<div class='abilityPopout' style='display: none;'> <span class='cardName'>"+theCardName+"</span><br>"
+                            stringOfUseCards += " <span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span> <br />";
                             if(cardData["card"+board["player" + activePlayer + "Played"][i][1]][1]) { //if you have used this card already, then you can't use it again
-                                stringOfUseCards+="You've already used this card once this turn!" //move these two into the ability popout!
+                                stringOfUseCards+="You've already used this card once this turn!<br>" //move these two into the ability popout!
+                                for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
+                                    let theAbilityIDs = Object.values(cards[theCardName]["Abilities"][j])[0]
+                                    stringOfUseCards+= " <span id='abilityNumber"+Object.values(cards[theCardName]["Abilities"][j])[0]+"'><b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
+                                    stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><span class='abilityUsage'> - Used "
+                                    if(cardData["card" + theCardID][2][theAbilityIDs] == 1) {
+                                        stringOfUseCards+= "1 time";
+                                    } else {
+                                        stringOfUseCards+= cardData["card" + theCardID][2][theAbilityIDs] + " times"
+                                    }
+                                    stringOfUseCards+="</span></span><br />"
+                                }
                             } else { //you havent used this card yet this turn
                                 if(kidnapCheck[turnCount] && kidnapCheck[turnCount] == theCardID) {
                                     //If there is a card that is kidnapped this turn and it is this card, then display a message saying you cannot use this card
                                     stringOfUseCards += "<span class='outlawKidnap red'>This card cannot use abilities this turn under Outlaw's Kidnap!</span><br>"
                                     for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
+                                        let theAbilityIDs = Object.values(cards[theCardName]["Abilities"][j])[0]
                                         stringOfUseCards+= " <span id='abilityNumber"+Object.values(cards[theCardName]["Abilities"][j])[0]+"'><b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
-                                        stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span></span><br />"
+                                        stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><span class='abilityUsage'> - Used "
+                                        if(cardData["card" + theCardID][2][theAbilityIDs] == 1) {
+                                            stringOfUseCards+= "1 time";
+                                        } else {
+                                            stringOfUseCards+= cardData["card" + theCardID][2][theAbilityIDs] + " times"
+                                        }
+                                        stringOfUseCards+="</span></span><br />"
                                     }
                                 } else { //start an ability popout
                                     //display: none this eventually.
@@ -917,7 +946,15 @@
                                     stringOfUseCards+="<span class='abilitiesTitle'>Abilities:</span><br />";
                                     for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
                                         stringOfUseCards+= " <span id='abilityNumber"+Object.values(cards[theCardName]["Abilities"][j])[0]+"'><button class='useCard"+i+" useCardButton' id='"+theCardID+"ability"+Object.values(cards[theCardName]["Abilities"][j])[0]+"'>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</button>"
-                                        stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span></span><br />"
+                                        stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><span class='abilityUsage'> - Used "
+                                        let theAbilityIDs = Object.values(cards[theCardName]["Abilities"][j])[0]
+                                        
+                                        if(cardData["card" + theCardID][2][theAbilityIDs] == 1) {
+                                            stringOfUseCards+= "1 time";
+                                        } else {
+                                            stringOfUseCards+= cardData["card" + theCardID][2][theAbilityIDs] + " times"
+                                        }
+                                        stringOfUseCards+="</span></span><br />"
                                     }
                                     
                                 }
@@ -930,19 +967,13 @@
                             i++
                         }      
                     }
-                    //add it to the board, separated by |s
-                    //console.log($("."+activePlayer+".played"))
-                    $("."+activePlayer+".played .right").html("<span class='cardFaceUp activePlayerPlayedCards'>" + arrayOfActivePlayedCards.join("</span><span class='cardFaceUp activePlayerPlayedCards'>")+"</span>")
+                    //add it to the board, separated by <span>s
+                    $("."+activePlayer+".played .playedContent").html("<span class='cardFaceUp activePlayerPlayedCards'>" + arrayOfActivePlayedCards.join("</span><span class='cardFaceUp activePlayerPlayedCards'>")+"</span>")
                     showCardImages()
-                    $(".cardFaceUp.activePlayerPlayedCards").each(function(i, obj) {
-                        //console.log(i)
-                        //$(this).css("left", i*100)
-                    })
                 }
 
                 function showInactivePlayedCards() { //show inactive played cards
                     let arrayOfInActivePlayedCards = []; //set an array
-                    
                     let i = 0;
                     while(i<board["player"+nonActivePlayer+"Played"].length) { //for every played card
                         if(cardData["card"+board["player" + nonActivePlayer + "Played"][i][1]][0]<=0) { //if this card's health is less than or equal to 0, discard it.
@@ -958,7 +989,8 @@
                             //add its health
                             // this should eventually be positioned at the bottom right of the card.
                             //stringOfUseCards+= " Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"] + " <span class='cardID"+theCardID+"Abilities'>"
-                            stringOfUseCards+= "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span><br />Abilities:<br />";
+                            stringOfUseCards+= "<div class='abilityPopout' style='display: none;'><span class='cardName'>"+theCardName+"</span><br>"
+                            stringOfUseCards+= " <span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span><br />Abilities:<br />";
                             if(kidnapCheck[turnCount + 1] && kidnapCheck[turnCount + 1] == theCardID) {
                                 stringOfUseCards += " <span class='outlawKidnap red'>Outlaw's Kidnap: This card will not be able to use its abilities next turn.</span><br>"
                             }
@@ -967,7 +999,15 @@
                             
                             for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
                                 stringOfUseCards+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
-                                stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br />"
+                                stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><span class='abilityUsage'> - Used "
+                                let theAbilityIDs = Object.values(cards[theCardName]["Abilities"][j])[0]
+                                
+                                if(cardData["card" + theCardID][2][theAbilityIDs] == 1) {
+                                    stringOfUseCards+= "1 time";
+                                } else {
+                                    stringOfUseCards+= cardData["card" + theCardID][2][theAbilityIDs] + " times"
+                                }
+                                stringOfUseCards+="</span></span><br />"
                             }
                             stringOfUseCards+= "</div>"
                                 
@@ -981,11 +1021,8 @@
                     //add it to the board, separated by |s
                     
                     //display the inactive played cards
-                    $("."+nonActivePlayer+".played .right").html("<span class='cardFaceUp inactivePlayerPlayedCards'>" + arrayOfInActivePlayedCards.join("</span><span class='cardFaceUp inactivePlayerPlayedCards'>")+"</span>")
+                    $("."+nonActivePlayer+".played .playedContent").html("<span class='cardFaceUp inactivePlayerPlayedCards'>" + arrayOfInActivePlayedCards.join("</span><span class='cardFaceUp inactivePlayerPlayedCards'>")+"</span>")
                     showCardImages();
-                    $(".cardFaceUp.inactivePlayerPlayedCards").each(function(i, obj) {
-                        //$(this).css("left", i*100)
-                    })
                 }
                 function showInactivePlayerCards() { //display inactive cards
                     $("."+nonActivePlayer+".hand .left .sortCards").css('display', "none")
@@ -1002,50 +1039,59 @@
                         //$(this).css("left", i*100+150)
                     })
                 }
-                function showDiscardPiles() { //show the discard piles
-                    if(board["player" + activePlayer + "Discard"].length === 0) { //if your discard pile is empty then just show a label.
-                        $("."+activePlayer+".discard").html("<td class='left discardTitle'>Player " + activePlayer + "'s Discard Pile: </td><td class='right discardContent'></td>")
-                    } else { //show the label and the top card's name otherwise.
-                        let theCardID = board["player" + activePlayer + "Discard"][board["player" + activePlayer + "Discard"].length - 1][1];
-                        let theCardName = board["player" + activePlayer + "Discard"][board["player" + activePlayer + "Discard"].length - 1][0];
-                        let activePlayerDiscardString = "<td class='left discardTitle'>Player " + activePlayer + "'s Discard Pile: </td>"
-                        activePlayerDiscardString+= "<td class='right discardContent'>";
-                        activePlayerDiscardString+= "<span class='cardFaceUp discardPile'><span class='cardID" + theCardID + "'>" + theCardName + "</span>";
-                        activePlayerDiscardString+= " <span class='cardID"+theCardID+"Abilities'>"
-                        //currently displaying 0/max health
-                        activePlayerDiscardString+= "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: 0/" + cards[theCardName]["Health"]+"</span> <br />Abilities:<br />";
-                        for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
-                            activePlayerDiscardString+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
-                            activePlayerDiscardString+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br />"
-                        }
-                        activePlayerDiscardString+= "</div><span class='cardHealth cardID" + theCardID + "'>0</span></span>";
-                        activePlayerDiscardString+= "</td>"
-                        $("."+activePlayer+".discard").html(activePlayerDiscardString);
-                        showCardImages();
-                    }
-                    //same thing for non active cards.
-                    if(board["player" + nonActivePlayer + "Discard"].length === 0) {
-                        $("."+nonActivePlayer+".discard").html("<td class='left discardTitle'>Player " + nonActivePlayer + "'s Discard Pile: </td><td class='right discardContent'></td>")
-                    } else {
-                        let theCardID = board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][1];
-                        let theCardName = board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][0];
-                        let nonActivePlayerDiscardString = "<td class='left discardTitle'>Player " + nonActivePlayer + "'s Discard Pile: </td>"
-                        nonActivePlayerDiscardString+= "<td class='right discardContent'>";
-                        nonActivePlayerDiscardString+= "<span class='cardFaceUp discardPile'><span class='cardID" + theCardID + "'>" + theCardName + "</span>";
-                        nonActivePlayerDiscardString+= " <span class='cardID"+theCardID+"Abilities'>"
-                        //this is currently displaying 0/max health. 
-                        nonActivePlayerDiscardString+= "<div class='abilityPopout' style='display: none;'>"+" <span class='cardHealthTotal'>Health: 0/" + cards[theCardName]["Health"]+"</span> <br />";
-                        for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
-                            nonActivePlayerDiscardString+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
-                            nonActivePlayerDiscardString+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br />"
-                        }
-                        nonActivePlayerDiscardString+= "</div><span class='cardHealth cardID" + theCardID + "'>0</span></span>";
-                        nonActivePlayerDiscardString+= "</td>"
-                        $("."+nonActivePlayer+".discard").html(nonActivePlayerDiscardString);
-                        showCardImages();
+                function showDiscardPiles(showThisDeck) { //show the discard piles
+                    if(showThisDeck) {
+                        
+                        if(board["player" + showThisDeck + "Discard"].length === 0) { //if your discard pile is empty then just show a label.
+                            $("."+showThisDeck+" .discardTitle").html("Player " + showThisDeck + "'s Discard Pile: ")
+                            $("." + showThisDeck + " .discardContent").html("");
+                        } else { //show the label and the top card's name otherwise.
+                            //let activePlayerDiscardString = "";
+                            $("."+showThisDeck+" .discardTitle").html("Player " + showThisDeck + "'s Discard Pile: ");
+                            let activePlayerDiscardString = "<span class='inactive inactiveDiscard'>" + "The back of the card lol<br>Click me to see the full discard pile!" + "</span>"
+                            $("." + showThisDeck + " .discardContent").html(activePlayerDiscardString);
 
-                        //$("."+nonActivePlayer+".discard").html("<td>Player " + nonActivePlayer + "'s Discard Pile: </td><td class='cardFaceUp discardPile'><span class='cardID" + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][1] + "'>" + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][0] + "</span></td>")
+                            
+                        }
+                    } else {
+                        console.log(activePlayer)
+                        function showTheDiscardPiles() {
+                            if(board["player" + activePlayer + "Discard"].length === 0) { //if your discard pile is empty then just show a label.
+                                $("."+activePlayer+" .discardTitle").html("Player " + activePlayer + "'s Discard Pile: ")
+                                $("." + activePlayer + " .discardContent").html("");
+                            } else { //show the label and the top card's name otherwise.
+                                //let activePlayerDiscardString = "";
+                                $("."+activePlayer+" .discardTitle").html("Player " + activePlayer + "'s Discard Pile: ");
+                                let activePlayerDiscardString = "<span class='inactive inactiveDiscard'>" + "The back of the card lol<br>Click me to see the full discard pile!" + "</span>"
+                                $("." + activePlayer + " .discardContent").html(activePlayerDiscardString);
+
+                                
+                            }
+                            //same thing for non active cards.
+                            if(board["player" + nonActivePlayer + "Discard"].length === 0) {
+                                $("."+nonActivePlayer+" .discardTitle").html("Player " + nonActivePlayer + "'s Discard Pile: ")
+                                $("." + nonActivePlayer + " .discardContent").html("");
+                            } else {
+                                //let nonActivePlayerDiscardString = "";
+                                $("."+nonActivePlayer+" .discardTitle").html("Player " + nonActivePlayer + "'s Discard Pile: ");
+                                let nonActivePlayerDiscardString = "<span class='inactive inactiveDiscard'>" + "The back of the card lol<br>Click me to see the full discard pile!" + "</span>"
+                                $("." + nonActivePlayer + " .discardContent").html(nonActivePlayerDiscardString);
+
+
+                                //$("."+nonActivePlayer+".discard").html("<td>Player " + nonActivePlayer + "'s Discard Pile: </td><td class='cardFaceUp discardPile'><span class='cardID" + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][1] + "'>" + board["player" + nonActivePlayer + "Discard"][board["player" + nonActivePlayer + "Discard"].length - 1][0] + "</span></td>")
+                            }
+                        }
+                        showTheDiscardPiles();
                     }
+                    
+
+                    
+                    //If you click a not empty discard pile
+                    
+                    
+                    /*function() {
+                        showTheDiscardPiles();
+                    })*/
                 }
                 
                 showInactivePlayerCards() //show the back of the other players hand
@@ -1119,6 +1165,45 @@
                                 //console.log($(this).find("abilityPopout"))
                                 $(this).find(".abilityPopout").css("display", "none")
                             }
+
+
+                            var element = $(this)[0];
+                            var position = element.getBoundingClientRect();
+                            //console.log(position.right)
+                            let rightBoundary = position.right + 250;
+                            let leftBoundary = position.left - 220;
+                            //console.log(rightBoundary)
+                            //console.log(document.body.clientWidth)
+                            if(rightBoundary > document.body.clientWidth) {
+                                //console.log("it would go off screen")
+                                // If it would go off the screen
+                                let offScreenRight = rightBoundary-document.body.clientWidth;
+                                //console.log(offScreenRight)
+                                let offScreenLeft = Math.abs(leftBoundary)
+                                //console.log(offScreenLeft)
+                                if(leftBoundary < 0) {
+                                    if(offScreenLeft < offScreenRight) {
+                                        //if the left boundary is less than the right
+                                        //option a
+                                        //console.log(offScreenLeft)
+                                        $(this).find(".abilityPopout:not(.discardPile .abilityPopout)").css("left", "100%")
+                                    } else {
+                                        // opt b: normal.
+                                        //console.log(offScreenLeft)
+                                        $(this).find(".abilityPopout:not(.discardPile .abilityPopout)").css("right", "100%")
+                                    }
+                                    //If the left boundary would also go off the page...
+                                } else { //if the left boundary would not go off the page
+                                    //Show it on the left; option a
+                                    //console.log(offScreenLeft)
+                                    $(this).find(".abilityPopout:not(.discardPile .abilityPopout)").css("right", "100%")
+                                    //console.log("IT SHOULD GO RIGHT!")
+                                }
+                            } else {
+                                //the right boundary is not off the screen
+                                // opt b: normal
+                                $(this).find(".abilityPopout:not(.discardPile .abilityPopout)").css("left", "100%")
+                            }
                             
                         }
                         //let us make one hover function for every cardFaceUp
@@ -1134,8 +1219,46 @@
                         }
                         
                     })
-                    //debugPanel()
+                    
+                    $(".discardContent").click(function() {
+                        if($(this).find(".inactive")[0]){
+                            playerNumber = $(this).attr("id").replace("discard", "");
+                            if(board["player" + playerNumber + "Discard"][0]) {
+                                let discardString = "<div class='discardFull'>"
+                                // for every discarded card
+                                for(i in board["player" + playerNumber + "Discard"]) {
+                                    let theCardID = board["player" + playerNumber + "Discard"][i][1];
+                                    let theCardName = board["player" + playerNumber + "Discard"][i][0];
+                                    // Add a card with its name
+                                    discardString+= "<div class='cardFaceUp discardPile' style='display: block;'><span class='active cardID" + theCardID + "'>" + theCardName + "</span>";
+                                    // add a span and a div (that are currently hidden) for its abilities
+                                    discardString+= " <span class='cardID"+theCardID+"Abilities'>"
+                                    // add its current health/max health
+                                    /*discardString+= "<div class='abilityPopout' style='display: none;'>"
+                                    discardString+= "<span class='cardName'>"+theCardName+"</span><br>"
+                                    discardString += " <span class='cardHealthTotal'>Health: 0/" + cards[theCardName]["Health"]+"</span> <br />Abilities:<br />";
+                                    for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a bold header;
+                                        discardString+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
+                                        // and the ability information
+                                        discardString+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br />"
+                                    } 
+                                    // add the card health to the card; should this be on the outside of the abilities span?
+                                    discardString+= "</div>"*/
+                                    //no popout for now
+                                    discardString+= "<span class='cardHealth cardID" + theCardID + "'>0</span></span></div>";
+                                }
+                                // close discardFull
+                                discardString+="</div>"
+
+                                $(this).html(discardString);
+                                showCardImages();
+                            }
+                        } else {
+                            showDiscardPiles($(this).attr("id").replace("discard", ""));
+                        }
+                    })
                 }
+                
                 hotkeys() //call the hotkeys originally so they work off the ba
                 
                 //debugPanel()
