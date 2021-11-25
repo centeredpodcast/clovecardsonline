@@ -72,7 +72,7 @@ body {
     text-align: left;
     padding: 5px;
 }
-.inactivePlayerPlayedCards.active {
+.inactivePlayerPlayedCards.active:not(.protected, .notChosen, .reduced) {
     border-color: red; /* figure out css variables? */
     -webkit-box-shadow: 0 0 5px red;
        -moz-box-shadow: 0 0 5px red;
@@ -83,6 +83,24 @@ body {
     -webkit-box-shadow: 0 0 5px blue;
        -moz-box-shadow: 0 0 5px blue;
             box-shadow: 0 0 5px blue;
+}
+.inactivePlayerPlayedCards.active.protected {
+    border-color: lightskyblue;
+    -webkit-box-shadow: 0 0 10px lightskyblue;
+       -moz-box-shadow: 0 0 10px lightskyblue;
+            box-shadow: 0 0 10px lightskyblue;
+}
+.inactivePlayerPlayedCards.active.reduced {
+    border-color: cyan;
+    -webkit-box-shadow: 0 0 10px cyan;
+       -moz-box-shadow: 0 0 10px cyan;
+            box-shadow: 0 0 10px cyan;
+}
+.inactivePlayerPlayedCards.active.restricted.notChosen {
+    border-color: orange;
+    -webkit-box-shadow: 0 0 5px orange;
+       -moz-box-shadow: 0 0 5px orange;
+            box-shadow: 0 0 5px orange;
 }
 .abilityPopout:not(.discardPile .abilityPopout) {
     position: absolute;
@@ -113,6 +131,15 @@ body {
 }*/
 .red {
     color: red;
+}
+.cyan {
+    color: lightskyblue;
+}
+.green {
+    color: green;
+}
+.orange {
+    color: orange;
 }
 .right:not(.functionsEnd, .functionsDraw) {
     height: 150px;

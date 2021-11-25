@@ -209,7 +209,10 @@
             }
 
             //create a variable that will update if you use the kidnap ability
-            var kidnapCheck = {}
+            var restrictCheck = {}
+            var protectCheck = {}
+            //var reduceCheck = {}
+            var randomCheck = {}
             
             //split the shuffled deck into a hand and deck, hand with 4 cards each.
             board.player1Hand = board.player1Deck.splice(0, 4)
@@ -263,34 +266,65 @@
                             displayBoard(); // note to myself when redesigning have the cardName be in the cardID table. This way, you can simply have the IDs in the board table (not [name, id]) and you won't have to use arrays of card names to get the name of the card.
                         })
                     }
-                    function glow(element, color) {
+                    function glow(element, static, ineligible) {
                         //console.log($(element))
-                        $(element).css({
-                            //'background-color': '#ccc',
-                            'border': '1px solid transparent',
-                            '-webkit-transition': 'box-shadow 0.5s linear',
-                            '-moz-transition': 'box-shadow 0.5s linear',
-                            'transition': 'box-shadow 0.5s linear',
-                            'margin': '0px 9px 0px 9px',
-                            'padding': '10px'
-                        })
-                        $(element).hover(function() {
-                            //$(this).unbind('hover')
-                            //console.log("hello??")
-                            $(element).css("cursor", "pointer")
-                        }, function() {
-                            $(element).css("cursor", "auto")
-                        })
-                        $(function() {  
-                            var glower = $(element);
-                            window.setInterval(function() {  
-                                //console.log("hello")
-                                //console.log(glower)
-                                //glower.toggleClass('inactive')
-                                glower.toggleClass('active')
-                            }, 500);
-                        });
+                        if(static) {
+                            $(element).css({
+                                'border': '1px solid transparent',
+                                'margin': '0px 9px 0px 9px',
+                                'padding': '10px'
+                            })
+                            $(element).addClass("active")
+                            if(ineligible == "restricted") {
+                                $(element).addClass("notChosen")
+                            }
+                        } else {
+                            $(element).css({
+                                //'background-color': '#ccc',
+                                'border': '1px solid transparent',
+                                '-webkit-transition': 'box-shadow 0.5s linear',
+                                '-moz-transition': 'box-shadow 0.5s linear',
+                                'transition': 'box-shadow 0.5s linear',
+                                'margin': '0px 9px 0px 9px',
+                                'padding': '10px'
+                            })
+                            $(element).hover(function() {
+                                //$(this).unbind('hover')
+                                //console.log("hello??")
+                                $(element).css("cursor", "pointer")
+                            }, function() {
+                                $(element).css("cursor", "auto")
+                            })
+                            $(function() {  
+                                var glower = $(element);
+                                window.setInterval(function() {  
+                                    //console.log("hello")
+                                    //console.log(glower)
+                                    //glower.toggleClass('inactive')
+                                    glower.toggleClass('active')
+                                }, 500);
+                            });
+                        }
                         //hotkeys();
+                    }
+                    function dealDamage(theCardID, damageInput, heal) {
+                        let damageOutput = damageInput;
+                        if(!heal) {
+                            if(protectCheck[theCardID] && myIndexOf(Object.keys(protectCheck[theCardID]), String(turnCount)) >= 0) {
+                                damageOutput -= protectCheck[theCardID][turnCount][1]
+                                damageOutput = damageOutput < 0 ? 0 : damageOutput
+                            }
+                            damageOutput = cardData["card" + theCardID][0] - damageOutput;
+                            damageOutput = damageOutput < 0 ? 0 : damageOutput
+                            cardData["card" + theCardID][0] = damageOutput
+                        } else {
+                            
+                            cardData["card" + theCardID][0] += damageToDeal
+                            if(cardData["card"+theCardID][0] > cards[listOfCards[theCardID]]["Health"]) {
+                                //if it overhealed that card, reset it to max health
+                                cardData["card"+theCardID][0] = cards[listOfCards[theCardID]]["Health"]
+                            }
+                        }
                     }
                     //If ability 0 (Desert Caravan's Barter) was used
                     if(Number(abilityID) === 0) { //idk what happened but it put in outlaw instead of the place of 5
@@ -317,7 +351,7 @@
                             board["player" + activePlayer + "Discard"].push([cardName, cardID])
                             //you used an ability
                             abilityWasUsed()
-                            displayBoard(thePreviousBoard) //redisplay the board.
+                            displayBoard() //redisplay the board.
                         } else {
                             //you dont have a card to take from the other person!
                             errorMessage("there is not a card to take from the your opponent!", "Barter", "#abilityNumber"+abilityID)
@@ -325,37 +359,49 @@
                     } else if(Number(abilityID) === 1) { //if ability 1 (Desert Caravan's Roadkill) was used
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
-                            let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
-                            message += " <button class='useAnotherAbility'>Exit</button></span>"
+                            if($(".inactivePlayerPlayedCards:not(.protected)").length > 0) {
+                                let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
+                                message += " <button class='useAnotherAbility'>Exit</button></span>"
 
-                            //let oldAbilityElement = $("#"+cardID+"ability"+abilityID).clone()
+                                //let oldAbilityElement = $("#"+cardID+"ability"+abilityID).clone()
 
-                            //#abilityNumber"+abilityID+" .abilityInformation
-                            $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
-                            $(".errorMessage").remove();
-                            $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
-                            $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
-                            $("[id^='abilityNumber']").each(function(index) { // for every use card button
-                                $(this).replaceWith($("<b id='"+$(this).attr("id")+"'>"+$(this).html()+":</b>")) // turn it into bold text
-                            })
-                            
-                            //$(".activePlayerPlayedCards [class$='Abilities'] .abilityPopout [id^='abilityNumber'] .useCardButton").
-                            //$(".inactivePlayerPlayedCards").css("border", "orange outset 2px") //set an outline for the cards to pick
-                            
-                            glow(".inactivePlayerPlayedCards")
+                                //#abilityNumber"+abilityID+" .abilityInformation
+                                $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                $(".errorMessage").remove();
+                                $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                $("[id^='abilityNumber']").each(function(index) { // for every use card button
+                                    $(this).replaceWith($("<b id='"+$(this).attr("id")+"'>"+$(this).html()+":</b>")) // turn it into bold text
+                                })
+                                
+                                //$(".activePlayerPlayedCards [class$='Abilities'] .abilityPopout [id^='abilityNumber'] .useCardButton").
+                                //$(".inactivePlayerPlayedCards").css("border", "orange outset 2px") //set an outline for the cards to pick
+                                
+                                glow(".inactivePlayerPlayedCards:not(.protected)")
+                                glow(".inactivePlayerPlayedCards.protected", true)
 
-                            $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
-                                let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
-                                let damageToDeal = 2; //you are deailng 2 damage to it
-                                cardData["card" + theCardID][0] -= damageToDeal; //deal the damage
-                                abilityWasUsed(); //you used an ability
-                                displayBoard(thePreviousBoard); //redisplay the board
-                            })
+                                $(".inactivePlayerPlayedCards:not(.protected)").click(function() { //if you click on an opposing card
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let damageToDeal = 2; //you are deailng 2 damage to it
+                                    dealDamage(theCardID, damageToDeal) //deal the damage
+                                    abilityWasUsed(); //you used an ability
+                                    displayBoard(thePreviousBoard); //redisplay the board
+                                })
 
-                            $(".useAnotherAbility").click(function() {
-                                displayBoard(); //exit out of the menu/redisplay the board.
-                            })
+                                $(".inactivePlayerPlayedCards.protected").click(function() {
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    $(".protectMessage").remove();
+                                    let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount][0] + " protects " + theCardName + ".</span>"
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                })
 
+                                $(".useAnotherAbility").click(function() {
+                                    displayBoard(); //exit out of the menu/redisplay the board.
+                                })
+                            } else {
+                                errorMessage("your opponent's cards are all protected!", "Roadkill", "#abilityNumber"+abilityID)
+                            }
                         } else {
                             //there isnt a card to deal damage to!
                             $(".abilityPopout br, .abilityPopout .abilitiesTitle, .cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber']:not(#abilityNumber"+abilityID+")").remove()
@@ -386,16 +432,6 @@
                                         indexOfCard = myIndexOf(board["player" + activePlayer + "Played"], [cardName, Number(cardID)]);
                                     }
                                     board["player" + activePlayer + "Played"].splice(indexOfCard, 1)
-                                    /*while(a < board["player" + activePlayer + "Played"].length) { //while a in played cards
-                                        if(board["player" + activePlayer + "Played"][a][1]===cardID) { //if that is the played card id
-                                            board["player" + activePlayer + "Played"].splice(a, 1) //get rid of that card from your played
-                                            break; //i think theres a glitch here where it also deletes another of your cards but maybe thats fixed, i don't know.
-                                            //glitch where it deletes it on first click?
-                                            //stop the while loop.
-                                        } else {
-                                            a++ //continue...
-                                        }
-                                    }*/
                                     board["player" + activePlayer + "Discard"].push([cardName, cardID]) //add this card to the discard pile.
                                 }
                             
@@ -413,36 +449,48 @@
                         //if the other person has played a card
                         //console.log("hi")
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
-                            let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
-                            message += " <button class='useAnotherAbility'>Exit</button></span>"
+                            if($(".inactivePlayerPlayedCards:not(.protected)").length > 0) {
+                                let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
+                                message += " <button class='useAnotherAbility'>Exit</button></span>"
 
-                            $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
-                            $(".errorMessage").remove();
-                            $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
-                            $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
-                            $(".useCardButton").each(function(index) { // for every use card button
-                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
-                            })
-                            glow(".inactivePlayerPlayedCards");
-                            $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
-                                let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
-                                let damageToDeal = 2; //you are deailng 2 damage to it
-                                cardData["card" + theCardID][0] -= damageToDeal; //deal the damage
-                                //create a copy of mooshlett
-                                board["player" + activePlayer + "Hand"].push(["Mooshlett", String(Object.keys(cardData).length)])
-                                //create a data entry for it
-                                var objectToAdd = {}
-                                objectToAdd[abilityID] = 0;
-                                cardData["card"+Object.keys(cardData).length] = [cards["Mooshlett"].Health, false, objectToAdd, true]
-                                listOfCards.push(cardName)
-                                abilityWasUsed(); //you used an ability
-                                displayBoard(thePreviousBoard); //redisplay the board
-                            })
+                                $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                $(".errorMessage").remove();
+                                $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                $(".useCardButton").each(function(index) { // for every use card button
+                                    $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                                })
+                                glow(".inactivePlayerPlayedCards:not(.protected)");
+                                glow(".inactivePlayerPlayedCards.protected", true)
+                                $(".inactivePlayerPlayedCards:not(.protected)").click(function() { //if you click on an opposing card
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let damageToDeal = 2; //you are deailng 2 damage to it
+                                    dealDamage(theCardID, damageToDeal) //deal the damage
+                                    //create a copy of mooshlett
+                                    board["player" + activePlayer + "Hand"].push(["Mooshlett", String(Object.keys(cardData).length)])
+                                    //create a data entry for it
+                                    var objectToAdd = {}
+                                    objectToAdd[abilityID] = 0;
+                                    cardData["card"+Object.keys(cardData).length] = [cards["Mooshlett"].Health, false, objectToAdd, true]
+                                    listOfCards.push(cardName)
+                                    abilityWasUsed(); //you used an ability
+                                    displayBoard(thePreviousBoard); //redisplay the board
+                                })
 
-                            $(".useAnotherAbility").click(function() {
-                                displayBoard(); //exit out of the menu/redisplay the board.
-                            })
+                                $(".inactivePlayerPlayedCards.protected").click(function() {
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    $(".protectMessage").remove();
+                                    let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount][0] + " protects " + theCardName + ".</span>"
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                })
 
+                                $(".useAnotherAbility").click(function() {
+                                    displayBoard(); //exit out of the menu/redisplay the board.
+                                })
+                            } else {
+                                errorMessage("your opponent's cards are all protected!", "Spread the Spore", "#abilityNumber"+abilityID)
+                            }
                         } else {
                             //there isnt a card to deal damage to!
                             errorMessage("your opponent has not played a card to deal damage to!", "Spread the Spore", "#abilityNumber"+abilityID)
@@ -450,30 +498,42 @@
                     } else if(Number(abilityID) === 4) { //if ability 4 (Northern Tribesman's Arctic Slash) was used
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
-                            let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
-                            message += " <button class='useAnotherAbility'>Exit</button></span>"
+                            if($(".inactivePlayerPlayedCards:not(.protected)").length > 0) {
+                                let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
+                                message += " <button class='useAnotherAbility'>Exit</button></span>"
 
-                            $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
-                            $(".errorMessage").remove();
-                            $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
-                            $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
-                            $(".useCardButton").each(function(index) { // for every use card button
-                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
-                            })
-                            
-                            glow(".inactivePlayerPlayedCards") // Glow the cards to pick of the other person.
+                                $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                $(".errorMessage").remove();
+                                $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                $(".useCardButton").each(function(index) { // for every use card button
+                                    $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                                })
+                                
+                                glow(".inactivePlayerPlayedCards:not(.protected)") // Glow the cards to pick of the other person.
+                                glow(".inactivePlayerPlayedCards.protected", true)
+                                $(".inactivePlayerPlayedCards:not(.protected)").click(function() { //if you click on an opposing card
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let damageToDeal = 3; //you are deailng 3 damage to it
+                                     //deal the damage
+                                    abilityWasUsed(); //you used an ability
+                                    displayBoard(thePreviousBoard); //redisplay the board
+                                })
 
-                            $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
-                                let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
-                                let damageToDeal = 3; //you are deailng 3 damage to it
-                                cardData["card" + theCardID][0] -= damageToDeal; //deal the damage
-                                abilityWasUsed(); //you used an ability
-                                displayBoard(thePreviousBoard); //redisplay the board
-                            })
+                                $(".inactivePlayerPlayedCards.protected").click(function() {
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    $(".protectMessage").remove();
+                                    let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount][0] + " protects " + theCardName + ".</span>"
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                })
 
-                            $(".useAnotherAbility").click(function() {
-                                displayBoard(); //exit out of the menu/redisplay the board.
-                            })
+                                $(".useAnotherAbility").click(function() {
+                                    displayBoard(); //exit out of the menu/redisplay the board.
+                                })
+                            } else {
+                                errorMessage("your opponent's cards are all protected!", "Arctic Slash", "#abilityNumber"+abilityID)
+                            }
                         } else {
                             //there isnt a card to deal damage to!
                             errorMessage("your opponent has not played a card to deal damage to!", "Arctic Slash", "#abilityNumber"+abilityID)
@@ -481,74 +541,83 @@
                     } else if(Number(abilityID) === 5) { //if ability 5 (Northern Tribesman's Whirlwind) was used
                         //if the other person has played a card <-- should this be two+ cards in play?
                         if(board["player" + nonActivePlayer + "Played"].length >= 2) {
-                            let message = "<br><span class='pickMessage'>Pick two opposing cards to deal damage to!";
-                            message += " <button class='submitWhirlwind' style='display: none;'>Submit</button> <span class='whirlwindNumSelected'></span> <button class='useAnotherAbility'>Exit</button></span>"
+                            if($(".inactivePlayerPlayedCards:not(.protected)").length >= 2) {
+                                let message = "<br><span class='pickMessage'>Pick two opposing cards to deal damage to!";
+                                message += " <button class='submitWhirlwind' style='display: none;'>Submit</button> <span class='whirlwindNumSelected'></span> <button class='useAnotherAbility'>Exit</button></span>"
 
-                            $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
-                            $(".errorMessage").remove();
-                            $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
-                            $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
-                            $(".useCardButton").each(function(index) { // for every use card button
-                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
-                            })
-                            
-                            glow(".inactivePlayerPlayedCards") // Glow the cards to pick of the other person.
-
-                            var selectedCards = [];
-                            let damageToDeal = 2;
-                            $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
-                                let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
-                                //let damageToDeal = 3; //you are deailng 3 damage to it
-                                //cardData["card" + theCardID][0] -= damageToDeal; //deal the damage
-                                //abilityWasUsed(); //you used an ability
-                                //displayBoard(); //redisplay the board
+                                $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                $(".errorMessage").remove();
+                                $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                $(".useCardButton").each(function(index) { // for every use card button
+                                    $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                                })
                                 
-                                if($(this).hasClass("selected")) { //if it was selected previously
-                                    console.log("selected")
-                                    $(this).removeClass("selected") //unselect it
-                                    //$(this).html(theCardID) //reset its html
-                                    //console.log($(".damageCounter"))
-                                    selectedCards.splice(selectedCards.indexOf(theCardID), 1); //delete it from the list
-                                    //console.log($(".damageCounter"))
-                                    console.log(".damageCounter.cardID" + theCardID)
-                                    $(".damageCounter.cardID" + theCardID).remove();
-                                    //will this work? because you're indexing splices recursive all that
-                                } else {
-                                    $(this).addClass("selected"); //add selected class
-                                    selectedCards.push(theCardID); // select it
+                                glow(".inactivePlayerPlayedCards:not(.protected)") // Glow the cards to pick of the other person.
+                                glow(".inactivePlayerPlayedCards.protected", true)
+                                var selectedCards = [];
+                                let damageToDeal = 2;
+                                $(".inactivePlayerPlayedCards:not(.protected)").click(function() { //if you click on an opposing card
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
                                     
-                                    $(this).append("<span class='damageCounter cardID" + theCardID + "'>-"+damageToDeal+"</span>")
-                                }
-
-                                if(selectedCards.length === 2) { //if there are two selected cards
-                                    $(".submitWhirlwind").css("display", "inline") //show the submit button
-                                    $(".whirlwindNumSelected").html("");
-                                } else {
-                                    $(".submitWhirlwind").css("display", "none") //hide it otherwise
-                                    if(selectedCards.length > 2) {
-                                        $(".whirlwindNumSelected").html("You've selected " + (selectedCards.length - 2) + " card(s) too many!");
+                                    
+                                    if($(this).hasClass("selected")) { //if it was selected previously
+                                        console.log("selected")
+                                        $(this).removeClass("selected") //unselect it
+                                        //$(this).html(theCardID) //reset its html
+                                        //console.log($(".damageCounter"))
+                                        selectedCards.splice(selectedCards.indexOf(theCardID), 1); //delete it from the list
+                                        //console.log($(".damageCounter"))
+                                        console.log(".damageCounter.cardID" + theCardID)
+                                        $(".damageCounter.cardID" + theCardID).remove();
+                                        //will this work? because you're indexing splices recursive all that
                                     } else {
-                                        $(".whirlwindNumSelected").html("You've selected " + selectedCards.length + " card(s) so far.");
+                                        $(this).addClass("selected"); //add selected class
+                                        selectedCards.push(theCardID); // select it
+                                        
+                                        $(this).append("<span class='damageCounter cardID" + theCardID + "'>-"+damageToDeal+"</span>")
                                     }
-                                }
+
+                                    if(selectedCards.length === 2) { //if there are two selected cards
+                                        $(".submitWhirlwind").css("display", "inline") //show the submit button
+                                        $(".whirlwindNumSelected").html("");
+                                    } else {
+                                        $(".submitWhirlwind").css("display", "none") //hide it otherwise
+                                        if(selectedCards.length > 2) {
+                                            $(".whirlwindNumSelected").html("You've selected " + (selectedCards.length - 2) + " card(s) too many!");
+                                        } else {
+                                            $(".whirlwindNumSelected").html("You've selected " + selectedCards.length + " card(s) so far.");
+                                        }
+                                    }
 
 
-                            })
+                                })
 
-                            $(".submitWhirlwind").click(function(){
-                                for(v of selectedCards) { // for each selected card
-                                    cardData["card"+v][0] -= damageToDeal; // get rid of 2 damage
-                                }
-                                
-                                cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
-                                abilityWasUsed()
-                                displayBoard(thePreviousBoard)
-                                //you have used your ability, and now redisplay everything.
-                            })
+                                $(".inactivePlayerPlayedCards.protected").click(function() {
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    $(".protectMessage").remove();
+                                    let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount][0] + " protects " + theCardName + ".</span>"
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                })
 
-                            $(".useAnotherAbility").click(function() {
-                                displayBoard(); //exit out of the menu/redisplay the board.
-                            })
+                                $(".submitWhirlwind").click(function(){
+                                    for(v of selectedCards) { // for each selected card
+                                        cardData["card"+v][0] -= damageToDeal; // get rid of 2 damage
+                                    }
+                                    
+                                    cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
+                                    abilityWasUsed()
+                                    displayBoard(thePreviousBoard)
+                                    //you have used your ability, and now redisplay everything.
+                                })
+
+                                $(".useAnotherAbility").click(function() {
+                                    displayBoard(); //exit out of the menu/redisplay the board.
+                                })
+                            } else {
+                                errorMessage("your opponent does not have two+ unprotected cards to deal damage to!", "Whirlwind", "#abilityNumber"+abilityID)
+                            }
                         } else {
                             //there isnt a card to deal damage to!
                             errorMessage("your opponent has not played two+ cards to deal damage to!", "Whirlwind", "#abilityNumber"+abilityID)
@@ -609,7 +678,7 @@
                                 $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
                             })
                             //console.log(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))")
-                            glow(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))") // Glow the cards to pick of the other person.
+                            glow(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))") // Glow the cards to pick of your person.
 
                             $(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))").click(function() { //if you click on an opposing card
                                 let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
@@ -645,34 +714,63 @@
                     } else if(Number(abilityID) === 8) { //if ability 8 (Outlaw's Kidnap) was used
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
-                            let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to and restrict from using abilities!";
-                            message += " <button class='useAnotherAbility'>Exit</button></span>"
+                            // if no unrestricted cards
+                            if($(".inactivePlayerPlayedCards:not(.protected)").length > 0) {
+                                if($(".inactivePlayerPlayedCards:not(.restricted)").length > 0) {
+                                    let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to and restrict from using abilities!";
+                                    message += " <button class='useAnotherAbility'>Exit</button></span>"
 
-                            $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
-                            $(".errorMessage").remove();
-                            $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
-                            $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
-                            $(".useCardButton").each(function(index) { // for every use card button
-                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
-                            })
+                                    $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                    $(".errorMessage").remove();
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                    $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                    $(".useCardButton").each(function(index) { // for every use card button
+                                        $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                                    })
 
-                            glow(".inactivePlayerPlayedCards") // Glow the cards to pick of the other person.
+                                    glow(".inactivePlayerPlayedCards:not(.protected, .restricted)") // Glow the cards to pick of the other person.
+                                    glow(".inactivePlayerPlayedCards.protected", true)
+                                    glow(".inactivePlayerPlayedCards.restricted", true, "restricted")
+                                    $(".inactivePlayerPlayedCards:not(.protected, .restricted)").click(function() { //if you click on an opposing card
+                                        let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                        let damageToDeal = 2; //you are dealing 2 damage to it
+                                        dealDamage(theCardID, damageToDeal) //deal the damage
+                                        //restrict the card from using abilities next turn
+                                        if(!restrictCheck[theCardID]) {
+                                            restrictCheck[theCardID] = {};
+                                        }
+                                        restrictCheck[theCardID][turnCount + 1] = "Outlaw's Kidnap"
+                                    
+                                        console.log(cardData["card"+theCardID][0])
+                                        abilityWasUsed(); //you used an ability
+                                        displayBoard(); //redisplay the board
+                                    })
 
-                            $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
-                                let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
-                                let damageToDeal = 2; //you are dealing 2 damage to it
-                                cardData["card" + theCardID][0] -= damageToDeal; //deal the damage
-                                //restrict the card from using abilities next turn
-                                kidnapCheck[turnCount+1] = theCardID
-                                console.log(kidnapCheck)
-                                console.log(cardData["card"+theCardID][0])
-                                abilityWasUsed(); //you used an ability
-                                displayBoard(thePreviousBoard); //redisplay the board
-                            })
+                                    $(".inactivePlayerPlayedCards.protected").click(function() {
+                                        let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                        let theCardName = $($(this).children()[0]).html()
+                                        $(".protectMessage").remove();
+                                        let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount][0] + " protects " + theCardName + ".</span>"
+                                        $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                    })
 
-                            $(".useAnotherAbility").click(function() {
-                                displayBoard(); //exit out of the menu/redisplay the board.
-                            })
+                                    $(".inactivePlayerPlayedCards.restricted").click(function() {
+                                        let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                        let theCardName = $($(this).children()[0]).html()
+                                        $(".restrictMessage").remove();
+                                        let restrictMessage = " <span class='restrictMessage'>" + theCardName + " has already been restricted by " + restrictCheck[theCardID][turnCount + 1] + ".</span>"
+                                        $(".cardID"+cardID+"Abilities .abilityPopout").append(restrictMessage)
+                                    })
+
+                                    $(".useAnotherAbility").click(function() {
+                                        displayBoard(); //exit out of the menu/redisplay the board.
+                                    })
+                                } else {
+                                    errorMessage("your opponent does not have an unrestricted card to restrict!", "Kidnap", "#abilityNumber"+abilityID)
+                                }
+                            } else {
+                                errorMessage("your opponent's cards are all protected!", "Kidnap", "#abilityNumber"+abilityID)
+                            }
                         } else {
                             //there isnt a card to deal damage to!
                             errorMessage("your opponent has not played a card to deal damage to!", "Kidnap", "#abilityNumber"+abilityID)
@@ -682,165 +780,358 @@
                         var neverSurrenderSelected = [,,,];   
                         //if the other person has played a card
                         if(board["player" + nonActivePlayer + "Played"].length > 0) {
-                            let activeDamagePoint = 1;
-                            let message = "<br><span class='pickMessage'>Select an Opposing Card to Deal Damage Point <span class='damagePoint'>1</span>:<br>";
-                            message += "<span class='damageContext1' style='font-weight: bold;'>Damage Point 1: <span class='damagePoint1'>None</span></span><br> ";
-                            message += "<span class='damageContext2'>Damage Point 2: <span class='damagePoint2'>None</span></span><br> ";
-                            message += "<span class='damageContext3'>Damage Point 3: <span class='damagePoint3'>None</span></span><br> ";
-                            message += "<span class='damageContext4'>Damage Point 4: <span class='damagePoint4'>None</span></span><br> ";
-                            message += "Click on another Damage Point to change the card being dealt damage to."
-                            message += " <button class='useAnotherAbility'>Exit</button> <button class='submitNeverSurrender' style='display: none;'>Submit</button></span>"
+                            if($(".inactivePlayerPlayedCards:not(.protected)").length > 0) {
+                                let activeDamagePoint = 1;
+                                let message = "<br><span class='pickMessage'>Select an Opposing Card to Deal Damage Point <span class='damagePoint'>1</span>:<br>";
+                                message += "<span class='damageContext1' style='font-weight: bold;'>Damage Point 1: <span class='damagePoint1'>None</span></span><br> ";
+                                message += "<span class='damageContext2'>Damage Point 2: <span class='damagePoint2'>None</span></span><br> ";
+                                message += "<span class='damageContext3'>Damage Point 3: <span class='damagePoint3'>None</span></span><br> ";
+                                message += "<span class='damageContext4'>Damage Point 4: <span class='damagePoint4'>None</span></span><br> ";
+                                message += "Click on another Damage Point to change the card being dealt damage to."
+                                message += " <button class='useAnotherAbility'>Exit</button> <button class='submitNeverSurrender' style='display: none;'>Submit</button></span>"
 
-                            $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
-                            $(".errorMessage").remove();
-                            $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
-                            $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
-                            $(".useCardButton").each(function(index) { // for every use card button
-                                $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
-                            })
-                            
-                            glow(".inactivePlayerPlayedCards") // Glow the cards to pick of the other person.
-
-                            let damageToDeal = 1;
-                            function updateDamagePoint() {
+                                $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                $(".errorMessage").remove();
+                                $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                $(".useCardButton").each(function(index) { // for every use card button
+                                    $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                                })
                                 
-                                $(".damagePoint").html(activeDamagePoint);
-                                $("[class^='damageContext']").css("font-weight", "normal");
-                                $(".damageContext" + activeDamagePoint).css("font-weight", "bold");
-                            }
-                            $("[class^='damagePoint']:not(.damagePoint)").click(function() {
-                                activeDamagePoint = $(this).attr("class").replace("damagePoint", "");
-                                updateDamagePoint();
-                            })
-                            $(".inactivePlayerPlayedCards").click(function() { //if you click on an opposing card
-                                let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
-                                let theCardName = listOfCards[theCardID]
-                                //let damageToDeal = 3; //you are deailng 3 damage to it
-                                //cardData["card" + theCardID][0] -= damageToDeal; //deal the damage
-                                //abilityWasUsed(); //you used an ability
-                                //displayBoard(); //redisplay the board
-                                neverSurrenderSelected[activeDamagePoint - 1] = theCardID;
-                                $(".damageCounter").remove();
-
-                                let nSCopy = neverSurrenderSelected.filter(String)
-                                let occurrences = nSCopy.reduce(function (acc, curr) {
-                                    return acc[curr] ? ++acc[curr] : acc[curr] = 1, acc
-                                }, {});
-
-
-                                for(i in occurrences) {
-                                    if(i != null) {
-                                        let thisCardID = i
-
-                                        $("[id^='playedCardNonActive'].cardID" + thisCardID).parent().append("<span class='damageCounter cardID" + thisCardID + "'>-"+occurrences[i]+"</span>")
-                                    }
+                                glow(".inactivePlayerPlayedCards:not(.protected)") // Glow the cards to pick of the other person.
+                                glow(".inactivePlayerPlayedCards.protected", true)
+                                let damageToDeal = 1;
+                                function updateDamagePoint() {
+                                    
+                                    $(".damagePoint").html(activeDamagePoint);
+                                    $("[class^='damageContext']").css("font-weight", "normal");
+                                    $(".damageContext" + activeDamagePoint).css("font-weight", "bold");
                                 }
-
-                                $(".damagePoint" + activeDamagePoint).html(theCardName);
-                                if(activeDamagePoint != 4 && !neverSurrenderSelected[activeDamagePoint]) {
-                                    activeDamagePoint++;
+                                $("[class^='damagePoint']:not(.damagePoint)").click(function() {
+                                    activeDamagePoint = $(this).attr("class").replace("damagePoint", "");
                                     updateDamagePoint();
-                                }
-                                if(nSCopy.length === 4) { //if there are two selected cards
-                                    $(".submitNeverSurrender").css("display", "inline") //show the submit button
-                                } else {
-                                    $(".submitNeverSurrender").css("display", "none") //hide it otherwise
-                                }
+                                })
+                                $(".inactivePlayerPlayedCards:not(.protected)").click(function() { //if you click on an opposing card
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = listOfCards[theCardID]
+                                    neverSurrenderSelected[activeDamagePoint - 1] = theCardID;
+                                    $(".damageCounter").remove();
+
+                                    let nSCopy = neverSurrenderSelected.filter(String)
+                                    let occurrences = nSCopy.reduce(function (acc, curr) {
+                                        return acc[curr] ? ++acc[curr] : acc[curr] = 1, acc
+                                    }, {});
 
 
-                            })
+                                    for(i in occurrences) {
+                                        if(i != null) {
+                                            let thisCardID = i
 
-                            $(".submitNeverSurrender").click(function(){
-                                for(v of neverSurrenderSelected) { // for each selected card
-                                    cardData["card"+v][0] -= damageToDeal; // get rid of 2 damage
-                                }
-                                let a = 0;
-                                while(a < board["player" + activePlayer + "Played"].length) { //while a in your played cards
-                                    if(board["player" + activePlayer + "Played"][a][1]===cardID) { //if that is the played card id
-                                        board["player" + activePlayer + "Played"].splice(a, 1) //get rid of that card from your played
-                                        break; 
-                                        //stop the while loop.
-                                    } else {
-                                        a++ //continue...
+                                            $("[id^='playedCardNonActive'].cardID" + thisCardID).parent().append("<span class='damageCounter cardID" + thisCardID + "'>-"+occurrences[i]+"</span>")
+                                        }
                                     }
-                                }
-                                board["player" + activePlayer + "Discard"].push([cardName, cardID]); //add it to the discard pile.
-                                //cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
-                                abilityWasUsed()
-                                displayBoard(thePreviousBoard)
-                                //you have used your ability, and now redisplay everything.
-                            })
 
-                            $(".useAnotherAbility").click(function() {
-                                displayBoard(); //exit out of the menu/redisplay the board.
-                            })
-
-
-
-
-
-                            /*let listOfPlayedCards = "" //the list of played cards is blank for now
-                            for(let g = 1; g < 5; g++) { //loop 4 times, one for every damage point
-                                listOfPlayedCards += "Damage Point "+g+": "; //start off what you're going to show with a prompt
-                                for(let f in board["player" + nonActivePlayer + "Played"]) { //for each of their played cards
-                                    listOfPlayedCards += "<button id='nS"+g+board["player" + nonActivePlayer + "Played"][f][1]+"' class='neverSurrender nS"+board["player" + nonActivePlayer + "Played"][f][1]+"'>"+ board["player" + nonActivePlayer + "Played"][f][0] + "</button>"
-                                    //add a button that when clicked you'll deal damage to that card.
-                                }
-                            }
-                            listOfPlayedCards += "<button class='submitNeverSurrender' style='display: none;'>Submit</button>" //add a button that will appear when 4 different cards are clicked
-                            //add this list to the page
-                            $("#"+cardID+"ability"+abilityID).parent().append(listOfPlayedCards) 
-                            $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
-                            $(".neverSurrender")
-                                .unbind('click')
-                                .click(function(){ //when you click a card to deal damage to
-                                    console.log($(this).html())
-                                    let previousCardName = $(this).html().replace(" | Selected", "")
-                                    // get the name of the card
-
-                                    // get the damage point number of the card
-                                    let numberOfDamageCard = String($(this).attr("id")[2])
-                                    // set the object to damage point number: card id
-                                    neverSurrenderSelected[numberOfDamageCard] = $(this).attr("class").replace("neverSurrender", "").replace(" ", "").replace("nS", "").replace(" ", "").replace("nSSelected", "")
-                                    $("[id^='nS"+numberOfDamageCard+"']").removeClass("nSSelected") //for every card in this damage point number, remove the nSSelected Class
-                                    $("[id^='nS"+numberOfDamageCard+"']").each(function() { //for every card in this damage point number, get rid of | Selected from the title
-                                        $(this).html($(this).html().replace(" | Selected", ""))
-                                    });
-                                    $(this).addClass("nSSelected") //add the class nSSelected to the card you picked
-                                    $(this).html(previousCardName + " | Selected") // add | Selected to the card name
-                                    console.log(neverSurrenderSelected)
-                                    if($(".nSSelected").length == 4) { //if all four damage points have a card selected
+                                    $(".damagePoint" + activeDamagePoint).html(theCardName);
+                                    if(activeDamagePoint != 4 && !neverSurrenderSelected[activeDamagePoint]) {
+                                        activeDamagePoint++;
+                                        updateDamagePoint();
+                                    }
+                                    if(nSCopy.length === 4) { //if there are two selected cards
                                         $(".submitNeverSurrender").css("display", "inline") //show the submit button
-                                    } else { //otherwise
-                                        $(".submitNeverSurrender").css("display", "none") //don't display the submit button
+                                    } else {
+                                        $(".submitNeverSurrender").css("display", "none") //hide it otherwise
                                     }
+
 
                                 })
 
-                            $(".submitNeverSurrender").click(function() { //if you click the submit button
-                                for(let o in neverSurrenderSelected) { //for every damage point
-                                    console.log(neverSurrenderSelected[o])
-                                    //take away one health
-                                    cardData["card"+neverSurrenderSelected[o]][0] -= 1
-                                }
-                                let a = 0;
-                                while(a < board["player" + activePlayer + "Played"].length) { //while a in your played cards
-                                    if(board["player" + activePlayer + "Played"][a][1]===cardID) { //if that is the played card id
-                                        board["player" + activePlayer + "Played"].splice(a, 1) //get rid of that card from your played
-                                        break; 
-                                        //stop the while loop.
-                                    } else {
-                                        a++ //continue...
-                                    }
-                                }
-                                board["player" + activePlayer + "Discard"].push([cardName, cardID]); //add it to the discard pile.
+                                $(".inactivePlayerPlayedCards.protected").click(function() {
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    $(".protectMessage").remove();
+                                    let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount][0] + " protects " + theCardName + ".</span>"
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                })
 
-                                abilityWasUsed() //you used an ability
-                                displayBoard() //redisplay the board
-                            })*/
+                                $(".submitNeverSurrender").click(function(){
+                                    for(v of neverSurrenderSelected) { // for each selected card
+                                        cardData["card"+v][0] -= damageToDeal; // get rid of 2 damage
+                                    }
+                                    let a = 0;
+                                    while(a < board["player" + activePlayer + "Played"].length) { //while a in your played cards
+                                        if(board["player" + activePlayer + "Played"][a][1]===cardID) { //if that is the played card id
+                                            board["player" + activePlayer + "Played"].splice(a, 1) //get rid of that card from your played
+                                            break; 
+                                            //stop the while loop.
+                                        } else {
+                                            a++ //continue...
+                                        }
+                                    }
+                                    board["player" + activePlayer + "Discard"].push([cardName, cardID]); //add it to the discard pile.
+                                    //cardData["card"+cardID][0] -= 2 //get rid of 2 of your own health.
+                                    abilityWasUsed()
+                                    displayBoard(thePreviousBoard)
+                                    //you have used your ability, and now redisplay everything.
+                                })
+
+                                $(".useAnotherAbility").click(function() {
+                                    displayBoard(); //exit out of the menu/redisplay the board.
+                                })
+                            } else {
+                                errorMessage("your opponent's cards are all protected!", "Never Surrender", "#abilityNumber"+abilityID)
+                            }
                         } else {
                             //there isnt a card to deal damage to!
                             errorMessage("your opponent has not played a card to deal damage to!", "Never Surrender", "#abilityNumber"+abilityID)
+                        }
+                    } else if(Number(abilityID) === 10) { //If ability 10 (Snow Spirit's Snowy Embrace) was used
+                        if(board["player" + activePlayer + "Played"].length > 1) {
+                            if($(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"), .protected)").length > 0) {
+                                let message = "<br><span class='pickMessage'>Pick an ally card to protect!";
+                                message += " <button class='useAnotherAbility'>Exit</button></span>"
+
+                                $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                $(".errorMessage").remove();
+                                $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                $(".useCardButton").each(function(index) { // for every use card button
+                                    $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                                })
+                                //console.log(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))")
+                                glow(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"), .protected)") // Glow the cards to pick of the other person.
+                                glow(".activePlayerPlayedCards.protected", true)
+                                $(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"), .protected)").click(function() { //if you click on an opposing card
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    //let damageToHeal = 3; //you are healing 3 damage to it
+                                    if(!protectCheck[theCardID]) {
+                                        protectCheck[theCardID] = {};
+                                    }
+                                    protectCheck[theCardID][turnCount + 1] = ["Snow Spirit's Snowy Embrace", false]
+
+                                    abilityWasUsed();
+                                    displayBoard();
+                                    
+                                })
+
+                                $(".inactivePlayerPlayedCards.protected").click(function() {
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    $(".protectMessage").remove();
+                                    let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount][0] + " protects " + theCardName + ".</span>"
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                })
+
+                                $(".useAnotherAbility").click(function() {
+                                    displayBoard(); //exit out of the menu/redisplay the board.
+                                })
+                            } else {
+                                errorMessage("your other cards are all protected!", "Snowy Embrace", "#abilityNumber"+abilityID)
+                            }
+                            
+                        } else {
+                            //there isnt a card to heal damage to!
+                            errorMessage("you have not played another card to protect!", "Snowy Embrace", "#abilityNumber"+abilityID)
+                        }
+                    } else if(Number(abilityID) === 11) { //if ability 11 (Snow Spirit's Arctic Fury) was used
+                        //if the other person has played a card
+                        if(board["player" + nonActivePlayer + "Played"].length > 0) {
+                            if($(".inactivePlayerPlayedCards:not(.protected)").length > 0) {
+                                let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
+                                message += " <button class='useAnotherAbility'>Exit</button></span>"
+
+                                $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                $(".errorMessage").remove();
+                                $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                $(".useCardButton").each(function(index) { // for every use card button
+                                    $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                                })
+                                
+                                glow(".inactivePlayerPlayedCards:not(.protected)") // Glow the cards to pick of the other person.
+                                glow(".inactivePlayerPlayedCards.protected", true)
+                                $(".inactivePlayerPlayedCards:not(.protected)").click(function() { //if you click on an opposing card
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let damageToDeal = 2; //you are deailng 2 damage to it
+                                    dealDamage(theCardID, damageToDeal) //deal the damage
+                                    abilityWasUsed(); //you used an ability
+                                    displayBoard(thePreviousBoard); //redisplay the board
+                                })
+
+                                $(".inactivePlayerPlayedCards.protected").click(function() {
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    $(".protectMessage").remove();
+                                    let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount][0] + " protects " + theCardName + ".</span>"
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                })
+
+                                $(".useAnotherAbility").click(function() {
+                                    displayBoard(); //exit out of the menu/redisplay the board.
+                                })
+                            } else {
+                                errorMessage("your opponent's cards are all protected!", "Arctic Fury", "#abilityNumber"+abilityID)
+                            }
+                        } else {
+                            //there isnt a card to deal damage to!
+                            errorMessage("your opponent has not played a card to deal damage to!", "Arctic Fury", "#abilityNumber"+abilityID)
+                        }
+                    } else if(Number(abilityID) === 12) { //if ability 12 (Tundra Fox's Leap of Faith) was used
+                        //if the other person has played a card
+                        if(board["player" + nonActivePlayer + "Played"].length > 0) {
+                            if($(".inactivePlayerPlayedCards:not(.protected)").length > 0) {
+                                let message = "<br><span class='pickMessage'>Pick an opposing card for a 50/50 chance to deal damage to!";
+                                message += " <button class='useAnotherAbility'>Exit</button></span>"
+
+                                $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                $(".errorMessage").remove();
+                                $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                $(".useCardButton").each(function(index) { // for every use card button
+                                    $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                                })
+                                
+                                glow(".inactivePlayerPlayedCards:not(.protected)") // Glow the cards to pick of the other person.
+                                glow(".inactivePlayerPlayedCards.protected", true)
+                                $(".inactivePlayerPlayedCards:not(.protected)").click(function() { //if you click on an opposing card
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    let damageToDeal = 2; //you are deailng 2 damage to it
+                                    if(!randomCheck[cardID]) {
+                                        randomCheck[cardID] = {};
+                                    }
+                                    
+                                    if(Math.floor(Math.random() * 2) === 1) {
+                                        dealDamage(theCardID, damageToDeal) //deal the damage
+                                        randomCheck[cardID][turnCount] = ["Tundra Fox's Leap of Faith", true, damageToDeal, theCardName, "green"]
+                                    } else {
+                                        randomCheck[cardID][turnCount] = ["Tundra Fox's Leap of Faith", false, damageToDeal, theCardName, "orange"]
+                                    }
+                                    
+                                    abilityWasUsed(); //you used an ability
+                                    displayBoard(); //redisplay the board
+                                })
+
+                                $(".inactivePlayerPlayedCards.protected").click(function() {
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    $(".protectMessage").remove();
+                                    let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount][0] + " protects " + theCardName + ".</span>"
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                })
+
+                                $(".useAnotherAbility").click(function() {
+                                    displayBoard(); //exit out of the menu/redisplay the board.
+                                })
+                            } else {
+                                errorMessage("your opponent's cards are all protected!", "Leap of Faith", "#abilityNumber"+abilityID)
+                            }
+                        } else {
+                            //there isnt a card to deal damage to!
+                            errorMessage("your opponent has not played a card to deal damage to!", "Leap of Faith", "#abilityNumber"+abilityID)
+                        }
+                    } else if(Number(abilityID) === 13) { //If ability 13 (Tundra Fox's Burrow) was used
+                        if(protectCheck[cardID] && protectCheck[cardID][turnCount + 1] && !protectCheck[cardID][turnCount + 1][1]) {
+                            //you're already protected next turn
+                            errorMessage(cardName + " is already protected!", "Burrow", "#abilityNumber"+abilityID)
+                        } else {
+                            if(!protectCheck[cardID]) {
+                                protectCheck[cardID] = {};
+                            }
+                            protectCheck[cardID][turnCount + 1] = [cardName + "'s Burrow", false]
+                            abilityWasUsed();
+                            displayBoard();  
+                        }
+                    } else if(Number(abilityID) === 14) { //if ability 14 (Peace Keeper's Devil's Advocate) was used
+                        //if the other person has played a card
+                        if(board["player" + nonActivePlayer + "Played"].length > 0) {
+                            if($(".inactivePlayerPlayedCards:not(.protected)").length > 0) {
+                                let message = "<br><span class='pickMessage'>Pick an opposing card to deal damage to!";
+                                message += " <button class='useAnotherAbility'>Exit</button></span>"
+
+                                $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                $(".errorMessage").remove();
+                                $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                $(".useCardButton").each(function(index) { // for every use card button
+                                    $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                                })
+                                
+                                glow(".inactivePlayerPlayedCards:not(.protected)") // Glow the cards to pick of the other person.
+                                glow(".inactivePlayerPlayedCards.protected", true)
+                                $(".inactivePlayerPlayedCards:not(.protected)").click(function() { //if you click on an opposing card
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let damageToDeal = 3; //you are deailng 3 damage to it
+                                    dealDamage(theCardID, damageToDeal) //deal the damage
+                                    abilityWasUsed(); //you used an ability
+                                    displayBoard(thePreviousBoard); //redisplay the board
+                                })
+
+                                $(".inactivePlayerPlayedCards.protected").click(function() {
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    $(".protectMessage").remove();
+                                    let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount][0] + " protects " + theCardName + ".</span>"
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                })
+
+                                $(".useAnotherAbility").click(function() {
+                                    displayBoard(); //exit out of the menu/redisplay the board.
+                                })
+                            } else {
+                                errorMessage("your opponent's cards are all protected!", "Devil's Advocate", "#abilityNumber"+abilityID)
+                            }
+                        } else {
+                            //there isnt a card to deal damage to!
+                            errorMessage("your opponent has not played a card to deal damage to!", "Devil's Advocate", "#abilityNumber"+abilityID)
+                        }
+                    } else if(Number(abilityID) === 15) { //If ability 15 (Peace Keeper's Negotiations) was used
+                        if(board["player" + activePlayer + "Played"].length > 1) {
+                            if($(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"), .reduced, .protected)").length > 0) {
+                                let message = "<br><span class='pickMessage'>Pick an ally card to reduce damage to!";
+                                message += " <button class='useAnotherAbility'>Exit</button></span>"
+
+                                $(".cardID"+cardID+"Abilities .abilityPopout [id^='abilityNumber'], .cardID"+cardID+"Abilities .abilityPopout br, .cardID"+cardID+"Abilities .abilityPopout .abilitiesTitle").remove()
+                                $(".errorMessage").remove();
+                                $(".cardID"+cardID+"Abilities .abilityPopout").append(message)
+                                $("#"+cardID+"ability"+abilityID).remove() //get rid of the button to play this ability
+                                $(".useCardButton").each(function(index) { // for every use card button
+                                    $(this).replaceWith($("<b>"+$(this).html()+":</b>")) // turn it into bold text
+                                })
+                                //console.log(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"))")
+                                glow(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"), .protected)") // Glow the cards to pick of the other person.
+                                glow(".inactivePlayerPlayedCards.protected", true)
+                                $(".activePlayerPlayedCards:not(:has(span.cardID"+cardID+"), .protected, .reduced)").click(function() { //if you click on an opposing card
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    //let damageToHeal = 3; //you are healing 3 damage to it
+                                    if(!protectCheck[theCardID]) {
+                                        protectCheck[theCardID] = {};
+                                    }
+                                    let damageToReduce = 2;
+                                    protectCheck[theCardID][turnCount + 1] = [cardName + "'s Negotiations", damageToReduce]
+
+                                    abilityWasUsed();
+                                    displayBoard();
+                                    
+                                })
+
+                                $(".activePlayerPlayedCards.protected, .activePlayerPlayedCards.reduced").click(function() {
+                                    let theCardID = $($(this).children()[0]).attr("class").replace("cardID", "") //get that card's card id
+                                    let theCardName = $($(this).children()[0]).html()
+                                    $(".protectMessage").remove();
+                                    let protectMessage = " <span class='protectMessage'>" + protectCheck[theCardID][turnCount + 1][0] + " already protects " + theCardName + ".</span>"
+                                    $(".cardID"+cardID+"Abilities .abilityPopout").append(protectMessage)
+                                })
+
+                                $(".useAnotherAbility").click(function() {
+                                    displayBoard(); //exit out of the menu/redisplay the board.
+                                })
+                            } else {
+                                errorMessage("your other cards are all protected!", "Snowy Embrace", "#abilityNumber"+abilityID)
+                            }
+                            
+                        } else {
+                            //there isnt a card to heal damage to!
+                            errorMessage("you have not played another card to protect!", "Snowy Embrace", "#abilityNumber"+abilityID)
                         }
                     } else {
                         let theCardName = $("#abilityNumber" + abilityID + " .useCardButton").html()
@@ -905,70 +1196,83 @@
                             //set up a string for each card
                             let stringOfUseCards = "";
                             let stringOfAbilityUsage = "";
+
+                            stringOfUseCards+= "<span class='cardFaceUp activePlayerPlayedCards"
+                            if(protectCheck[theCardID] && myIndexOf(Object.keys(protectCheck[theCardID]), String(turnCount + 1)) >= 0) {
+                                
+                                if(!protectCheck[theCardID][turnCount + 1][1]) {
+                                    stringOfUseCards+= " protected"
+                                } else {
+                                    stringOfUseCards+= " reduced"
+                                }
+                            } 
+                            if(restrictCheck[theCardID] && myIndexOf(Object.keys(restrictCheck[theCardID]), String(turnCount)) >= 0) {
+                                stringOfUseCards+= " restricted"
+                            } 
+                            stringOfUseCards+= "'>"
                             stringOfUseCards+= "<span id = 'playedCardActive"+i+"' class='cardID"+theCardID+"'>" + theCardName + "</span>"
+                            
                             //Add the name of the card
                             //add its health
                             // this should eventually be positioned at the bottom right of the card.
                             stringOfUseCards+= " <span class='cardID"+theCardID+"Abilities'>"
                             stringOfUseCards+= "<div class='abilityPopout' style='display: none;'> <span class='cardName'>"+theCardName+"</span><br>"
                             stringOfUseCards += " <span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span> <br />";
+                            stringOfUseCards+="<span class='abilitiesTitle'>Abilities:</span><br />";
                             if(cardData["card"+board["player" + activePlayer + "Played"][i][1]][1]) { //if you have used this card already, then you can't use it again
                                 stringOfUseCards+="You've already used this card once this turn!<br>" //move these two into the ability popout!
-                                for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
-                                    let theAbilityIDs = Object.values(cards[theCardName]["Abilities"][j])[0]
-                                    stringOfUseCards+= " <span id='abilityNumber"+Object.values(cards[theCardName]["Abilities"][j])[0]+"'><b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
-                                    stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><span class='abilityUsage'> - Used "
-                                    if(cardData["card" + theCardID][2][theAbilityIDs] == 1) {
-                                        stringOfUseCards+= "1 time";
-                                    } else {
-                                        stringOfUseCards+= cardData["card" + theCardID][2][theAbilityIDs] + " times"
-                                    }
-                                    stringOfUseCards+="</span></span><br />"
+                            }
+                            if(restrictCheck[theCardID] && myIndexOf(Object.keys(restrictCheck[theCardID]), String(turnCount)) >= 0) {
+                                //If there is a card that is kidnapped this turn and it is this card, then display a message saying you cannot use this card
+                                stringOfUseCards += "<span class='restricted red'>This card cannot use abilities this turn under " + restrictCheck[theCardID][turnCount] + ".</span><br>";
+                            }
+                            if(protectCheck[theCardID] && myIndexOf(Object.keys(protectCheck[theCardID]), String(turnCount + 1)) >= 0) {
+                                // it says undefined
+                                if(!protectCheck[theCardID][turnCount + 1][1]) {
+                                    stringOfUseCards+="<span class ='protected cyan'>" + protectCheck[theCardID][turnCount + 1][0] + " protects this card from your opponent's attacks next turn!</span><br>"
+                                } else {
+                                    stringOfUseCards+="<span class ='reduced cyan'>" + protectCheck[theCardID][turnCount + 1][0] + " reduces 2 damage from your opponent's attacks on this card next turn!</span><br>"
                                 }
-                            } else { //you havent used this card yet this turn
-                                if(kidnapCheck[turnCount] && kidnapCheck[turnCount] == theCardID) {
-                                    //If there is a card that is kidnapped this turn and it is this card, then display a message saying you cannot use this card
-                                    stringOfUseCards += "<span class='outlawKidnap red'>This card cannot use abilities this turn under Outlaw's Kidnap!</span><br>"
-                                    for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
-                                        let theAbilityIDs = Object.values(cards[theCardName]["Abilities"][j])[0]
-                                        stringOfUseCards+= " <span id='abilityNumber"+Object.values(cards[theCardName]["Abilities"][j])[0]+"'><b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
-                                        stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><span class='abilityUsage'> - Used "
-                                        if(cardData["card" + theCardID][2][theAbilityIDs] == 1) {
-                                            stringOfUseCards+= "1 time";
-                                        } else {
-                                            stringOfUseCards+= cardData["card" + theCardID][2][theAbilityIDs] + " times"
-                                        }
-                                        stringOfUseCards+="</span></span><br />"
-                                    }
-                                } else { //start an ability popout
-                                    //display: none this eventually.
-                                    
-                                    stringOfUseCards+="<span class='abilitiesTitle'>Abilities:</span><br />";
-                                    for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
-                                        stringOfUseCards+= " <span id='abilityNumber"+Object.values(cards[theCardName]["Abilities"][j])[0]+"'><button class='useCard"+i+" useCardButton' id='"+theCardID+"ability"+Object.values(cards[theCardName]["Abilities"][j])[0]+"'>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</button>"
-                                        stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><span class='abilityUsage'> - Used "
-                                        let theAbilityIDs = Object.values(cards[theCardName]["Abilities"][j])[0]
-                                        
-                                        if(cardData["card" + theCardID][2][theAbilityIDs] == 1) {
-                                            stringOfUseCards+= "1 time";
-                                        } else {
-                                            stringOfUseCards+= cardData["card" + theCardID][2][theAbilityIDs] + " times"
-                                        }
-                                        stringOfUseCards+="</span></span><br />"
-                                    }
-                                    
+                                
+                            }
+                            if(randomCheck[theCardID] && myIndexOf(Object.keys(randomCheck[theCardID]), String(turnCount)) >= 0) {
+                                stringOfUseCards+="<span class ='randomed " + randomCheck[theCardID][turnCount][4] + "'>" + randomCheck[theCardID][turnCount][0]
+                                if(randomCheck[theCardID][turnCount][1]) {
+                                    stringOfUseCards+= " successfully dealt "
+                                } else {
+                                    stringOfUseCards+= " did not deal "
                                 }
+                                stringOfUseCards+= randomCheck[theCardID][turnCount][2] + " damage to " + randomCheck[theCardID][turnCount][3] + ".</span><br>"
+                            }
+                            for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a button; did I accidentally set this to theCardName and not theCardID?
+                                let theAbilityIDs = Object.values(cards[theCardName]["Abilities"][j])[0]
+                                stringOfUseCards+= " <span id='abilityNumber"+Object.values(cards[theCardName]["Abilities"][j])[0]+"'>"
+                                if((restrictCheck[theCardID] && myIndexOf(Object.keys(restrictCheck[theCardID]), String(turnCount)) >= 0) || (cardData["card"+board["player" + activePlayer + "Played"][i][1]][1])) {
+                                    //If you cannot use an ability this turn, because of restriction or if you've already used it
+                                    stringOfUseCards+= "<b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
+                                } else {
+                                    stringOfUseCards+= "<button class='useCard"+i+" useCardButton' id='"+theCardID+"ability"+Object.values(cards[theCardName]["Abilities"][j])[0]+"'>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</button>"
+                                }
+                                
+                                stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><span class='abilityUsage'> - Used "
+                                if(cardData["card" + theCardID][2][theAbilityIDs] == 1) {
+                                    stringOfUseCards+= "1 time";
+                                } else {
+                                    stringOfUseCards+= cardData["card" + theCardID][2][theAbilityIDs] + " times"
+                                }
+                                stringOfUseCards+="</span></span><br />"
                             }
                             stringOfUseCards+= "</div>"
                             stringOfUseCards+= "</span>" //close the span element
                             stringOfUseCards+= "<span class='cardHealth cardID" + theCardID + "'>"+cardData["card" + theCardID][0]+"</span>"
                             //stringOfUseCards+= "<span id = 'playedCardActive"+i+"' class='cardID"+theCardID+"'>" + theCardName + "</span>"
+                            stringOfUseCards+= "</span>"
                             arrayOfActivePlayedCards.push(stringOfUseCards) //push it to the array
                             i++
                         }      
                     }
                     //add it to the board, separated by <span>s
-                    $("."+activePlayer+".played .playedContent").html("<span class='cardFaceUp activePlayerPlayedCards'>" + arrayOfActivePlayedCards.join("</span><span class='cardFaceUp activePlayerPlayedCards'>")+"</span>")
+                    $("."+activePlayer+".played .playedContent").html(arrayOfActivePlayedCards.join(""))
                     showCardImages()
                 }
 
@@ -984,6 +1288,20 @@
                             //set up a string for each card
                             let stringOfUseCards = "";
                             let stringOfAbilityUsage = "";
+                            stringOfUseCards+= "<span class='cardFaceUp inactivePlayerPlayedCards"
+                            if(protectCheck[theCardID] && myIndexOf(Object.keys(protectCheck[theCardID]), String(turnCount)) >= 0) {
+                                //console.log(protectCheck[theCardID][turnCount + 1][1])
+                                console.log(protectCheck[theCardID][turnCount])
+                                if(!protectCheck[theCardID][turnCount][1]) {
+                                    stringOfUseCards+= " protected"
+                                } else {
+                                    stringOfUseCards+=" reduced"
+                                }
+                            } 
+                            if(restrictCheck[theCardID] && myIndexOf(Object.keys(restrictCheck[theCardID]), String(turnCount + 1)) >= 0) {
+                                stringOfUseCards+= " restricted"
+                            } 
+                            stringOfUseCards+= "'>"
                             stringOfUseCards+= "<span id = 'playedCardNonActive"+i+"' class='cardID"+theCardID+"'>" + theCardName + "</span>"
                             //Add the name of the card
                             //add its health
@@ -991,8 +1309,16 @@
                             //stringOfUseCards+= " Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"] + " <span class='cardID"+theCardID+"Abilities'>"
                             stringOfUseCards+= "<div class='abilityPopout' style='display: none;'><span class='cardName'>"+theCardName+"</span><br>"
                             stringOfUseCards+= " <span class='cardHealthTotal'>Health: " + cardData["card" + theCardID][0] + "/" + cards[theCardName]["Health"]+"</span><br />Abilities:<br />";
-                            if(kidnapCheck[turnCount + 1] && kidnapCheck[turnCount + 1] == theCardID) {
-                                stringOfUseCards += " <span class='outlawKidnap red'>Outlaw's Kidnap: This card will not be able to use its abilities next turn.</span><br>"
+
+                            if(restrictCheck[theCardID] && myIndexOf(Object.keys(restrictCheck[theCardID]), String(turnCount + 1)) >= 0) {
+                                stringOfUseCards += " <span class='restricted red'>This card will not be able to use its abilities next turn under " + restrictCheck[theCardID][turnCount + 1] + ".</span><br>"
+                            }
+                            if(protectCheck[theCardID] && myIndexOf(Object.keys(protectCheck[theCardID]), String(turnCount)) >= 0) {
+                                if(!protectCheck[theCardID][turnCount][1]) {
+                                    stringOfUseCards+=" <span class ='protected cyan'>" + protectCheck[theCardID][turnCount][0] + " protects this card from your attacks this turn.</span><br>"
+                                } else {
+                                    stringOfUseCards+=" <span class ='reduced cyan'>" + protectCheck[theCardID][turnCount][0] + " reduces 2 damage from your attacks on this card this turn!</span><br>"
+                                }
                             }
                             //display: none this eventually.
                                     
@@ -1013,7 +1339,7 @@
                                 
                             stringOfUseCards+= "<span class='cardHealth cardID" + theCardID + "'>"+cardData["card" + theCardID][0]+"</span>"
                             stringOfUseCards+= "</span>" //close the span element
-                            
+                            stringOfUseCards+= "</span>"
                             arrayOfInActivePlayedCards.push(stringOfUseCards) //push it to the array
                             i++
                         }      
@@ -1021,7 +1347,7 @@
                     //add it to the board, separated by |s
                     
                     //display the inactive played cards
-                    $("."+nonActivePlayer+".played .playedContent").html("<span class='cardFaceUp inactivePlayerPlayedCards'>" + arrayOfInActivePlayedCards.join("</span><span class='cardFaceUp inactivePlayerPlayedCards'>")+"</span>")
+                    $("."+nonActivePlayer+".played .playedContent").html(arrayOfInActivePlayedCards.join(""))
                     showCardImages();
                 }
                 function showInactivePlayerCards() { //display inactive cards
@@ -1220,7 +1546,7 @@
                         
                     })
                     
-                    $(".discardContent").click(function() {
+                    $(".discardContent").unbind('click').click(function() {
                         if($(this).find(".inactive")[0]){
                             playerNumber = $(this).attr("id").replace("discard", "");
                             if(board["player" + playerNumber + "Discard"][0]) {
@@ -1234,16 +1560,6 @@
                                     // add a span and a div (that are currently hidden) for its abilities
                                     discardString+= " <span class='cardID"+theCardID+"Abilities'>"
                                     // add its current health/max health
-                                    /*discardString+= "<div class='abilityPopout' style='display: none;'>"
-                                    discardString+= "<span class='cardName'>"+theCardName+"</span><br>"
-                                    discardString += " <span class='cardHealthTotal'>Health: 0/" + cards[theCardName]["Health"]+"</span> <br />Abilities:<br />";
-                                    for(j in cards[theCardName]["Abilities"]) { //for each of this card's abilities add a bold header;
-                                        discardString+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
-                                        // and the ability information
-                                        discardString+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br />"
-                                    } 
-                                    // add the card health to the card; should this be on the outside of the abilities span?
-                                    discardString+= "</div>"*/
                                     //no popout for now
                                     discardString+= "<span class='cardHealth cardID" + theCardID + "'>0</span></span></div>";
                                 }

@@ -119,7 +119,7 @@ const cards = {
         "Abilities": [
             {
                 "ID": 10,
-                "Snowy embrace": "choose one other card you have in play; your opponent cannot attack this card during the next turn"
+                "Snowy Embrace": "choose one other card you have in play; your opponent cannot attack this card during the next turn"
             },
             {
                 "ID": 11,
@@ -139,7 +139,7 @@ const cards = {
         "Abilities": [
             {
                 "ID": 12,
-                "Leap of faith": "has a 50/50 chance of dealing 2 damage to an opposing card"
+                "Leap of Faith": "has a 50/50 chance of dealing 2 damage to an opposing card"
             },
             {
                 "ID": 13,
@@ -159,7 +159,7 @@ const cards = {
         "Abilities": [
             {
                 "ID": 14,
-                "Devils Advocate": "deals 3 damage to an opposing card"
+                "Devil's Advocate": "deals 3 damage to an opposing card"
             },
             {
                 "ID": 15,
