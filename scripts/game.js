@@ -7,11 +7,15 @@ const cards = {
         "Abilities": [
             {
                 "ID": 0,
-                "Barter": "Choose one random card in your opponents hand and use it as your own until it is discarded. Upon playing this move, discard Desert Caravan"
+                "Barter": "Choose one random card in your opponents hand and use it as your own until it is discarded. Upon playing this move, discard Desert Caravan",
+                "Badge": "Barter.png",
+                "Type": "takeCard"
             },
             {
                 "ID": 1,
-                "Roadkill": "deal 2 damage to an opposing card"
+                "Roadkill": "deal 2 damage to an opposing card",
+                "Badge": "Roadkill.png",
+                "Type": "basic"
             }
         ],
         "Health": 3,
@@ -27,7 +31,9 @@ const cards = {
         "Abilities": [
             {
                 "ID": 2,
-                "Expedition": "Allows you to play an extra card in your turn. Once this ability has been used twice, Novice Explorer is discarded"
+                "Expedition": "Allows you to play an extra card in your turn. Once this ability has been used twice, Novice Explorer is discarded",
+                "Badge": "Expedition.png",
+                "Type": "playCard"
             }
         ],
         "Health": 3,
@@ -43,7 +49,9 @@ const cards = {
         "Abilities": [
             { 
                 "ID": 3,    
-                "Spread the spore": "deals 2 damage to an opposing card, and generates a copy of this card, which cannot be used until your next turn."
+                "Spread the spore": "deals 2 damage to an opposing card, and generates a copy of this card, which cannot be used until your next turn.",
+                "Badge": false,
+                "Type": "basic"
             }
         ],
         "Health": 2,
@@ -59,11 +67,15 @@ const cards = {
         "Abilities": [
             { 
                 "ID": 4,
-                "Arctic Slash": "deals 3 damage to an opposing card" 
+                "Arctic Slash": "deals 3 damage to an opposing card",
+                "Badge": false,
+                "Type": "basic"
             },
             { 
                 "ID": 5,
-                "Whirlwind": "deals 2 damage to two opposing cards in play, but takes 2 health from Northern Tribesman"
+                "Whirlwind": "deals 2 damage to two opposing cards in play, but takes 2 health from Northern Tribesman",
+                "Badge": false,
+                "Type": "multipleBasic"
             }
         ],
         "Health": 4,
@@ -79,11 +91,15 @@ const cards = {
         "Abilities": [
             {
                 "ID": 6,
-                "Tune up": "gives every other card you have in play 1 additional health point"
+                "Tune up": "gives every other card you have in play 1 additional health point",
+                "Badge": false,
+                "Type": "multipleHeal"
             },
             {
                 "ID": 7,
-                "Passion Project": "gives one other card you have in play 3 additional health points."
+                "Passion Project": "gives one other card you have in play 3 additional health points.",
+                "Badge": false,
+                "Type": "heal"
             }
         ],
         "Health": 3,
@@ -99,11 +115,15 @@ const cards = {
         "Abilities": [
             { 
                 "ID": 8,
-                "Kidnap": "deals 2 damage and prevents one opposing card from using any abilities in the next turn"
+                "Kidnap": "deals 2 damage and prevents one opposing card from using any abilities in the next turn",
+                "Badge": false,
+                "Type": "basic"
             },
             {
                 "ID": 9,
-                "Never surrender": "allows you to allocate 4 damage in any way across all the cards your opponent has in play, but discards the Outlaw."
+                "Never surrender": "allows you to allocate 4 damage in any way across all the cards your opponent has in play, but discards the Outlaw.",
+                "Badge": false,
+                "Type": "multipleBasic"
             }
         ],
         "Health": 4,
@@ -111,7 +131,7 @@ const cards = {
         "Art Ready?": "",
         "Music": "",
         "Sound Effects": "",
-        "Art": ""
+        "Art": "Outlaw.png"
     },
     "Snow Spirit": {
         "ID": 6,
@@ -119,11 +139,15 @@ const cards = {
         "Abilities": [
             {
                 "ID": 10,
-                "Snowy Embrace": "choose one other card you have in play; your opponent cannot attack this card during the next turn"
+                "Snowy Embrace": "choose one other card you have in play; your opponent cannot attack this card during the next turn",
+                "Badge": false,
+                "Type": "protect"
             },
             {
                 "ID": 11,
-                "Arctic Fury": "deals 2 damage to an opposing card"
+                "Arctic Fury": "deals 2 damage to an opposing card",
+                "Badge": false,
+                "Type": "basic"
             }
         ],
         "Health": 5,
@@ -139,11 +163,15 @@ const cards = {
         "Abilities": [
             {
                 "ID": 12,
-                "Leap of Faith": "has a 50/50 chance of dealing 2 damage to an opposing card"
+                "Leap of Faith": "has a 50/50 chance of dealing 2 damage to an opposing card",
+                "Badge": false,
+                "Type": "basic"
             },
             {
                 "ID": 13,
-                "Burrow": "prevents your opponent from attacking Tundra Fox during the next turn"
+                "Burrow": "prevents your opponent from attacking Tundra Fox during the next turn",
+                "Badge": false,
+                "Type": "protect"
             }
         ],
         "Health": 2,
@@ -159,11 +187,15 @@ const cards = {
         "Abilities": [
             {
                 "ID": 14,
-                "Devil's Advocate": "deals 3 damage to an opposing card"
+                "Devil's Advocate": "deals 3 damage to an opposing card",
+                "Badge": false,
+                "Type": "basic"
             },
             {
                 "ID": 15,
-                "Negotiations": "choose one card you have in play; if your opponent attacks this card during their next turn, the card will receive two less damage."
+                "Negotiations": "choose one card you have in play; if your opponent attacks this card during their next turn, the card will receive two less damage.",
+                "Badge": false,
+                "Type": "reduce"
             }
         ],
         "Health": 5,
@@ -171,7 +203,7 @@ const cards = {
         "Art Ready?": "In progress",
         "Music": "",
         "Sound Effects": "",
-        "Art": ""
+        "Art": "Peacekeeper.png"
     },
     "Street Theif": {
         "ID": 9,
@@ -179,11 +211,15 @@ const cards = {
         "Abilities": [
             {
                 "ID": 16,
-                "One with the shadows": "prevents your opponent from attacking the street thief during the next turn, and gives it one additional health point"
+                "One with the Shadows": "prevents your opponent from attacking the street thief during the next turn, and gives it one additional health point",
+                "Badge": false,
+                "Type": "protect"
             },
             {
                 "ID": 17,
-                "Hijack": "allows the street thief to perform any ability that the opposing cards in play have; but discards street thief "
+                "Hijack": "allows the street thief to perform any ability that the opposing cards in play have; but discards street thief ",
+                "Badge": false,
+                "Type": "possess"
             }
         ],
         "Health": 2,
@@ -191,7 +227,7 @@ const cards = {
         "Art Ready?": "",
         "Music": "",
         "Sound Effects": "",
-        "Art": ""
+        "Art": "Street_Thief.png"
     },
     "Scholar": {
         "ID": 10,
@@ -199,11 +235,15 @@ const cards = {
         "Abilities": [
             {
                 "ID": 18,
-                "Self defense": "deals 1 damage to an opposing card"
+                "Self defense": "deals 1 damage to an opposing card",
+                "Badge": false,
+                "Type": "basic"
             },
             {
                 "ID": 19,
-                "Persuade": "allows you to use an opposing card as your own for two turns, but discards the scholar"
+                "Persuade": "allows you to use an opposing card as your own for two turns, but discards the scholar",
+                "Badge": false,
+                "Type": "takeCard"
             }
         ],
         "Health": 2,
@@ -211,7 +251,7 @@ const cards = {
         "Art Ready?": "",
         "Music": "",
         "Sound Effects": "",
-        "Art": ""
+        "Art": "Scholar.png"
     },
     "Woodsman": {
         "ID": 11,
@@ -219,11 +259,15 @@ const cards = {
         "Abilities": [
             {
                 "ID": 20,
-                "Woodland defense": "deals 3 damage to an opposing card"
+                "Woodland defense": "deals 3 damage to an opposing card",
+                "Badge": false,
+                "Type": "basic"
             },
             {
                 "ID": 21,
-                "Natural Instinct": "allows you to view one random card from your opponents hand (can only be used once)"
+                "Natural Instinct": "allows you to view one random card from your opponents hand (can only be used once)",
+                "Badge": "Natural_Instinct.png",
+                "Type": "see"
             }
         ],
         "Health": 3,
@@ -231,7 +275,7 @@ const cards = {
         "Art Ready?": "In progress",
         "Music": "",
         "Sound Effects": "",
-        "Art": ""
+        "Art": "Woodsman.png"
     }
 }; //This will eventually get all of the cards possible and their data!!
 let yourCards = []; //This will eventually be a list of all the cards you have.

@@ -85,12 +85,18 @@ body {
             box-shadow: 0 0 5px blue;
 }
 .inactivePlayerPlayedCards.active.protected {
-    border-color: lightskyblue;
-    -webkit-box-shadow: 0 0 10px lightskyblue;
-       -moz-box-shadow: 0 0 10px lightskyblue;
-            box-shadow: 0 0 10px lightskyblue;
+    border-color: rgb(202, 242, 243);
+    -webkit-box-shadow: 0 0 10px rgb(202, 242, 243);
+       -moz-box-shadow: 0 0 10px rgb(202, 242, 243);
+            box-shadow: 0 0 10px rgb(202, 242, 243);
 }
 .inactivePlayerPlayedCards.active.reduced {
+    border-color: cyan;
+    -webkit-box-shadow: 0 0 10px cyan;
+       -moz-box-shadow: 0 0 10px cyan;
+            box-shadow: 0 0 10px cyan;
+}
+.activePlayerPlayedCards.active.reduced {
     border-color: cyan;
     -webkit-box-shadow: 0 0 10px cyan;
        -moz-box-shadow: 0 0 10px cyan;
@@ -140,26 +146,16 @@ body {
 }
 .orange {
     color: orange;
-}
+}/* 
 .right:not(.functionsEnd, .functionsDraw) {
     height: 150px;
-}
-.right {
+} */
+/*.right {
     min-width: 90%;
     position: relative;
     padding-left: 5px;
-}
-.left:not(.functionsEnd, .functionsDraw) {
-    width: 75px;
-    padding: 5px;
-    height: 150px;
-}
-.left {
-    padding-left: 5px;
-    border-right: 1px solid gray;
-}
+}*/
 td {
-    border-top: 1px solid gray;
     padding-top: 5px;
     padding-bottom: 5px;
 }
@@ -181,7 +177,7 @@ td {
     margin-left: auto;
     margin-right: auto;
     border-spacing: 0px;
-    background-color: paleturquoise;
+    background-color: #964B00;
 }
 main h1 {
     text-align: center;
@@ -190,7 +186,7 @@ main h1 {
     width: 140px;
     padding: 0;
 }
-.discardTitle {
+.playedTitle.active {
     border-left: 1px solid gray;
 }
 /*.cardFaceUp {
@@ -227,19 +223,38 @@ main h1 {
     background: gold; 
 }
 
-td:nth-child(4) {
+.discardContent {
     position: relative;
 }
-td:nth-child(4) > div {
+.discardContent > div {
     position: absolute;
     right: 0;
     top: 0;
     bottom: 0;
     overflow-y: scroll;
     float: right;
-}
+}/* 
 [class^='cardID'][class$='Abilities'] {
     overflow: visible;
     
+} */
+.handContent {
+    background: navy;
+    border: 15px yellow outset;
+    width: 150px;
 }
-
+.text {
+    padding: 5px;
+}
+.functions/*.one {
+    background: #964B00;
+}
+.functions.two */{
+    background: lightskyblue;
+}
+.top, .bottom {
+    height: 300px;
+}
+.badge {
+    height: 30px;
+}
