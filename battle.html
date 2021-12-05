@@ -49,7 +49,7 @@
                     <!--<td class='left active discardTitle text'>Player <span class='playerNumber active'>1</span>'s Discard Pile:</td>-->
                     <td class='active discardContent' id='discard1'></td>
 
-                    <td class='active playedTitle text'><!--Player <span class='playerNumber active'>1</span>'s Played Cards:--></td>
+                    <!--<td class='active playedTitle text'>Player <span class='playerNumber active'>1</span>'s Played Cards:--></td>
                     <td class='active playedContent'></td>
                 <!--</tr>
                 <tr class="2 discard two">-->
@@ -1197,12 +1197,12 @@
                                     displayBoard(); //exit out of the menu/redisplay the board.
                                 })
                             } else {
-                                errorMessage("your other cards are all protected!", "Snowy Embrace", "#abilityNumber"+abilityID)
+                                errorMessage("your other cards are all protected!", "Negotiations", "#abilityNumber"+abilityID)
                             }
                             
                         } else {
                             //there isnt a card to heal damage to!
-                            errorMessage("you have not played another card to protect!", "Snowy Embrace", "#abilityNumber"+abilityID)
+                            errorMessage("you have not played another card to protect!", "Negotiations", "#abilityNumber"+abilityID)
                         }
                     } else if(Number(abilityID) === 16) { //If ability 16 (Street Thief's One with the Shadows) was used
                         if(protectCheck[cardID] && protectCheck[cardID][turnCount + 1] && !protectCheck[cardID][turnCount + 1][1]) {
@@ -1376,7 +1376,7 @@
                             let theAbilityBadge = Object.values(cards[theCardName]["Abilities"][j])[2]
                             let theAbilityName = Object.keys(cards[theCardName]["Abilities"][j])[1]
                             if(theAbilityBadge) {
-                                arrayOfCards[arrayOfCards.length - 1]+= "<img class='badge' src='/images/abilities/" + theAbilityBadge + "' alt='" + theAbilityName + "BadgeHere'>"
+                                arrayOfCards[arrayOfCards.length - 1]+= "<img class='badge' src='./images/abilities/" + theAbilityBadge + "' alt='" + theAbilityName + "BadgeHere'>"
                             }
                             arrayOfCards[arrayOfCards.length - 1]+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
                             arrayOfCards[arrayOfCards.length - 1]+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><br>"
@@ -1460,7 +1460,7 @@
                                 stringOfUseCards+= " <span id='abilityNumber"+theAbilityIDs+"'>"
                                 let theAbilityBadge = Object.values(cards[theCardName]["Abilities"][j])[2]
                                 if(theAbilityBadge) {
-                                    stringOfUseCards+= "<img class='badge' src='/images/abilities/" + theAbilityBadge + "' alt='" + theAbilityName + "BadgeHere'>"
+                                    stringOfUseCards+= "<img class='badge' src='./images/abilities/" + theAbilityBadge + "' alt='" + theAbilityName + "BadgeHere'>"
                                 }
                                 if((restrictCheck[theCardID] && myIndexOf(Object.keys(restrictCheck[theCardID]), String(turnCount)) >= 0) || (cardData["card"+board["player" + activePlayer + "Played"][i][1]][1])) {
                                     //If you cannot use an ability this turn, because of restriction or if you've already used it
@@ -1542,7 +1542,7 @@
                                 let theAbilityBadge = Object.values(cards[theCardName]["Abilities"][j])[2]
                                 let theAbilityName = Object.keys(cards[theCardName]["Abilities"][j])[1]
                                 if(theAbilityBadge) {
-                                    stringOfUseCards+= "<img class='badge' src='/images/abilities/" + theAbilityBadge + "' alt='" + theAbilityName + "BadgeHere'>"
+                                    stringOfUseCards+= "<img class='badge' src='./images/abilities/" + theAbilityBadge + "' alt='" + theAbilityName + "BadgeHere'>"
                                 }
                                 stringOfUseCards+= " <b>"+Object.keys(cards[theCardName]["Abilities"][j])[1]+"</b>:"
                                 stringOfUseCards+= " <span class='abilityInformation'>" + Object.values(cards[theCardName]["Abilities"][j])[1] + "</span><span class='abilityUsage'> - Used "
