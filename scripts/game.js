@@ -235,7 +235,7 @@ const cards = {
         "Abilities": [
             {
                 "ID": 18,
-                "Self defense": "deals 1 damage to an opposing card",
+                "Self Defense": "deals 1 damage to an opposing card",
                 "Badge": false,
                 "Type": "basic"
             },
