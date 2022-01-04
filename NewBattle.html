@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Cove Cards Battle 0.2</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="Cove Cards, Card Game">
+    <meta name="description" content="An online card game!">
+    <meta name="author" content="Sapphire7x and Savanna Campbell">
+    <link rel="stylesheet" href="styles/newBattle.css">
+</head>
+<body>
+    <header></header>
+    <main>
+        <h1>Battle 2.0</h1>
+        <div>
+            <p>Turn Count: <span id='turnCount'>1</span></p>
+            <p>It is player <span class='activeTurn'>1</span>'s turn</p>
+        </div>
+        <div id='#board'>
+            <div class='hand' playerID='active'></div>
+        </div>
+    </main>
+    <footer></footer>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> <!--jQuery!-->
+    <script src="scripts/game.js"></script> <!--Calls game.js file-->
+    <script src="scripts/functions.js"></script><!--Calls functions.js file-->
+    <script src="scripts/onOpen.js"></script> <!--Calls the onOpen.js file-->
+    
+    <script>
+        function shuffle(array) {
+            let currentIndex = array.length; //there are this many cards in the array
+            let temporaryValue; //temporary value
+            let randomIndex; //random value
+            // While there remain elements to shuffle...
+            while (0 !== currentIndex) {
+
+                // Pick a remaining element...
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex -= 1; //Lower the currentIndex
+
+                // And swap it with the current element.
+                temporaryValue = array[currentIndex];
+                array[currentIndex] = array[randomIndex];
+                array[randomIndex] = temporaryValue;
+            }  
+            // return the array
+            return array;
+        }
+
+
+        // Create starting variables
+        var turnCount = 1; // Create turn counter
+        var activePlayer = 0; // Create active player variable
+        var inactivePlayer = 1 - activePlayer; // Create inactive player variable
+        var deck1 = decks[activeDeck]; // Player 1's Deck
+        var deck2 = decks[activeDeckPlayerTwo];
+        var decksConcat = deck1.concat(deck2);
+
+        var cardData = [];
+        for(let card in decksConcat) {
+            let cardName = decksConcat[card];
+            let cardID = card;
+            let cardHealth = cards[cardName].Health;
+            let cardTypeID = cards[cardName].ID;
+            let cardAbilities = cards[cardName].Abilities;
+            let abilityDataset = [];
+            for(let ability in cardAbilities) {
+                let abilityID = cardAbilities[ability].ID;
+                // Create abilityData: ID, usage, canUse
+                let abilityData = [abilityID, 0, false]
+                abilityDataset.push(abilityData)
+            }
+
+            //statusDataset = [protected, restricted, discarded, hijacked]
+            let statusDataset = [[], [], [], []];
+
+            if(cardID < 10) { //Change deck1's card name array to card ids
+                deck1[card] = cardID;
+            } else { //Change deck2's card name array to card ids
+                deck2[card-10] = cardID;
+            }
+            
+            let data = [cardName, cardHealth, cardTypeID, statusDataset, abilityDataset, true];
+            //cardData prototype: ["Card Name", Card Health, CardTypeID, [Checks, false, false], [[abilityID, usage, canUse], [abilityID, usage, canUse]], canBePlayed]
+            cardData.push(data);
+        }
+
+        deck1 = shuffle(deck1);
+        deck2 = shuffle(deck2);
+
+        var board = [
+            {
+                "deck": deck1.slice(0, 4),
+                "hand": deck1.slice(4, 10),
+                "played": [],
+                "discard": []
+            },
+            {
+                "deck": deck2.slice(0, 4),
+                "hand": deck2.slice(4, 10),
+                "played": [],
+                "discard": []
+            }
+        ];
+        var deck = [board[0].deck, board[1].deck]; //Alias for easier calling of decks
+        var hand = [board[0].hand, board[1].hand]; //Alias for easier calling of hands
+        var played = [board[0].played, board[1].played]; //Alias for easier calling of played cards
+        var discard = [board[0].discard, board[1].discard]; //Alias for easier calling of discarded cards
+
+        
+        
+        var gameLog = [];
+        
+        function updateLog(turn, event) {
+            
+        }
+        function gameEvent(turn, event, firstSubject, secondSubject, actor, recipient, altText, noLog) {
+            
+            if(actor = 0) {
+                actor = firstSubject;
+                recipient = secondSubject;
+            } else if(actor = 1) {
+                actor = secondSubject;
+                recipient = firstSubject;
+            }
+            let eventLog = [turn, event, actor, recipient];
+
+            /**
+             * List of all possible events
+             * 
+             * Game Start
+             * Drew Card
+             * Played Card
+             * Used Ability
+             * Dealt damage to
+             * Healed damage to
+             * Restricted card 
+             * Protected card
+             * (Let another card be played)
+             * (Viewed another card)
+             * Revived a card
+             * Took a card 
+             * Killed Card
+             * Ended their turn
+             * Game End
+             * 
+             * List of all possible subjects
+             * 
+             * Player 1
+             * Player 2
+             * Each Card
+             * Game
+             *  
+            **/
+            if(altText) event = altText;
+            if(firstSubject) {
+                event = firstSubject + " " + event
+                if(secondSubject) {
+                    event+= " " + secondSubject;
+                } else {
+                    secondSubject = false;
+                }
+            } else {
+                firstSubject = false;
+                if(!secondSubject) secondSubject = false;
+            }
+
+            if(!noLog) updateLog(turn, event);
+            gameLog.push(eventLog);
+        }
+
+
+        function updateTurnDisplay() {
+            $("#turnCount").html(turnCount);
+        }
+        function updateActiveDisplay() {
+            $(".activeTurn").html(activePlayer + 1);
+        }
+        function updateTurnCount() { //function to update the turn count
+            turnCount++; //Increment turnCount
+        }
+        function updateTurnVariables() { //function to update activePlayer and inactivePlayer variables.
+            activePlayer = 1 - activePlayer; //set activePlayer to what it's not
+            inactivePlayer = 1 - inactivePlayer; //set inactivePlayer to what it's not
+        }
+        function updateCanPlayData() { //function to update the can play check in cardData.
+            //for every card in cardData
+            //set can be played to true.
+        }
+
+        function updateTurn() { //function to update the turn.
+            updateTurnCount();
+            updateTurnDisplay();
+            updateTurnVariables();
+            updateActiveDisplay();
+            updateCanPlayData();
+        }
+
+        function showDrawButton() {
+            $(".drawButton").css("display", "inline");
+        }
+        function hideDrawButton() {
+            $(".drawButton").css("display", "none");
+        }
+        function determineDrawable() {
+            let activeHand = hand[activePlayer];
+            let activeDeck = deck[activePlayer];
+            if(activeHand.length < 5) { //If there are less than 5 cards in your hand
+                if(activeDeck.length > 0) { //If there are cards to draw
+                    showDrawButton(); //Show the draw button.
+                } else {
+                    hideDrawButton(); //Don't show the draw button.
+                }
+            } else {
+                hideDrawButton(); //Don't show the draw button.
+            }
+        }
+
+        function determineBackground() {
+
+        }
+        function makeCard(cardID) {
+            let cs = "cardID='" + cardID + "'"; //cardid attribute string
+
+            let cardName = cardData[cardID][0]; //Store the card's name
+            let cardHealth = cardData[cardID][1]; //Store the card's health
+            let cardTotalHealth = cards[cardName].Health; //Store the card's total health
+            let cardAbilities = cards[cardName].Abilities; //Store the card's abilities
+            let cardArt = cards[cardName].Art;
+            
+            //let cardPos = cardData[cardID][8]; //Store where the card is.
+            
+            // This should be unnecessary, as when cards are discarded it should be set to 0 health automatically.
+            //if(cardPos == "Discard") cardHealth = 0; //If the card is discarded, the health of the card is zero.
+
+            let card = "<div class='card' " + cs + ">";
+                card+= "<div class='cardMain' " + cs + ">";
+                    card+= "<span class='cardHealth' " + cs + ">";
+                        card+= cardHealth;
+                    card+= "</span>"; //Close cardHealth
+                card+= "</div>"; //Close cardMain
+                
+
+                card+= "<div class='cardPopout' " + cs + ">";
+                    card+= "<div class='cardName' " + cs + ">";
+                        card+= cardName; //Display the card's name
+                    card+= "</div>"; //Close cardName
+                    card+= "<div class='cardHealthTag' " + cs + ">";
+                        card+= "Health: ";
+                        card+= "<span class='cardHealth' " + cs + ">";
+                            card+= cardHealth;
+                        card+= "</span>";
+                        card+= "/"
+                        card+= "<span class='cardTotalHealth' " + cs + ">";
+                            card+= cardTotalHealth;
+                        card+= "</span>";
+                    card+= "</div>"; //Close cardHealthTag
+                    card+= "<div class='cardStatuses' " + cs + ">";
+                        //if() {
+                            //Add descriptors if cards have statuses.
+                        //}
+                    card+= "</div>";
+                    card+= "<div class='cardAbilities' " + cs + ">";
+                        card+= "Abilities:";
+                        for(let abilityNumber in cardAbilities) {
+                            let abilityID = cardAbilities[abilityNumber].ID
+                            let abilityName = cardAbilities[abilityNumber].Name
+                            let abilityBadge = cardAbilities[abilityNumber].Badge;
+                            let abilityDescription = cardAbilities[abilityNumber].Description;
+                            let abilityType = cardAbilities[abilityNumber].Type;
+                            let as = "abilityID='" + abilityID + "'"; //abilityID attribute string
+                            let cas = cs + " " + as; //cardID and abilityID attribute strings
+
+                            card+= "<div class='cardAbility' " + cas + ">";
+                            if(!!abilityBadge) { //If there is an ability badge
+                                let badgeSource = "./images/abilities/" + abilityBadge;
+                                card+= "<img class='abilityBadge' " + cas + 
+                                    " src='" + badgeSource + "' alt = '" + abilityName + "'>";
+                                //if(cardPos == "Played") { //change to if ability can be used
+                                    // css hover: pointer to click
+                                //}
+                                card+= "<b class='abilityName' " + cas + ">";
+                                    card+= abilityName;
+                                card+= "</b>"; //Close abilityBadge
+                                card+= ": "
+                            } else {
+                                card+= "<button class='abilityButton' " + cas + ">";
+                                    card+= abilityName;
+                                card+= "</button>"; //Close abilityBadge
+                                //if(cardPos == "Played") { //change to if ability can be used
+                                    // css hover: pointer to click
+                                //}
+                            }
+                                card+= "<span class='abilityDescription' " + cs + ">";
+                                    card+= abilityDescription;
+                                card+= "</span>";
+                            card+= "</div>"; //Close cardAbility
+                        }
+                    card+= "</div>"; //Close cardAbilities
+                card+= "</div>"; //Close cardPopout   
+            card+= "</div>"; //Close card
+            return card;
+        }
+        function showPopout(cardID) {
+            $("[cardID='"+cardID+"'].cardPopout").css("display", "block");
+        }
+        function hidePopout(cardID, override) {
+            if(!override) $("[cardID='"+cardID+"'].cardPopout").css("display", "none");
+        }
+        $(document).on("mouseenter", ".card", function() {
+            // hover starts code here
+            let cardID = $(this).attr("cardID");
+            showPopout(cardID)
+        });
+
+        $(document).on("mouseleave", ".card", function() {
+            // hover ends code here
+            let cardID = $(this).attr("cardID");
+            hidePopout(cardID)
+        });
+
+        function showHand(player, elementPath) {
+            let cardString = "";
+            for(card in hand[player]) {
+                cardString+= makeCard(card, "Hand")
+            }
+            $(elementPath).html(cardString);
+        }
+        function showCards() {
+            
+        }
+        function showBackgroundImages() {
+            for(cardID in cardData) {
+                let cardName = cardData[cardID][0]; //Store the card's name
+                let cardArt = cards[cardName].Art;
+                if(!!cardArt) {
+                    let artSource = 'url("' + ".//images/cards/" + cardArt + '")'
+                    let cardSource = "[cardid=" + cardID + "].cardMain"
+                    $(cardSource).css("background-image", artSource);
+                    $(cardSource).css("background-size", "100%")
+                }
+            }
+            
+        }
+
+        //css transitions: will creating an element for every player 
+        //and then moving around the element make transitions possible?
+        //canvas?
+        function displayActiveHand() {
+            determineDrawable();
+            showHand(activePlayer, "[playerID='active'].hand");
+            showBackgroundImages();
+        }
+        displayActiveHand();
+    </script>
+</body>
+</html>
